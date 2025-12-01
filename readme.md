@@ -10,6 +10,7 @@
 ## 前置依赖
 - ModernUI
 - Forge Config API Port
+- Architectury API
 
 ## 特点
 - GUI 化， 提供游戏内操作界面，以及较为美观易配置的 HUD
@@ -29,7 +30,7 @@
 ### 客户端
 > 目前不支持在单人游戏中使用
 
-在 mods 文件夹中放入 ModernUI 和 Forge Config API Port 这 2 个前置 mod 和 MusicHud 的 jar 文件即可
+在 mods 文件夹中放入 Architectury API, ModernUI 和 Forge Config API Port 这 3 个前置 mod 和 MusicHud 的 jar 文件即可
 ### 服务端
 1. 部署 Netease Cloud Music API Enhanced (https://github.com/neteasecloudmusicapienhanced/api-enhanced)
 2. 如果不使用 NCM API Enhanced 的默认端口 ( 3000 ) 或在其他服务器上部署，需要修改配置文件的 serverApiBaseUrl 属性
