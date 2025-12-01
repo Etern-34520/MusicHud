@@ -1,0 +1,177 @@
+package indi.etern.musichud.client.ui.pages;
+
+import icyllis.modernui.core.Context;
+import icyllis.modernui.mc.MuiModApi;
+import icyllis.modernui.mc.ui.PreferencesFragment;
+import icyllis.modernui.view.Gravity;
+import icyllis.modernui.view.View;
+import icyllis.modernui.widget.FrameLayout;
+import icyllis.modernui.widget.LinearLayout;
+import indi.etern.musichud.client.config.ClientConfigDefinition;
+import indi.etern.musichud.client.musicPlayer.NowPlayingInfo;
+import indi.etern.musichud.client.services.LoginService;
+import indi.etern.musichud.client.services.MusicService;
+import indi.etern.musichud.client.ui.components.DynamicIntegerOption;
+import indi.etern.musichud.client.ui.hud.HudRendererManager;
+import indi.etern.musichud.client.ui.hud.metadata.HPosition;
+import indi.etern.musichud.client.ui.hud.metadata.VPosition;
+import indi.etern.musichud.client.ui.screen.MainFragment;
+import indi.etern.musichud.utils.music.StreamAudioPlayer;
+import lombok.Getter;
+import net.minecraft.Util;
+
+import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
+public class ConfigView extends LinearLayout {
+    @Getter
+    static volatile ConfigView instance;
+
+    public ConfigView(Context context) {
+        super(context);
+        try {
+            instance = this;
+            var baseParams = new FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT);
+            setLayoutParams(baseParams);
+            setOrientation(LinearLayout.VERTICAL);
+            setGravity(Gravity.CENTER_HORIZONTAL);
+
+            HudRendererManager hudRendererManager = HudRendererManager.getInstance();
+
+            var commonCategory = PreferencesFragment.createCategoryList(this, "通用");
+            PreferencesFragment.BooleanOption booleanOption = new PreferencesFragment.BooleanOption(context,
+                    "启用 Music Hud",
+                    ClientConfigDefinition.enable,
+                    ClientConfigDefinition.enable::set);
+            booleanOption.create(commonCategory);
+            booleanOption.setOnChanged(() -> {
+                MuiModApi.postToUiThread(MainFragment::refresh);
+                if (ClientConfigDefinition.enable.get()) {
+                    LoginService.getInstance().sendConnectMessageToServer();
+                } else {
+                    MusicService.RegisterImpl.reset();
+                    NowPlayingInfo.getInstance().stop();
+                    StreamAudioPlayer.getInstance().stop();
+                    LoginService.getInstance().logout();
+                }
+            });
+            new PreferencesFragment.BooleanOption(context,
+                    "播放时禁用原版音乐",
+                    ClientConfigDefinition.disableVanillaMusic,
+                    ClientConfigDefinition.disableVanillaMusic::set)
+                    .create(commonCategory);
+            new PreferencesFragment.BooleanOption(context,
+                    "无音乐时隐藏 HUD",
+                    ClientConfigDefinition.hideHudWhenNotPlaying,
+                    ClientConfigDefinition.hideHudWhenNotPlaying::set)
+                    .create(commonCategory);
+            addView(commonCategory);
+
+            var positionCategory = PreferencesFragment.createCategoryList(this, "布局");
+            new PreferencesFragment.DropDownOption<>(
+                    context,
+                    "垂直对齐",
+                    VPosition.values(),
+                    VPosition::ordinal,
+                    () -> VPosition.valueOf(ClientConfigDefinition.hudVerticalPosition.get()),
+                    (vPosition) -> ClientConfigDefinition.hudVerticalPosition.set(vPosition.name()))
+                    .setOnChanged(() -> {
+                        hudRendererManager.updateLayoutFromConfig();
+                        hudRendererManager.refreshStyle();
+                    })
+                    .setDefaultValue(VPosition.TOP)
+                    .create(positionCategory);
+            new PreferencesFragment.DropDownOption<>(
+                    context,
+                    "水平对齐",
+                    HPosition.values(),
+                    HPosition::ordinal,
+                    () -> HPosition.valueOf(ClientConfigDefinition.hudHorizontalPosition.get()),
+                    (hPosition) -> ClientConfigDefinition.hudHorizontalPosition.set(hPosition.name()))
+                    .setOnChanged(() -> {
+                        hudRendererManager.updateLayoutFromConfig();
+                        hudRendererManager.refreshStyle();
+                    })
+                    .setDefaultValue(HPosition.LEFT)
+                    .create(positionCategory);
+            new PreferencesFragment.IntegerOption(
+                    context,
+                    "X 轴偏移量",
+                    ClientConfigDefinition.hudOffsetX,
+                    ClientConfigDefinition.hudOffsetX::set)
+                    .setOnChanged(() -> {
+                        hudRendererManager.updateLayoutFromConfig();
+                        hudRendererManager.refreshStyle();
+                    })
+                    .setRange(0, 1920)
+                    .setDefaultValue(16)
+                    .create(positionCategory);
+            new PreferencesFragment.IntegerOption(
+                    context,
+                    "Y 轴偏移量",
+                    ClientConfigDefinition.hudOffsetY,
+                    ClientConfigDefinition.hudOffsetY::set)
+                    .setRange(0, 1920)
+                    .setOnChanged(() -> {
+                        hudRendererManager.updateLayoutFromConfig();
+                        hudRendererManager.refreshStyle();
+                    })
+                    .setDefaultValue(16)
+                    .create(positionCategory);
+            DynamicIntegerOption cornerRadiusOption = new DynamicIntegerOption(
+                            context,
+                            "圆角半径",
+                            ClientConfigDefinition.hudCornerRadius,
+                            ClientConfigDefinition.hudCornerRadius::set);
+            cornerRadiusOption.setRange(0, ClientConfigDefinition.hudHeight.get()/2);
+            cornerRadiusOption.setOnChanged(() -> {
+                                hudRendererManager.updateLayoutFromConfig();
+                                hudRendererManager.refreshStyle();
+                            });
+            cornerRadiusOption.setDefaultValue(8);
+            DynamicIntegerOption widthOption = new DynamicIntegerOption(
+                    context,
+                    "宽度",
+                    ClientConfigDefinition.hudWidth,
+                    ClientConfigDefinition.hudWidth::set);
+            widthOption.setOnChanged(() -> {
+                        hudRendererManager.updateLayoutFromConfig();
+                        hudRendererManager.refreshStyle();
+                    });
+            widthOption.setRange(0, 256, 4);
+            widthOption.setDefaultValue(150);
+            PreferencesFragment.IntegerOption heightOption = new PreferencesFragment.IntegerOption(
+                    context,
+                    "高度",
+                    ClientConfigDefinition.hudHeight,
+                    ClientConfigDefinition.hudHeight::set)
+                    .setOnChanged(() -> {
+                        hudRendererManager.updateLayoutFromConfig();
+                        hudRendererManager.refreshStyle();
+                        cornerRadiusOption.updateRange(0, ClientConfigDefinition.hudHeight.get() / 2, 1);
+                        widthOption.updateRange(ClientConfigDefinition.hudHeight.get(), 256, 4);
+                    })
+                    .setRange(28, 52)
+                    .setDefaultValue(44);
+            widthOption.create(positionCategory);
+            heightOption.create(positionCategory);
+            cornerRadiusOption.create(positionCategory);
+
+            addView(positionCategory);
+
+            addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+                @Override
+                public void onViewAttachedToWindow(View v) {}
+
+                @Override
+                public void onViewDetachedFromWindow(View v) {
+                    Util.ioPool().execute(() -> {
+                        ClientConfigDefinition.configure.getRight().save();
+                    });
+                }
+            });
+        } catch (Exception e) {
+            instance = null;
+            throw e;
+        }
+    }
+}

@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "music_hud",
+  "version": "${version}",
+  "name": "music hud",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "Etern"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "GPL-3.0",
+  "icon": "assets/music_hud/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "indi.etern.musichud.fabric.CommonInitializer"
+    ],
+    "client": [
+      "indi.etern.musichud.fabric.client.ClientInitializer",
+      "indi.etern.musichud.fabric.config.ConfigRegister"
+    ],
+    "server": [
+      "indi.etern.musichud.fabric.config.ConfigRegister"
+    ],
+    "modmenu": [
+      "indi.etern.musichud.fabric.config.ModMenuConfigurer"
+    ]
+  },
+  "mixins": [
+    "music_hud.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.3",
+    "minecraft": "~1.21.8",
+    "java": ">=21",
+    "architectury": ">=17.0.8",
+    "fabric-api": "*",
+    "modmenu": "*",
+    "modernui": "*",
+    "forgeconfigapiport": "*"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}

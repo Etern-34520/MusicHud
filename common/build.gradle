@@ -1,0 +1,29 @@
+architectury {
+    common rootProject.enabled_platforms.split(',')
+}
+
+repositories {
+}
+
+dependencies {
+    // We depend on Fabric Loader here to use the Fabric @Environment annotations,
+    // which get remapped to the correct annotations on each platform.
+    // Do NOT use other classes from Fabric Loader.
+    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+
+    // Architectury API. This is optional, and you can comment it out if you don't need it.
+    modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+    testImplementation "org.junit.jupiter:junit-jupiter:$rootProject.junit_version"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    api "fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:$rootProject.forge_config_api_port_version"
+    implementation "io.github.classgraph:classgraph:$rootProject.classgraph_version"
+
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$rootProject.jackson_version"
+    implementation "com.github.umjammer:jlayer:$rootProject.jlayer_version"
+    implementation "org.jflac:jflac-codec:$rootProject.jflac_version"
+    compileOnly "icyllis.modernui:ModernUI-NeoForge:${rootProject.minecraft_version}-${rootProject.modernui_version}.+"
+}
+
+test {
+    useJUnitPlatform()
+}

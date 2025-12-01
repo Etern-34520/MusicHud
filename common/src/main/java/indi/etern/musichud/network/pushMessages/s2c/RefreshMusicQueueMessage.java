@@ -1,0 +1,37 @@
+package indi.etern.musichud.network.pushMessages.s2c;
+
+import indi.etern.musichud.MusicHud;
+import indi.etern.musichud.beans.music.MusicDetail;
+import indi.etern.musichud.client.services.MusicService;
+import indi.etern.musichud.interfaces.CommonRegister;
+import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.network.Codecs;
+import indi.etern.musichud.network.NetworkRegisterUtil;
+import indi.etern.musichud.network.S2CPayload;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+
+import java.util.Queue;
+
+public record RefreshMusicQueueMessage(Queue<MusicDetail> queue) implements S2CPayload {
+    public static final StreamCodec<RegistryFriendlyByteBuf, RefreshMusicQueueMessage> CODEC = StreamCodec.composite(
+            Codecs.ofQueue(MusicDetail.CODEC),
+            RefreshMusicQueueMessage::queue,
+            RefreshMusicQueueMessage::new
+    );
+
+    @ForceLoad
+    public static class Register implements CommonRegister {
+        @Override
+        public void register() {
+            NetworkRegisterUtil.autoRegisterPayload(
+                    RefreshMusicQueueMessage.class, CODEC,
+                    (message,context) -> {
+                        MusicHud.EXECUTOR.execute(() -> {
+                            MusicService.getInstance().refreshQueue(message.queue);
+                        });
+                    }
+            );
+        }
+    }
+}

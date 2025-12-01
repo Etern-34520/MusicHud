@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "indi.etern.musichud.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+  ],
+  "client": [
+    "MixinGuiRendererHud",
+    "SoundEngineMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

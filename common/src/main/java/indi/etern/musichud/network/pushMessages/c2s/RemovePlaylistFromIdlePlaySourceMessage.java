@@ -1,0 +1,31 @@
+package indi.etern.musichud.network.pushMessages.c2s;
+
+import indi.etern.musichud.interfaces.CommonRegister;
+import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.network.C2SPayload;
+import indi.etern.musichud.network.NetworkRegisterUtil;
+import indi.etern.musichud.server.api.MusicPlayerServerService;
+import indi.etern.musichud.utils.ServerDataPacketVThreadExecutor;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+
+public record RemovePlaylistFromIdlePlaySourceMessage(long playlistId) implements C2SPayload {
+    public static StreamCodec<RegistryFriendlyByteBuf, RemovePlaylistFromIdlePlaySourceMessage> CODEC = StreamCodec.composite(
+            ByteBufCodecs.LONG,
+            RemovePlaylistFromIdlePlaySourceMessage::playlistId,
+            RemovePlaylistFromIdlePlaySourceMessage::new
+    );
+
+    @ForceLoad
+    public static class RegisterImpl implements CommonRegister {
+        public void register() {
+            NetworkRegisterUtil.autoRegisterPayload(
+                    RemovePlaylistFromIdlePlaySourceMessage.class, CODEC,
+                    ServerDataPacketVThreadExecutor.execute((message, player) -> {
+                        MusicPlayerServerService.getInstance().removeIdlePlaySource(message.playlistId, player);
+                    })
+            );
+        }
+    }
+}
