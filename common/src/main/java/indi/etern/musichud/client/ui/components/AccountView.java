@@ -1,6 +1,7 @@
 package indi.etern.musichud.client.ui.components;
 
 import icyllis.modernui.core.Context;
+import icyllis.modernui.graphics.drawable.Drawable;
 import icyllis.modernui.mc.MuiModApi;
 import icyllis.modernui.util.ColorStateList;
 import icyllis.modernui.view.Gravity;
@@ -139,6 +140,21 @@ public class AccountView extends LinearLayout {
             id.setTextColor(Theme.SECONDARY_TEXT_COLOR);
             id.setText(Long.toString(currentProfile.getUserId()));
             texts.addView(id, idLayoutParams);
+
+            LayoutParams logoutButtonParam = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+            Button logoutButton = new Button(context);
+            logoutButton.setText("登出");
+            logoutButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
+            logoutButton.setTextSize(dp(8));
+            Drawable background = ButtonInsetBackground.builder()
+                    .inset(0).cornerRadius(dp(4))
+                    .padding(new ButtonInsetBackground.Padding(dp(8), dp(2), dp(8), dp(2)))
+                    .build().get();
+            logoutButton.setBackground(background);
+            texts.addView(logoutButton, logoutButtonParam);
+            logoutButton.setOnClickListener(b -> {
+                LoginService.getInstance().logout();
+            });
 
             LayoutParams topPanelLayoutParams = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
             topPanelLayoutParams.setMargins(0, 0, 0, dp(32));

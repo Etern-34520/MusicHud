@@ -14,7 +14,6 @@ import indi.etern.musichud.network.pushMessages.s2c.SyncCurrentPlayingMessage;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import org.apache.logging.log4j.Logger;
 
 import java.time.LocalDateTime;
@@ -126,7 +125,6 @@ public class MusicPlayerServerService {
                                             Thread.sleep(nextToPlay.getDurationMillis() + musicIntervalMillis);
                                         } catch (InterruptedException ignored) {
                                             logger.warn("Music data pusher interrupted");
-                                            MusicPlayerServerService.this.stopSendingMusic();
                                             break;
                                         }
                                     } else {
@@ -136,6 +134,7 @@ public class MusicPlayerServerService {
                                     logger.error("Failed to push music: {}", nextToPlay != null ? nextToPlay.getName() : "", e);
                                 }
                             }
+                            MusicPlayerServerService.this.stopSendingMusic();
                         }
 
                         private Optional<MusicDetail> getRandomMusicFromIdleSources() {
@@ -177,6 +176,7 @@ public class MusicPlayerServerService {
         this.continuable = false;
         musicDataPusher = null;
         currentMusicDetail = MusicDetail.NONE;
+        currentMusicResourceInfo = MusicResourceInfo.NONE;
         NetworkManager.sendToPlayers(
                 LoginApiService.getInstance().loginedPlayerInfoMap.keySet(),
                 new SwitchMusicMessage(MusicDetail.NONE, MusicResourceInfo.NONE, MusicDetail.NONE, MusicResourceInfo.NONE)
@@ -208,7 +208,7 @@ public class MusicPlayerServerService {
         LoginApiService.PlayerLoginInfo loginInfo = LoginApiService.getInstance().loginedPlayerInfoMap.get(pusher);
         if (loginInfo != null) {
             PusherInfo pusherInfo = new PusherInfo(
-                    loginInfo.profile.getUserId(),
+                    loginInfo.profile == null ? 0 : loginInfo.profile.getUserId(),
                     pusher.getUUID(),
                     pusher.getName().getString()
             );

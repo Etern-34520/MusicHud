@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.networking.NetworkManager;
 import indi.etern.musichud.MusicHud;
+import indi.etern.musichud.beans.login.LoginType;
 import indi.etern.musichud.beans.music.MusicDetail;
 import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.beans.music.Playlist;
@@ -201,6 +202,9 @@ public class MusicService {
                 Minecraft.getInstance().getSoundManager().stop(null, SoundSource.MUSIC);
                 streamAudioPlayer.playAsyncFromUrl(resourceInfo.getUrl(), resourceInfo.getType(), serverStartTime).thenAccept(localDateTime -> {
                     NowPlayingInfo.getInstance().switchMusic(musicDetail, resourceInfo, localDateTime);
+                }).exceptionally(e -> {
+//                    NowPlayingInfo.getInstance().switchMusic(musicDetail, resourceInfo, localDateTime);
+                    return null;
                 });
             } else {
                 NowPlayingInfo.getInstance().switchMusic(MusicDetail.NONE, MusicResourceInfo.NONE, null);
@@ -220,8 +224,10 @@ public class MusicService {
     public static class RegisterImpl implements ClientRegister {
         @Override
         public void register() {
-            LoginService.getInstance().getLoginCompleteListeners().add(() -> {
-                MusicService.getInstance().loadIdlePlaylistsFromConfig();
+            LoginService.getInstance().getLoginCompleteListeners().add((loginCookieInfo) -> {
+                if (loginCookieInfo.type() != LoginType.ANONYMOUS) {
+                    MusicService.getInstance().loadIdlePlaylistsFromConfig();
+                }
             });
             ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
                 reset();

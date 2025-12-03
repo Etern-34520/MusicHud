@@ -33,7 +33,7 @@ public class LoginService {
     @Setter
     private Consumer<StartQRLoginResponse> loginResponseHandler;
     @Getter
-    private List<Runnable> loginCompleteListeners = new ArrayList<>();
+    private List<Consumer<LoginCookieInfo>> loginCompleteListeners = new ArrayList<>();
     @Getter
     NetworkManager.NetworkReceiver<StartQRLoginResponse> qrLoginResponseReceiver = (qrLoginResponse, context) -> {
         if (loginResponseHandler != null)
@@ -43,21 +43,26 @@ public class LoginService {
     @Getter
     NetworkManager.NetworkReceiver<LoginResultMessage> loginResultReceiver = (loginResult, context) -> {
         MusicHud.EXECUTOR.submit(() -> {
-            LoginType type = loginResult.loginCookieInfo().type();
+            LoginCookieInfo loginCookieInfo = loginResult.loginCookieInfo();
+            LoginType type = loginCookieInfo.type();
             if (type != LoginType.UNLOGGED && type != LoginType.ANONYMOUS && loginResult.success()) {
-                loginResult.loginCookieInfo().setToClientCookie();
+                loginCookieInfo.setToClientCookie();
                 Profile.setCurrent(loginResult.profile());
-                loginCompleteListeners.forEach(Runnable::run);
+                loginCompleteListeners.forEach(c -> c.accept(loginCookieInfo));
+            } else if (type == LoginType.ANONYMOUS) {
+                loginCookieInfo.setToClientCookie();
+                Profile.setCurrent(Profile.ANONYMOUS);
+                loginCompleteListeners.forEach(c -> c.accept(loginCookieInfo));
             } else {
                 logger.warn("Login failed");
             }
             AccountBaseView accountBaseView = AccountBaseView.getInstance();
             if (accountBaseView != null) {
+                MuiModApi.postToUiThread(accountBaseView::refresh);
                 if (loginResult.success()) {
                     ProfileConfigData profileConfigData = ProfileConfigData.getInstance();
                     profileConfigData.setProfile(loginResult.profile());
                     profileConfigData.saveToConfig();
-                    MuiModApi.postToUiThread(accountBaseView::refresh);
                 } else {
                     MuiModApi.postToUiThread(() -> {
                         AccountView accountView = AccountView.getInstance();

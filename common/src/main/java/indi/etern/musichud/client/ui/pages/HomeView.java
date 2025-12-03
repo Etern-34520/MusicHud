@@ -175,7 +175,7 @@ public class HomeView extends LinearLayout {
         layoutParams.setMargins(0, 0, 0, dp(16));
         LinearLayout actions = new LinearLayout(getContext());
 
-        if (musicDetail.getPusherInfo().uid() == Profile.getCurrent().getUserId()) {
+        if (Profile.getCurrent() != null && musicDetail.getPusherInfo().uid() == Profile.getCurrent().getUserId()) {
             Button removeButton = new Button(getContext());
             removeButton.setText("移除");
             removeButton.setTextSize(dp(8));

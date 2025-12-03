@@ -30,8 +30,9 @@ public class StreamAudioPlayer {
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final Minecraft minecraft = Minecraft.getInstance();
     private final AtomicBoolean reconnecting = new AtomicBoolean(false);
-    private final int maxRetries = 3;
-    private final int retryDelayMs = 1000;
+    private final int maxRetries = 5;
+    private final int retryDelayMs = 0;
+    private final int retryDelayDelta = 1000;
     private int source = 0;
     private LocalDateTime startPlayingTime;
     private float lastVolume;
@@ -126,7 +127,7 @@ public class StreamAudioPlayer {
                 reconnecting.set(true);
 
                 try {
-                    Thread.sleep(retryDelayMs);
+                    Thread.sleep(retryDelayMs + (long) retryCount * retryDelayDelta);
                     // 重连时保持原始开始时间
                     return streamingPlayWithRetry(urlString, formatType, startTime, retryCount + 1);
                 } catch (InterruptedException ie) {
@@ -192,7 +193,8 @@ public class StreamAudioPlayer {
                             int processed = AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED);
                             checkALError("alGetSourcei");
 
-                            future.complete(startTime == null ? LocalDateTime.now() : startTime);
+                            startPlayingTime = startTime == null ? LocalDateTime.now() : startTime;
+                            future.complete(startPlayingTime);
                             while (processed-- > 0 && playing.get()) {
                                 int[] buffer = new int[1];
                                 AL10.alSourceUnqueueBuffers(source, buffer);
@@ -227,7 +229,6 @@ public class StreamAudioPlayer {
                         cleanup();
                         break;
                     } catch (Exception e) {
-                        // 网络异常处理
                         LOGGER.error("Playback error: " + e.getMessage());
                         cleanup();
 
@@ -236,7 +237,7 @@ public class StreamAudioPlayer {
 
                             // 延迟重连
                             try {
-                                Thread.sleep(retryDelayMs);
+                                Thread.sleep(retryDelayMs + (long) retryCount * retryDelayDelta);
                             } catch (InterruptedException ignored) {
                                 reconnecting.set(false);
                                 lastVolume = 1;

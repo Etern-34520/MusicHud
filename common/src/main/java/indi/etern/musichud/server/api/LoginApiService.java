@@ -81,10 +81,11 @@ public class LoginApiService {
             logger.warn("Polling v-thread stopped as player {} quit", player.getName());
         }
         MusicPlayerServerService.getInstance().idlePlaySources.remove(player);
+        loginAsAnonymous(player, false);
     }
 
     @SneakyThrows
-    public void loginAsAnonymous(ServerPlayer player) {
+    public void loginAsAnonymous(ServerPlayer player, boolean sendFail) {
         AnonymousLoginData response = ApiClient.post(
                 ServerApiMeta.Login.ANONYMOUS,
                 null,
@@ -94,7 +95,7 @@ public class LoginApiService {
             loginCookieInfo = new LoginCookieInfo(LoginType.ANONYMOUS, response.cookie, LocalDateTime.now());
             AccountDetail accountDetail = loadUserProfile(player, loginCookieInfo);
             NetworkManager.sendToPlayer(player, new LoginResultMessage(true, "", loginCookieInfo, accountDetail.getProfile()));
-        } else {
+        } else if (sendFail){
             sendLoginFailResult(player, new RuntimeException("login failed"));
         }
     }
