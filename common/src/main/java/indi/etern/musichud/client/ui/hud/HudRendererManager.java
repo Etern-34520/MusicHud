@@ -89,6 +89,9 @@ public class HudRendererManager {
             if (!idleText.equals(currentText)) {
                 String s = currentText.replace(errorAppendText, "").replace(retryingAppendText, "").replace(bufferingAppendText, "");
                 switch (c) {
+                    case IDLE, PLAYING -> {
+                        instance.TITLE_RENDERER.setText(s);
+                    }
                     case ERROR -> {
                         instance.TITLE_RENDERER.setText(s + errorAppendText);
                     }
@@ -97,9 +100,6 @@ public class HudRendererManager {
                     }
                     case RETRYING -> {
                         instance.TITLE_RENDERER.setText(s + retryingAppendText);
-                    }
-                    case PLAYING -> {
-                        instance.TITLE_RENDERER.setText(s);
                     }
                 }
             }

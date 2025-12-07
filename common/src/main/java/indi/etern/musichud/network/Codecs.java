@@ -98,8 +98,10 @@ public class Codecs {
 
             @Override
             public void encode(@NotNull B buf, @NotNull List<T> tList) {
-                buf.writeInt(tList.size());
-                for (T t : tList) {
+                List<T> notNullList = new ArrayList<>(tList);
+                notNullList.removeIf(Objects::isNull);
+                buf.writeInt(notNullList.size());
+                for (T t : notNullList) {
                     codec.encode(buf, t);
                 }
             }

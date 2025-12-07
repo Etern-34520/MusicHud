@@ -60,8 +60,10 @@ public class MusicPlayerServerService {
         }
     }
 
+    private boolean haveSentMusic = false;
     private void startMusicPusher() {
         synchronized (MusicPlayerServerService.class) {
+            haveSentMusic = false;
             if (musicDataPusher == null) {
                 AtomicReference<Runnable> runnableReference = new AtomicReference<>();
                 runnableReference.set(new Runnable() {
@@ -77,11 +79,6 @@ public class MusicPlayerServerService {
                                 if (musicQueue.isEmpty()) {
                                     Optional<MusicDetail> optionalMusicDetail = getRandomMusicFromIdleSources();
                                     if (optionalMusicDetail.isEmpty()) {
-                                        NetworkManager.sendToPlayers(
-                                                LoginApiService.getInstance().loginedPlayerInfoMap.keySet(),
-                                                new SwitchMusicMessage(MusicDetail.NONE, MusicDetail.NONE)
-                                        );
-                                        MusicPlayerServerService.this.stopSendingMusic();
                                         break;
                                     } else {
                                         MusicDetail musicDetail = optionalMusicDetail.get();
@@ -120,6 +117,7 @@ public class MusicPlayerServerService {
                                         LoginApiService.getInstance().loginedPlayerInfoMap.keySet(),
                                         new SwitchMusicMessage(switchedToPlay, nextMusicDetail)
                                 );
+                                haveSentMusic = true;
                                 currentMusicDetail = switchedToPlay;
                                 nowPlayingStartTime = LocalDateTime.now();
                                 logger.info("Switched to music: {} (ID: {})", switchedToPlay.getName(), switchedToPlay.getId());
@@ -142,7 +140,11 @@ public class MusicPlayerServerService {
                                 }
                             }
                         }
-                        MusicPlayerServerService.this.stopSendingMusic();
+                        if (haveSentMusic) {
+                            MusicPlayerServerService.this.stopSendingMusic();
+                        } else {
+                            musicDataPusher = null;
+                        }
                     }
 
                     private Optional<MusicDetail> getRandomMusicFromIdleSources() {

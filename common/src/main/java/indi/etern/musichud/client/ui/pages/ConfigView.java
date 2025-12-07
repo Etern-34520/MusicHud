@@ -48,7 +48,7 @@ public class ConfigView extends LinearLayout {
 
             HudRendererManager hudRendererManager = HudRendererManager.getInstance();
 
-            var commonCategory = PreferencesFragment.createCategoryList(this, "通用");
+            var commonCategory = PreferencesFragment.createCategoryList(view, "通用");
             PreferencesFragment.BooleanOption booleanOption = new PreferencesFragment.BooleanOption(context,
                     "启用 Music Hud",
                     ClientConfigDefinition.enable,
@@ -77,7 +77,7 @@ public class ConfigView extends LinearLayout {
                     .create(commonCategory);
             view.addView(commonCategory);
 
-            var positionCategory = PreferencesFragment.createCategoryList(this, "布局");
+            var positionCategory = PreferencesFragment.createCategoryList(view, "布局");
             new PreferencesFragment.DropDownOption<>(
                     context,
                     "垂直对齐",
