@@ -4,7 +4,7 @@ import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.MusicDetail;
 import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.Codecs;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
@@ -20,7 +20,7 @@ public record RefreshMusicQueueMessage(Queue<MusicDetail> queue) implements S2CP
             RefreshMusicQueueMessage::new
     );
 
-    @ForceLoad
+    @RegisterMark
     public static class Register implements CommonRegister {
         @Override
         public void register() {

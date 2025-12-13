@@ -16,7 +16,7 @@ import indi.etern.musichud.client.music.StreamAudioPlayer;
 import indi.etern.musichud.client.ui.hud.HudRendererManager;
 import indi.etern.musichud.client.ui.utils.image.ImageUtils;
 import indi.etern.musichud.interfaces.ClientRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.pushMessages.c2s.AddPlaylistToIdlePlaySourceMessage;
 import indi.etern.musichud.network.pushMessages.c2s.ClientPushMusicToQueueMessage;
 import indi.etern.musichud.network.pushMessages.c2s.ClientRemoveMusicFromQueueMessage;
@@ -219,7 +219,7 @@ public class MusicService {
         }
     }
 
-    @ForceLoad
+    @RegisterMark
     public static class RegisterImpl implements ClientRegister {
         @Override
         public void register() {

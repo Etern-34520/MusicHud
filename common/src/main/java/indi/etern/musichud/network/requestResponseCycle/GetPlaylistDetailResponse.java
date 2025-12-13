@@ -2,7 +2,7 @@ package indi.etern.musichud.network.requestResponseCycle;
 
 import indi.etern.musichud.beans.music.Playlist;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,7 +24,7 @@ public record GetPlaylistDetailResponse(Playlist playlist) implements S2CPayload
         GetPlaylistDetailResponse.consumerMap.put(id, consumer);
     }
 
-    @ForceLoad
+    @RegisterMark
     public static class RegisterImpl implements CommonRegister {
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(

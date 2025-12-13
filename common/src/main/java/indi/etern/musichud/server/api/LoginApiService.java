@@ -9,7 +9,7 @@ import indi.etern.musichud.beans.login.LoginType;
 import indi.etern.musichud.beans.user.AccountDetail;
 import indi.etern.musichud.beans.user.Profile;
 import indi.etern.musichud.beans.user.VipType;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.interfaces.ServerRegister;
 import indi.etern.musichud.network.pushMessages.s2c.LoginResultMessage;
 import indi.etern.musichud.utils.http.ApiClient;
@@ -241,7 +241,7 @@ public class LoginApiService {
     public record AnonymousLoginData(int code, long userId, long createTime, String cookie) {
     }
 
-    @ForceLoad
+    @RegisterMark
     public static class Register implements ServerRegister {
         @Override
         public void register() {

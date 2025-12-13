@@ -4,7 +4,7 @@ import icyllis.modernui.mc.MuiModApi;
 import indi.etern.musichud.beans.music.MusicDetail;
 import indi.etern.musichud.client.ui.pages.SearchView;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.Codecs;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
@@ -20,7 +20,7 @@ public record SearchResponse(List<MusicDetail> result) implements S2CPayload {
             SearchResponse::new
     );
 
-    @ForceLoad
+    @RegisterMark
     public static class Register implements CommonRegister {
         @Override
         public void register() {

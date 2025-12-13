@@ -6,7 +6,7 @@ import indi.etern.musichud.beans.music.MusicDetail;
 import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.beans.music.Playlist;
 import indi.etern.musichud.beans.music.PusherInfo;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.interfaces.ServerRegister;
 import indi.etern.musichud.network.pushMessages.s2c.RefreshMusicQueueMessage;
 import indi.etern.musichud.network.pushMessages.s2c.SwitchMusicMessage;
@@ -313,7 +313,7 @@ public class MusicPlayerServerService {
         }
     }
 
-    @ForceLoad
+    @RegisterMark
     public static class Register implements ServerRegister {
         @Override
         public void register() {

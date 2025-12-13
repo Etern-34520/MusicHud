@@ -6,7 +6,7 @@ import indi.etern.musichud.beans.login.LoginType;
 import indi.etern.musichud.beans.user.AccountDetail;
 import indi.etern.musichud.beans.user.Profile;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.C2SPayload;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.pushMessages.s2c.LoginResultMessage;
@@ -26,7 +26,7 @@ public record CookieLoginRequest(LoginCookieInfo loginCookieInfo, boolean tryRef
                     CookieLoginRequest::new
             );
 
-    @ForceLoad
+    @RegisterMark
     public static class RegisterImpl implements CommonRegister {
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(

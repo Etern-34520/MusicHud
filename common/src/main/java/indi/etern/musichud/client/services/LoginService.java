@@ -14,7 +14,7 @@ import indi.etern.musichud.client.ui.components.AccountView;
 import indi.etern.musichud.client.ui.components.QRLoginView;
 import indi.etern.musichud.client.ui.pages.AccountBaseView;
 import indi.etern.musichud.interfaces.ClientRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.pushMessages.c2s.LogoutMessage;
 import indi.etern.musichud.network.pushMessages.s2c.LoginResultMessage;
 import indi.etern.musichud.network.requestResponseCycle.AnonymousLoginRequest;
@@ -102,7 +102,7 @@ public class LoginService {
         NetworkManager.sendToServer(LogoutMessage.MESSAGE);
     }
 
-    @ForceLoad
+    @RegisterMark
     public static final class RegisterImpl implements ClientRegister {
         @Override
         public void register() {

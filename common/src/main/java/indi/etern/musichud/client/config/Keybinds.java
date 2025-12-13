@@ -7,12 +7,12 @@ import icyllis.modernui.mc.MuiModApi;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.client.ui.screen.MainFragment;
 import indi.etern.musichud.interfaces.ClientRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 
-@ForceLoad
+@RegisterMark
 public class Keybinds implements ClientRegister {
     public void register() {
         // 创建快捷键映射

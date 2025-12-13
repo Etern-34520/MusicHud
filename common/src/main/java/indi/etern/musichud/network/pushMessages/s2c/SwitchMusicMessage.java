@@ -2,10 +2,9 @@ package indi.etern.musichud.network.pushMessages.s2c;
 
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.MusicDetail;
-import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -20,7 +19,7 @@ public record SwitchMusicMessage(MusicDetail musicDetail, MusicDetail next) impl
             SwitchMusicMessage::new
     );
 
-    @ForceLoad
+    @RegisterMark
     public static class RegisterImpl implements CommonRegister {
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(

@@ -4,7 +4,7 @@ import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.Version;
 import indi.etern.musichud.client.services.LoginService;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -23,7 +23,7 @@ public record ConnectResponse(boolean accepted, Version serverVersion) implement
                     ConnectResponse::new
             );
 
-    @ForceLoad
+    @RegisterMark
     public static class RegisterImpl implements CommonRegister {//TODO test
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(

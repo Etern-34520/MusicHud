@@ -3,7 +3,7 @@ package indi.etern.musichud.network.requestResponseCycle;
 import dev.architectury.networking.NetworkManager;
 import indi.etern.musichud.beans.music.MusicDetail;
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.C2SPayload;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.server.api.MusicApiService;
@@ -21,7 +21,7 @@ public record SearchRequest(String query) implements C2SPayload {
             SearchRequest::new
     );
 
-    @ForceLoad
+    @RegisterMark
     public static class Register implements CommonRegister {
         @Override
         public void register() {

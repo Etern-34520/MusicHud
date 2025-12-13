@@ -1,7 +1,7 @@
 package indi.etern.musichud.network.pushMessages.c2s;
 
 import indi.etern.musichud.interfaces.CommonRegister;
-import indi.etern.musichud.interfaces.ForceLoad;
+import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.C2SPayload;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.server.api.MusicPlayerServerService;
@@ -17,7 +17,7 @@ public record AddPlaylistToIdlePlaySourceMessage(long playlistId) implements C2S
             AddPlaylistToIdlePlaySourceMessage::new
     );
 
-    @ForceLoad
+    @RegisterMark
     public static class RegisterImpl implements CommonRegister {
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(
