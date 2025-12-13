@@ -2,7 +2,7 @@ package indi.etern.musichud;
 
 import dev.architectury.event.EventHandler;
 import dev.architectury.platform.Platform;
-import indi.etern.musichud.utils.ClassGraphRegistrationManager;
+import indi.etern.musichud.utils.RegistrationManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.resources.ResourceLocation;
@@ -34,7 +34,7 @@ public final class MusicHud {
     public static void init() {
         LOGGER.atLevel(Level.ALL);
         EventHandler.init();
-        ClassGraphRegistrationManager.performAutoRegistration(Platform.getEnv());
+        RegistrationManager.performAutoRegistration(Platform.getEnv());
     }
 
     public static ResourceLocation location(String s) {

@@ -32,7 +32,7 @@ public class HudRendererManager {
     private static final String bufferingAppendText = " (缓冲中)";
     private static volatile HudRendererManager instance;
     @Getter
-    private static volatile boolean loaded;
+    private static volatile boolean loaded = false;
     private final BackgroundRenderer HUD_RENDERER = BackgroundRenderer.getInstance();
     private final AlbumImageRenderer IMAGE_RENDERER = AlbumImageRenderer.getInstance();
     private final PlayerHeadRenderer PLAYER_HEAD_RENDERER = PlayerHeadRenderer.getInstance();
