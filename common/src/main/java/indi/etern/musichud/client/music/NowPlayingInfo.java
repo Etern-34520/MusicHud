@@ -19,12 +19,11 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-@Getter
 public class NowPlayingInfo {
     private static volatile NowPlayingInfo instance = null;
     private final Logger logger = MusicHud.getLogger(NowPlayingInfo.class);
@@ -36,12 +35,52 @@ public class NowPlayingInfo {
     private MusicDetail currentlyPlayingMusicDetail;
     @Getter
     private MusicResourceInfo currentlyPlayingMusicResourceInfo;
+    @Getter
     private volatile Duration musicDuration = null;
+    @Getter
     private volatile ZonedDateTime musicStartTime = null;
+    @Getter
     private ArrayDeque<LyricLine> lyricLines;
+    private final AtomicReference<ArrayDeque<LyricLine>> atomicLyricLines = new AtomicReference<>();
     @Getter
     private LyricLine currentLyricLine;
     private Thread lyricUpdaterThread;
+
+    Runnable lyricUpdater = () -> {
+        Thread thread = Thread.currentThread();
+        lyricUpdaterThread = thread;
+        thread.setName("Lyrics Updater");
+        while (true) {
+            ArrayDeque<LyricLine> lyricLines1 = this.atomicLyricLines.get();
+            if (lyricLines1 == null || lyricLines1.isEmpty()) break;
+            LyricLine line = lyricLines1.peek();
+            if (line != null) {
+                if (line.getStartTime() != null) {
+                    if (ZonedDateTime.now().isAfter(this.musicStartTime.plus(line.getStartTime()))) {
+                        lyricLines1.poll();
+                        currentLyricLine = line;
+                        LyricLine next = lyricLines1.peek();
+                        if (next == null) {
+                            callLyricsUpdateListeners(line);
+                            logger.debug("lyricsUpdater stopped due to no more lyrics");
+                            break;
+                        } else if (ZonedDateTime.now().isBefore(this.musicStartTime.plus(next.getStartTime()))) {
+                            callLyricsUpdateListeners(line);
+                            Duration startTime = next.getStartTime();
+                            if (sleepUntil(this.musicStartTime, startTime)) {
+                                logger.info("lyricsUpdater interruption");
+                            }
+                        }
+                    } else if (sleepUntil(this.musicStartTime, line.getStartTime())) {
+                        logger.info("lyricsUpdater interruption");
+                    }
+                } else {
+                    lyricLines1.poll();
+                }
+            }
+        }
+        lyricUpdaterThread = null;
+    };
 
     public static NowPlayingInfo getInstance() {
         if (instance == null) {
@@ -73,56 +112,27 @@ public class NowPlayingInfo {
             this.musicStartTime = null;
         }
         LyricInfo lyricInfo = resourceInfo.getLyricInfo();
-        Queue<LyricLine> lyricLines = null;
+        ArrayDeque<LyricLine> lyricLines = null;
         if (!lyricInfo.equals(LyricInfo.NONE)) {
             try {
                 lyricLines = LyricDecoder.decode(lyricInfo);
-                this.lyricLines = new ArrayDeque<>(lyricLines);
+                this.lyricLines = lyricLines;
+                this.atomicLyricLines.set(new ArrayDeque<>(lyricLines));
             } catch (Exception e) {
                 logger.warn("Failed to load lyrics of music: {} (id:{}) ", musicDetail.getName(), musicDetail.getId());
             }
         } else {
             this.lyricLines = null;
+            this.atomicLyricLines.set(null);
         }
-        MuiModApi.postToUiThread(() -> MainFragment.switchMusic(musicDetail, this.lyricLines));
+        MuiModApi.postToUiThread(() -> MainFragment.switchMusic(musicDetail, this.atomicLyricLines.get()));
         HudRendererManager.getInstance().switchMusic(musicDetail);
         if (lyricLines != null && !lyricLines.isEmpty()) {
-            Queue<LyricLine> finalLyricLines = lyricLines;
-            if (lyricUpdaterThread != null) {
+            if (lyricUpdaterThread == null) {
+                MusicHud.EXECUTOR.execute(lyricUpdater);
+            } else {
                 lyricUpdaterThread.interrupt();
             }
-            Runnable lyricUpdater = () -> {
-                Thread thread = Thread.currentThread();
-                lyricUpdaterThread = thread;
-                thread.setName("Lyrics Updater");
-                while (!finalLyricLines.isEmpty() && musicDetail.equals(currentlyPlayingMusicDetail)) {
-                    LyricLine line = finalLyricLines.peek();
-                    if (line != null) {
-                        if (line.getStartTime() != null) {
-                            if (ZonedDateTime.now().isAfter(musicStartTime.plus(line.getStartTime()))) {
-                                finalLyricLines.poll();
-                                currentLyricLine = line;
-                                LyricLine next = finalLyricLines.peek();
-                                if (next == null) {
-                                    callLyricsUpdateListeners(line);
-                                    logger.debug("lyricsUpdater stopped due to no more lyrics");
-                                    break;
-                                } else if (ZonedDateTime.now().isBefore(musicStartTime.plus(next.getStartTime()))) {
-                                    callLyricsUpdateListeners(line);
-                                    Duration startTime = next.getStartTime();
-                                    if (sleepUntil(musicStartTime, startTime)) break;
-                                }
-                            } else {
-                                if (sleepUntil(musicStartTime, line.getStartTime())) break;
-                            }
-                        } else {
-                            finalLyricLines.poll();
-                        }
-                    }
-                }
-                lyricUpdaterThread = null;
-            };
-            MusicHud.EXECUTOR.execute(lyricUpdater);
             musicSwitchListener.forEach(consumer -> {
                 consumer.accept(previous, musicDetail);
             });
@@ -145,7 +155,6 @@ public class NowPlayingInfo {
             try {
                 Thread.sleep(between);
             } catch (InterruptedException ignored) {
-                logger.warn("interrupted");
                 return true;
             }
         }
@@ -195,6 +204,7 @@ public class NowPlayingInfo {
         musicDuration = null;
         musicStartTime = null;
         lyricLines = null;
+        atomicLyricLines.set(null);
         currentLyricLine = null;
     }
 }

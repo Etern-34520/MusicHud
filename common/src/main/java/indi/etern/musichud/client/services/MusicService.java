@@ -4,6 +4,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import dev.architectury.event.events.client.ClientPlayerEvent;
 import dev.architectury.networking.NetworkManager;
+import icyllis.modernui.core.Context;
+import icyllis.modernui.mc.MuiModApi;
+import icyllis.modernui.mc.UIManager;
+import icyllis.modernui.widget.Toast;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.login.LoginType;
 import indi.etern.musichud.beans.music.MusicDetail;
@@ -195,8 +199,15 @@ public class MusicService {
         NetworkManager.sendToServer(new ClientRemoveMusicFromQueueMessage(index, musicDetail.getId()));
     }
 
-    public synchronized void switchMusic(MusicDetail musicDetail, MusicResourceInfo resourceInfo, ZonedDateTime serverStartTime) {
+    public synchronized void switchMusic(MusicDetail musicDetail, MusicResourceInfo resourceInfo, ZonedDateTime serverStartTime, String message) {
         if (ClientConfigDefinition.enable.get()) {
+            if (!message.isEmpty()) {
+                MuiModApi.postToUiThread(() -> {
+                    //noinspection UnstableApiUsage
+                    Context context = UIManager.getInstance().getDecorView().getContext();
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+                });
+            }
             if (!musicDetail.equals(MusicDetail.NONE)) {
                 loadResource(musicDetail);
                 StreamAudioPlayer streamAudioPlayer = StreamAudioPlayer.getInstance();
@@ -235,7 +246,7 @@ public class MusicService {
 
         public static void reset() {
             if (instance != null) {
-                instance.switchMusic(MusicDetail.NONE, MusicResourceInfo.NONE, null);
+                instance.switchMusic(MusicDetail.NONE, MusicResourceInfo.NONE, null, "");
                 instance.idlePlaySourceLoaded = false;
                 instance.musicQueue.clear();
                 instance.idlePlaylistAddListeners.clear();

@@ -38,6 +38,7 @@ public class ApiClient {
             try {
                 trial++;
                 if (trial != 1) {
+                    //noinspection BusyWait
                     Thread.sleep(500);
                 }
                 HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()
@@ -100,6 +101,7 @@ public class ApiClient {
             try {
                 trial++;
                 if (trial != 1) {
+                    //noinspection BusyWait
                     Thread.sleep(500);
                 }
                 HttpRequest.Builder requestBuilder = HttpRequest.newBuilder()

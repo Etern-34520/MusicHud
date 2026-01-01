@@ -51,6 +51,12 @@ public class HomeView extends LinearLayout {
     private boolean hasInitializedScroll = false;
     // 标记是否正在进行归位滚动
     private boolean isRecenterScroll = false;
+    // 用于存储滚动控制器的监听器
+    private ScrollController.IListener scrollListener;
+    // 记录当前滚动位置
+    private int currentScrollPosition = 0;
+    // 标记是否正在进行自动滚动（由滚动控制器引起的）
+    private boolean isAutoScrolling = false;
     private final Runnable autoRecenterRunnable = new Runnable() {
         @Override
         public void run() {
@@ -73,14 +79,6 @@ public class HomeView extends LinearLayout {
             }
         }
     };
-    // 用于存储滚动控制器的监听器
-    private ScrollController.IListener scrollListener;
-
-    // 记录当前滚动位置
-    private int currentScrollPosition = 0;
-
-    // 标记是否正在进行自动滚动（由滚动控制器引起的）
-    private boolean isAutoScrolling = false;
     private final Consumer<LyricLine> lyricLineUpdateListener = new Consumer<>() {
         @Override
         public void accept(LyricLine lyricLine) {
@@ -300,26 +298,20 @@ public class HomeView extends LinearLayout {
         // 重置初始化标记
         hasInitializedScroll = false;
 
-        // 延迟一点时间确保视图已经完全布局
-//        postDelayed(() -> {
-            LyricLine currentLyric = NowPlayingInfo.getInstance().getCurrentLyricLine();
-            if (currentLyric != null) {
-                TextView currentTextView = textViewMap.get(currentLyric);
-                if (currentTextView != null && !hasInitializedScroll) {
-                    hasInitializedScroll = true;
-                    // 第一次加载直接跳转，不使用平滑滚动
-                    jumpToLyric(currentTextView);
-                }/* else {
-                    hasInitializedScroll = true;
-                    jumpToTop();
-                }*/
-            }
-            // 如果没有当前歌词，但歌词列表不为空，滚动到顶部
-            else if (!textViewMap.isEmpty() && !hasInitializedScroll) {
+        LyricLine currentLyric = NowPlayingInfo.getInstance().getCurrentLyricLine();
+        if (currentLyric != null) {
+            TextView currentTextView = textViewMap.get(currentLyric);
+            if (currentTextView != null && !hasInitializedScroll) {
                 hasInitializedScroll = true;
-                jumpToTop();
+                // 第一次加载直接跳转，不使用平滑滚动
+                jumpToLyric(currentTextView);
             }
-//        }, 200); // 增加延迟确保布局完成
+        }
+        // 如果没有当前歌词，但歌词列表不为空，滚动到顶部
+        else if (!textViewMap.isEmpty() && !hasInitializedScroll) {
+            hasInitializedScroll = true;
+            jumpToTop();
+        }
     }
 
     private void jumpToTop() {
@@ -563,7 +555,7 @@ public class HomeView extends LinearLayout {
     private void startScrollControllerUpdate() {
         post(() -> {
             lyricScrollController.update(MuiModApi.getElapsedTime());
-            postDelayed(this::startScrollControllerUpdate, 16); // ~60fps
+            postDelayed(this::startScrollControllerUpdate, 15); // ~60fps
         });
     }
 

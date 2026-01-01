@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
@@ -32,8 +34,18 @@ public class ServerApiMeta {
             return apiBaseUrl + url;
         }
         public URI toURI() {
-            return URI.create(
-                    apiBaseUrl + url + "?randomCNIP=true" + (noCache?"&timestamp="+System.currentTimeMillis():""));
+            String uri = apiBaseUrl + url;
+            List<String> query = new ArrayList<>();
+            if (ServerConfigDefinition.configure.getLeft().useRandomCnIp.get()) {
+                query.add("randomCNIP=true");
+            }
+            if (noCache) {
+                query.add("timestamp="+System.currentTimeMillis());
+            }
+            if (!query.isEmpty()) {
+                uri += "?" + String.join("&", query);
+            }
+            return URI.create(uri);
         }
     }
 
@@ -230,7 +242,7 @@ public class ServerApiMeta {
                 "/lyric/new",
                 Set.of("id"),
                 null,
-                false, false, true, LyricInfo.class);
+                true, false, true, LyricInfo.class);
     }
     public static class Album {
         public static final UrlMeta<String> DETAIL = new UrlMeta<>(

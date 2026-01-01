@@ -155,12 +155,9 @@ public class MusicApiService {
     }
 
     private @NotNull MusicResourceInfo getMusicResourceInfoFromMatcher(MusicDetail musicDetail) {
-        MusicResourceInfo musicResourceInfo;
-        var unblockRequest = new GetMatchResourceUrlRequest(musicDetail.getId(), "pyncmd,bodian");
+        var unblockRequest = new GetMatchResourceUrlRequest(musicDetail.getId(), null);
         var unblockResponse = ApiClient.post(ServerApiMeta.Music.UNBLOCK, unblockRequest, loginApiService.randomVipCookieOr(null));
-        musicResourceInfo = unblockResponse.data;
-        musicResourceInfo.completeFrom(musicDetail);
-        return musicResourceInfo;
+        return MusicResourceInfo.from(unblockResponse.data, musicDetail);
     }
 
     public List<Playlist> getPlayersUserPlaylists(ServerPlayer player) {
@@ -232,7 +229,7 @@ public class MusicApiService {
     public record GetDirectResourceUrlResponse(int code, List<MusicResourceInfo> data) {
     }
 
-    public record GetMatchResourceUrlResponse(int code, MusicResourceInfo data) {
+    public record GetMatchResourceUrlResponse(int code, String data) {
     }
 
     public record RequestDataWithUID(long uid) {

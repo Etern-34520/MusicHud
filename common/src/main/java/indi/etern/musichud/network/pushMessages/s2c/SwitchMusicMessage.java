@@ -8,14 +8,17 @@ import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-public record SwitchMusicMessage(MusicDetail musicDetail, MusicDetail next) implements S2CPayload {
+public record SwitchMusicMessage(MusicDetail musicDetail, MusicDetail next, String message) implements S2CPayload {
     public static final StreamCodec<RegistryFriendlyByteBuf, SwitchMusicMessage> CODEC = StreamCodec.composite(
             MusicDetail.CODEC,
             SwitchMusicMessage::musicDetail,
             MusicDetail.CODEC,
             SwitchMusicMessage::next,
+            ByteBufCodecs.STRING_UTF8,
+            SwitchMusicMessage::message,
             SwitchMusicMessage::new
     );
 
@@ -27,7 +30,7 @@ public record SwitchMusicMessage(MusicDetail musicDetail, MusicDetail next) impl
                     (message, context) -> {
                         MusicHud.EXECUTOR.execute(() -> {
                             MusicService musicService = MusicService.getInstance();
-                            musicService.switchMusic(message.musicDetail, message.musicDetail().getMusicResourceInfo(), null);
+                            musicService.switchMusic(message.musicDetail, message.musicDetail().getMusicResourceInfo(), null, message.message);
                             if (!message.next.equals(MusicDetail.NONE)) {
                                 musicService.loadResource(message.next);
                             }

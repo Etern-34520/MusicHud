@@ -22,7 +22,7 @@ public record SearchRequest(String query) implements C2SPayload {
     );
 
     @RegisterMark
-    public static class Register implements CommonRegister {
+    public static class RegisterImpl implements CommonRegister {
         @Override
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(SearchRequest.class, CODEC,

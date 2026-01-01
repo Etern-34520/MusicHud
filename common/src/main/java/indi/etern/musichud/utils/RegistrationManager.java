@@ -24,8 +24,8 @@ public class RegistrationManager {
             "indi.etern.musichud.network.requestResponseCycle.GetPlaylistDetailResponse$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.GetUserPlaylistRequest$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.GetUserPlaylistResponse$RegisterImpl",
-            "indi.etern.musichud.network.requestResponseCycle.SearchRequest$Register",
-            "indi.etern.musichud.network.requestResponseCycle.SearchResponse$Register",
+            "indi.etern.musichud.network.requestResponseCycle.SearchRequest$RegisterImpl",
+            "indi.etern.musichud.network.requestResponseCycle.SearchResponse$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.StartQRLoginRequest$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.StartQRLoginResponse$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.ConnectRequest$RegisterImpl",
@@ -33,7 +33,7 @@ public class RegistrationManager {
             "indi.etern.musichud.network.requestResponseCycle.CancelQRLoginRequest$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.AnonymousLoginRequest$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.CookieLoginRequest$RegisterImpl",
-            "indi.etern.musichud.network.pushMessages.s2c.RefreshMusicQueueMessage$Register",
+            "indi.etern.musichud.network.pushMessages.s2c.RefreshMusicQueueMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.s2c.SwitchMusicMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.s2c.LoginResultMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.s2c.SyncCurrentPlayingMessage$RegisterImpl",
@@ -41,7 +41,8 @@ public class RegistrationManager {
             "indi.etern.musichud.network.pushMessages.c2s.RemovePlaylistFromIdlePlaySourceMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.c2s.ClientPushMusicToQueueMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.c2s.ClientRemoveMusicFromQueueMessage$RegisterImpl",
-            "indi.etern.musichud.network.pushMessages.c2s.LogoutMessage$Register"
+            "indi.etern.musichud.network.pushMessages.c2s.LogoutMessage$RegisterImpl",
+            "indi.etern.musichud.network.pushMessages.c2s.VoteSkipCurrentMusicMessage$RegisterImpl"
     };
 
     private static final Set<Class<?>> registeredSet = new HashSet<>();

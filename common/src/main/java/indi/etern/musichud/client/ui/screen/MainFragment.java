@@ -1,5 +1,6 @@
 package indi.etern.musichud.client.ui.screen;
 
+import dev.architectury.networking.NetworkManager;
 import icyllis.modernui.R;
 import icyllis.modernui.annotation.Nullable;
 import icyllis.modernui.fragment.Fragment;
@@ -23,6 +24,8 @@ import indi.etern.musichud.client.ui.pages.AccountBaseView;
 import indi.etern.musichud.client.ui.pages.ConfigView;
 import indi.etern.musichud.client.ui.pages.HomeView;
 import indi.etern.musichud.client.ui.pages.SearchView;
+import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
+import indi.etern.musichud.network.pushMessages.c2s.VoteSkipCurrentMusicMessage;
 import lombok.NonNull;
 import lombok.Setter;
 
@@ -46,6 +49,7 @@ public class MainFragment extends Fragment {
     private int defaultSelectedIndex = 0;
     private ProgressBar progressBar;
     private TextView progressText;
+    private Button skipCurrentButton;
 
     public MainFragment() {
     }
@@ -90,6 +94,7 @@ public class MainFragment extends Fragment {
                 instance.artistsText.setText("");
                 instance.progressBar.setVisibility(View.GONE);
                 instance.progressText.setText("");
+                instance.skipCurrentButton.setVisibility(View.GONE);
             } else {
                 instance.titleText.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 instance.albumImage.loadUrl(musicDetail.getAlbum().getThumbnailPicUrl(200));
@@ -98,9 +103,11 @@ public class MainFragment extends Fragment {
                         .map(Artist::getName)
                         .reduce((a, b) -> a + " / " + b)
                         .orElse(""));
+                instance.skipCurrentButton.setText("投票跳过当前歌曲");
+                instance.skipCurrentButton.setEnabled(true);
                 instance.progressBar.setVisibility(View.VISIBLE);
                 instance.progressBar.setMax(musicDetail.getDurationMillis());
-
+                instance.skipCurrentButton.setVisibility(View.VISIBLE);
                 startProgressUpdater(musicDetail);
             }
             HomeView homeView = HomeView.getInstance();
@@ -129,7 +136,7 @@ public class MainFragment extends Fragment {
                 );
                 MuiModApi.postToUiThread(() -> {
                     if (instance != null && instance.progressBar != null) {
-                        instance.progressBar.setProgress((int) playedDuration.toMillis());
+                        instance.progressBar.setProgress(Math.clamp((int) playedDuration.toMillis(), 0, musicDetail.getDurationMillis()));
                         instance.progressText.setText(playtimeText);
                     }
                 });
@@ -221,15 +228,45 @@ public class MainFragment extends Fragment {
                 params3.setMargins(0, side.dp(4), 0, 0);
                 musicInfo.addView(progressText, params3);
 
+                skipCurrentButton = new Button(context);
+                skipCurrentButton.setFocusable(true);
+                skipCurrentButton.setClickable(true);
+                skipCurrentButton.setTextSize(skipCurrentButton.dp(8));
+                skipCurrentButton.setTextColor(Theme.NORMAL_TEXT_COLOR);
+                skipCurrentButton.setGravity(Gravity.CENTER);
+                skipCurrentButton.setText("投票跳过当前歌曲");
+
+                MusicDetail currentlyPlayingMusicDetail = NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail();
+
+                skipCurrentButton.setHeight(skipCurrentButton.dp(40));
+
+                var background = ButtonInsetBackground.builder()
+                        .padding(new ButtonInsetBackground.Padding(skipCurrentButton.dp(2), skipCurrentButton.dp(1), skipCurrentButton.dp(2), skipCurrentButton.dp(1)))
+                        .cornerRadius(skipCurrentButton.dp(4)).build().get();
+                skipCurrentButton.setBackground(background);
+                skipCurrentButton.setOnClickListener((v) -> {
+                    NetworkManager.sendToServer(new VoteSkipCurrentMusicMessage(NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail().getId()));
+                    MuiModApi.postToUiThread(() -> {
+                        skipCurrentButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
+                        skipCurrentButton.setText("已投票");
+                        skipCurrentButton.setEnabled(false);
+                    });
+                });
+                LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+                buttonParams.setMargins(0, side.dp(2), 0, 0);
+
                 var params1 = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                 params1.setMargins(side.dp(8), side.dp(4), side.dp(8), side.dp(24));
+
+                musicInfo.addView(skipCurrentButton, buttonParams);
+                musicInfo.setMinimumHeight(side.dp(128));
+
                 side.addView(musicInfo, params1);
                 side.addView(sideMenu, params);
                 base.addView(side, params);
 
-                MusicDetail musicDetail = NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail();
-                if (musicDetail != null) {
-                    switchMusic(musicDetail, playingInfo.getLyricLines());
+                if (currentlyPlayingMusicDetail != null) {
+                    switchMusic(currentlyPlayingMusicDetail, playingInfo.getLyricLines());
                 }
             }
             var params = new LinearLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT, 0);

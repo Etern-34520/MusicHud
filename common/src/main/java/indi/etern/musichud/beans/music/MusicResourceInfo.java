@@ -46,10 +46,13 @@ public class MusicResourceInfo {
     @Setter
     LyricInfo lyricInfo = LyricInfo.NONE;
 
-    public void completeFrom(MusicDetail musicDetail) {
-        id = musicDetail.getId();
-        if (md5 == null)
-            md5 = "";
-        time = musicDetail.getDurationMillis();
+    public static MusicResourceInfo from(String url, MusicDetail musicDetail) {
+        MusicResourceInfo musicResourceInfo = new MusicResourceInfo();
+        musicResourceInfo.url = url;
+        musicResourceInfo.id = musicDetail.getId();
+        if (musicResourceInfo.md5 == null)
+            musicResourceInfo.md5 = "";
+        musicResourceInfo.time = musicDetail.getDurationMillis();
+        return musicResourceInfo;
     }
 }

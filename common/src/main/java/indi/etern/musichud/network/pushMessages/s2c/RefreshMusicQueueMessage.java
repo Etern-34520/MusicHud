@@ -21,7 +21,7 @@ public record RefreshMusicQueueMessage(Queue<MusicDetail> queue) implements S2CP
     );
 
     @RegisterMark
-    public static class Register implements CommonRegister {
+    public static class RegisterImpl implements CommonRegister {
         @Override
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(

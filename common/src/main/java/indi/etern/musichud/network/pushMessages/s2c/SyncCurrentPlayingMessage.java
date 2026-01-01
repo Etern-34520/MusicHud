@@ -30,7 +30,7 @@ public record SyncCurrentPlayingMessage(MusicDetail currentPlaying, ZonedDateTim
                     (message, context) -> {
                         MusicHud.EXECUTOR.execute(() -> {
                             MusicService musicService = MusicService.getInstance();
-                            musicService.switchMusic(message.currentPlaying, message.currentPlaying.getMusicResourceInfo(), message.startTime);
+                            musicService.switchMusic(message.currentPlaying, message.currentPlaying.getMusicResourceInfo(), message.startTime, "");
                         });
                     }
             );

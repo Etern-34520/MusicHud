@@ -21,7 +21,7 @@ public record SearchResponse(List<MusicDetail> result) implements S2CPayload {
     );
 
     @RegisterMark
-    public static class Register implements CommonRegister {
+    public static class RegisterImpl implements CommonRegister {
         @Override
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(SearchResponse.class, CODEC,

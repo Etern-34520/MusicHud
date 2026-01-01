@@ -19,7 +19,7 @@
 - 服务端不保留用户数据，仅在登录时暂存
 - 流式播放，无赘余的客户端缓存
 
-## 功能
+## 功能 
 - 搜索音乐
 - 通过二维码登录网易云账户，从用户歌单点歌
 - 全服同步播放列表
@@ -42,6 +42,13 @@
 ```toml
 #Server API Base URL configuration
 serverApiBaseUrl = "http://localhost:3000"
+#Music Pusher's vote additional rate when voting for skip music configuration (0.0 ~ 1.0, total rate larger than or equals to 0.5 means to skip)
+# Default: 0.5
+# Range: 0.0 ~ 1.0
+pusherVoteAdditionalRate = 0.5
+#Use random Chinese IP provided by api server
+useRandomCnIp = true
+
 ```
 
 ## 已知问题

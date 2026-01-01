@@ -57,8 +57,8 @@ public class PlayerHeadRenderer {
         );
         guiGraphics.pose().popMatrix();
         guiGraphics.pose().pushMatrix();
-        guiGraphics.pose().translate(absolutePosition.x() - layout.width * 0.05f, absolutePosition.y() - layout.height * 0.05f);
-        guiGraphics.pose().scale(1.1f);
+        guiGraphics.pose().translate(absolutePosition.x() - layout.width * 0.08f, absolutePosition.y() - layout.height * 0.08f);
+        guiGraphics.pose().scale(1.16f);
         guiGraphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 skinLocation,
@@ -70,5 +70,4 @@ public class PlayerHeadRenderer {
         );
         guiGraphics.pose().popMatrix();
     }
-
 }
