@@ -105,6 +105,7 @@ public class MainFragment extends Fragment {
                         .orElse(""));
                 instance.skipCurrentButton.setText("投票跳过当前歌曲");
                 instance.skipCurrentButton.setEnabled(true);
+                instance.skipCurrentButton.setVisibility(ClientConfigDefinition.enable.get() ? View.VISIBLE : View.GONE);
                 instance.progressBar.setVisibility(View.VISIBLE);
                 instance.progressBar.setMax(musicDetail.getDurationMillis());
                 instance.skipCurrentButton.setVisibility(View.VISIBLE);
@@ -245,12 +246,14 @@ public class MainFragment extends Fragment {
                         .cornerRadius(skipCurrentButton.dp(4)).build().get();
                 skipCurrentButton.setBackground(background);
                 skipCurrentButton.setOnClickListener((v) -> {
-                    NetworkManager.sendToServer(new VoteSkipCurrentMusicMessage(NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail().getId()));
-                    MuiModApi.postToUiThread(() -> {
-                        skipCurrentButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                        skipCurrentButton.setText("已投票");
-                        skipCurrentButton.setEnabled(false);
-                    });
+                    if (NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail() != null) {
+                        NetworkManager.sendToServer(new VoteSkipCurrentMusicMessage(NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail().getId()));
+                        MuiModApi.postToUiThread(() -> {
+                            skipCurrentButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
+                            skipCurrentButton.setText("已投票");
+                            skipCurrentButton.setEnabled(false);
+                        });
+                    }
                 });
                 LinearLayout.LayoutParams buttonParams = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
                 buttonParams.setMargins(0, side.dp(2), 0, 0);
