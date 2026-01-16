@@ -8,7 +8,7 @@ import indi.etern.musichud.beans.music.MusicDetail;
 import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.client.ui.hud.HudRendererManager;
 import indi.etern.musichud.client.ui.screen.MainFragment;
-import indi.etern.musichud.client.ui.utils.LyricDecoder;
+import indi.etern.musichud.client.ui.utils.lyrics.LyricDecoder;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -125,7 +125,7 @@ public class NowPlayingInfo {
             this.lyricLines = null;
             this.atomicLyricLines.set(null);
         }
-        MuiModApi.postToUiThread(() -> MainFragment.switchMusic(musicDetail, this.atomicLyricLines.get()));
+        MuiModApi.postToUiThread(() -> MainFragment.switchMusic(musicDetail, this.lyricLines));
         HudRendererManager.getInstance().switchMusic(musicDetail);
         if (lyricLines != null && !lyricLines.isEmpty()) {
             if (lyricUpdaterThread == null) {

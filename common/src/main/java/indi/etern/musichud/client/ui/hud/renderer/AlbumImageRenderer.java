@@ -57,7 +57,6 @@ public class AlbumImageRenderer {
         var transitionStatus = HudRenderData.getTransitionStatus();
         var nextData = transitionStatus.getNextData();
         ResourceLocation nextUnblurredLocation = nextData == null ? null : nextData.nextUnblurred();
-
         GpuTextureView currentTextureView = getTextureView(bgImage.currentUnblurredLocation);
         GpuTextureView nextTextureView = getTextureView(nextUnblurredLocation);
         GpuTextureView nextView = transitionStatus.isTransitioning() ?

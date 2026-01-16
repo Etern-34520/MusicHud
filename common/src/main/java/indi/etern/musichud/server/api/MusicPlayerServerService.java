@@ -15,6 +15,9 @@ import indi.etern.musichud.server.config.ServerConfigDefinition;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.protocol.status.ServerStatus;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Logger;
 
@@ -27,41 +30,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MusicPlayerServerService {
     private static volatile MusicPlayerServerService instance;
-    @Getter
-    @Setter
-    private class CurrentVoteInfo {
-        MusicDetail musicDetail;
-        float voteRate;
-        final Set<ServerPlayer> votedPlayers = new HashSet<>();
-
-        public void vote(long id, ServerPlayer player) {
-            if (!votedPlayers.contains(player) && musicDetail.getId() == id) {
-                votedPlayers.add(player);
-                voteRate += 1.0f / LoginApiService.getInstance().loginedPlayerInfoMap.size();
-                if (musicDetail.getPusherInfo().playerUUID().equals(player.getUUID())) {
-                    voteRate += ServerConfigDefinition.configure.getLeft().pusherVoteAdditionalRate.get();
-                    logger.info("Pusher player \"{}\" voted for skip current music {}:{}", player.getName().getString(), id, musicDetail.getName());
-                } else {
-                    logger.info("Player \"{}\" voted for skip current music {}:{}", player.getName().getString(), id, musicDetail.getName());
-                }
-                voteRate = Math.clamp(voteRate, 0.0f, 1.0f);
-                if (voteRate >= 0.5) {
-                    logger.info("Try to skip current music as voting rate reach: {} >= 50}", voteRate);
-                    if (pusherThread != null) {
-                        pusherThread.interrupt();
-                    }
-                    resetTo(MusicDetail.NONE);
-                }
-            }
-        }
-
-        public void resetTo(MusicDetail musicDetail) {
-            this.musicDetail = musicDetail;
-            voteRate = 0;
-            votedPlayers.clear();
-        }
-    }
     private final MusicApiService musicApiService = MusicApiService.getInstance();
+    private final CurrentVoteInfo currentVoteInfo = new CurrentVoteInfo();
     @Getter
     ArrayDeque<MusicDetail> musicQueue = new ArrayDeque<>();
     Map<ServerPlayer, Set<Playlist>> idlePlaySources = new ConcurrentHashMap<>();
@@ -73,7 +43,7 @@ public class MusicPlayerServerService {
     @Getter
     private volatile ZonedDateTime nowPlayingStartTime = ZonedDateTime.of(LocalDateTime.MIN, ZoneId.systemDefault());
     private Thread pusherThread;
-    private final CurrentVoteInfo currentVoteInfo = new CurrentVoteInfo();
+    private boolean haveSentMusic = false;
     private final Runnable musicPusher = new Runnable() {
         private MusicDetail preloadMusicDetail = MusicDetail.NONE;
 
@@ -87,6 +57,7 @@ public class MusicPlayerServerService {
                 MusicDetail switchedToPlay = null;
                 MusicDetail nextMusicDetail;
                 try {
+                    Map<ServerPlayer, LoginApiService.PlayerLoginInfo> loginedPlayerInfoMap = LoginApiService.getInstance().loginedPlayerInfoMap;
                     if (musicQueue.isEmpty()) {
                         Optional<MusicDetail> optionalMusicDetail = getRandomMusicFromIdleSources();
                         if (optionalMusicDetail.isEmpty()) {
@@ -108,10 +79,18 @@ public class MusicPlayerServerService {
                                 switchedToPlay = preloadMusicDetail;
                                 preloadMusicDetail = musicDetail;
                             }
+                            PusherInfo pusherInfo = switchedToPlay.getPusherInfo();
+                            if (pusherInfo != null &&
+                                    loginedPlayerInfoMap.keySet().stream().noneMatch(
+                                            serverPlayer -> serverPlayer.getUUID().equals(pusherInfo.playerUUID())
+                                    )
+                            ) {
+                                continue;
+                            }
                         }
                     } else {
                         switchedToPlay = musicQueue.remove();
-                        NetworkManager.sendToPlayers(LoginApiService.getInstance().loginedPlayerInfoMap.keySet(),
+                        NetworkManager.sendToPlayers(loginedPlayerInfoMap.keySet(),
                                 new RefreshMusicQueueMessage(musicQueue));
                     }
 
@@ -123,7 +102,7 @@ public class MusicPlayerServerService {
 
                     loadResourceInfoIfUnloaded(switchedToPlay);
                     NetworkManager.sendToPlayers(
-                            LoginApiService.getInstance().loginedPlayerInfoMap.keySet(),
+                            loginedPlayerInfoMap.keySet(),
                             new SwitchMusicMessage(switchedToPlay, nextMusicDetail, message)
                     );
                     message = "";
@@ -188,13 +167,16 @@ public class MusicPlayerServerService {
 
             LoginApiService.PlayerLoginInfo loginInfo =
                     LoginApiService.getInstance().getLoginInfoByServerPlayer(sourcePlayer);
-            PusherInfo pusherInfo = new PusherInfo(
-                    loginInfo.profile.getUserId(),
-                    sourcePlayer.getUUID(),
-                    sourcePlayer.getName().getString()
-            );
-            randomTrack.setPusherInfo(pusherInfo);
-
+            if (loginInfo != null) {
+                PusherInfo pusherInfo = new PusherInfo(
+                        loginInfo.profile.getUserId(),
+                        sourcePlayer.getUUID(),
+                        sourcePlayer.getName().getString()
+                );
+                randomTrack.setPusherInfo(pusherInfo);
+            } else {
+                randomTrack.setPusherInfo(PusherInfo.EMPTY);
+            }
             return Optional.of(randomTrack);
         }
     };
@@ -221,7 +203,6 @@ public class MusicPlayerServerService {
         }
     }
 
-    private boolean haveSentMusic = false;
     private void startMusicPusher() {
         synchronized (MusicPlayerServerService.class) {
             haveSentMusic = false;
@@ -367,6 +348,41 @@ public class MusicPlayerServerService {
                     instance.updateContinuable(!map.isEmpty());
                 }
             });
+        }
+    }
+
+    @Getter
+    @Setter
+    private class CurrentVoteInfo {
+        final Set<ServerPlayer> votedPlayers = new HashSet<>();
+        MusicDetail musicDetail;
+        float voteRate;
+
+        public void vote(long id, ServerPlayer player) {
+            if (!votedPlayers.contains(player) && musicDetail.getId() == id) {
+                votedPlayers.add(player);
+                voteRate += 1.0f / LoginApiService.getInstance().loginedPlayerInfoMap.size();
+                if (musicDetail.getPusherInfo().playerUUID().equals(player.getUUID())) {
+                    voteRate += ServerConfigDefinition.configure.getLeft().pusherVoteAdditionalRate.get();
+                    logger.info("Pusher player \"{}\" voted for skip current music {}:{}", player.getName().getString(), id, musicDetail.getName());
+                } else {
+                    logger.info("Player \"{}\" voted for skip current music {}:{}", player.getName().getString(), id, musicDetail.getName());
+                }
+                voteRate = Math.clamp(voteRate, 0.0f, 1.0f);
+                if (voteRate >= 0.5) {
+                    logger.info("Try to skip current music as voting rate reach: {} >= 0.5", voteRate);
+                    if (pusherThread != null) {
+                        pusherThread.interrupt();
+                    }
+                    resetTo(MusicDetail.NONE);
+                }
+            }
+        }
+
+        public void resetTo(MusicDetail musicDetail) {
+            this.musicDetail = musicDetail;
+            voteRate = 0;
+            votedPlayers.clear();
         }
     }
 }

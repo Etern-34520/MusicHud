@@ -1,7 +1,8 @@
-package indi.etern.musichud.client.ui.utils;
+package indi.etern.musichud.client.ui.utils.lyrics;
 
 import indi.etern.musichud.beans.music.LyricInfo;
 import indi.etern.musichud.beans.music.LyricLine;
+import indi.etern.musichud.client.ui.utils.lyrics.beans.MetaInfoLine;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -87,6 +88,10 @@ public class LyricDecoder {
     }
 
     static void matchLine(String lyric, BiConsumer<Duration, String> matchedConsumer) {
+        List<MetaInfoLine> metaInfoLines = RegexJsonExtractor.extractJsonObjectsSafely(lyric, MetaInfoLine.class);
+        metaInfoLines.forEach(metaInfoLine -> {
+            matchedConsumer.accept(metaInfoLine.getTimestampDuration(), metaInfoLine.getText());
+        });
         Matcher matcher = mainPattern.matcher(lyric);
         while (matcher.find()) {
             String item = matcher.group();
@@ -94,11 +99,10 @@ public class LyricDecoder {
                 int colonCount = Math.toIntExact(item.chars().filter(c -> c == ':').count());
                 int i = item.lastIndexOf(":");
                 StringBuilder stringBuilder = new StringBuilder(item);
-                if (colonCount == 2) {//FIXME
+                if (colonCount == 2) {
                     stringBuilder.setCharAt(i, '.');
-                    item = stringBuilder.toString();
                 } else if (colonCount == 1){
-                    stringBuilder.insert(i+3,".000");//TODO test
+                    stringBuilder.insert(i+3,".000");
                 }
                 item = stringBuilder.toString();
             }
@@ -108,7 +112,7 @@ public class LyricDecoder {
                 int timestampLength = timestamp.length();
                 timestamp = timestamp.substring(1,timestamp.length()-1);
                 try {
-                    Duration duration = parseToDuration(timestamp);//FIXME
+                    Duration duration = parseToDuration(timestamp);
                     matchedConsumer.accept(duration, item.substring(timestampLength));
                 } catch (Exception ignored) {
                     matchedConsumer.accept(null, item.substring(timestampLength));

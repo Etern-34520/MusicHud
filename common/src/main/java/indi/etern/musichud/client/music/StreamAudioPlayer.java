@@ -42,6 +42,10 @@ public class StreamAudioPlayer {
     @Getter
     private final Set<Consumer<Status>> statusChangeListener = new HashSet<>();
     private final AtomicLong totalBufferedBytes = new AtomicLong(0);
+    //For retry
+    String currentUrlString;
+    FormatType currentFormatType;
+    ZonedDateTime currentStartTime;
     private int source = 0;
     private float lastVolume;
     private Future<?> playingFuture;
@@ -95,9 +99,23 @@ public class StreamAudioPlayer {
         }
     }
 
+    protected void fullyRetryCurrent() {
+        cleanup();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ignored) {
+        } finally {
+            LOGGER.info("Fully retrying");
+            playAsyncFromUrl(currentUrlString, currentFormatType, currentStartTime);
+        }
+    }
+
     public CompletableFuture<ZonedDateTime> playAsyncFromUrl(String urlString, FormatType formatType, ZonedDateTime startTime) {
         synchronized (StreamAudioPlayer.class) {
             try {
+                currentUrlString = urlString;
+                currentFormatType = formatType;
+                currentStartTime = startTime == null ? ZonedDateTime.now() : startTime;
                 stop(); // 先停止之前的播放
 
                 source = AL10.alGenSources();
@@ -136,6 +154,11 @@ public class StreamAudioPlayer {
                 } catch (Exception e) {
                     LOGGER.error("Download thread error", e);
                     setStatus(Status.ERROR);
+                    try {
+                        fullyRetryCurrent();
+                    } catch (RuntimeException e1) {
+                        LOGGER.error("Retry failed: " + e1.getClass() + ": " + e1.getMessage());
+                    }
                 }
             });
 
@@ -276,8 +299,11 @@ public class StreamAudioPlayer {
                             break;
                         } catch (Exception e) {
                             LOGGER.error("Playback error: {}", e.getMessage(), e);
-                            // 播放错误，停止播放线程，但让下载线程尝试重连
-                            shouldContinuePlaying = false;
+                            try {
+                                fullyRetryCurrent();
+                            } catch (RuntimeException e1) {
+                                break;
+                            }
                             break;
                         }
                     }
@@ -289,6 +315,7 @@ public class StreamAudioPlayer {
             if (!startPlayingFuture.isDone()) {
                 startPlayingFuture.completeExceptionally(e);
             }
+            fullyRetryCurrent();
         } finally {
             LOGGER.debug("Play task finished");
         }
@@ -375,10 +402,12 @@ public class StreamAudioPlayer {
 
                 // 下载完成
                 LOGGER.debug("Audio download completed");
-//                shouldContinueDownloading = false;
                 break;
             } catch (InterruptedException e) {
                 LOGGER.debug("Download stopped by interruption");
+                break;
+            } catch (ArrayIndexOutOfBoundsException e) {
+                LOGGER.debug("Download stopped by index out of bounds");
                 break;
             } catch (Exception e) {
                 if (e instanceof SocketException e1 && e1.getMessage().equals("Closed by interrupt")) break;
@@ -435,8 +464,8 @@ public class StreamAudioPlayer {
         int error = AL10.alGetError();
         if (error != AL10.AL_NO_ERROR) {
             String errorMsg = getALErrorString(error);
-            LOGGER.error("OpenAL Error during {}: {} ({})", operation, errorMsg, error);
-            throw new RuntimeException("OpenAL Error during " + operation + ": " + errorMsg + " (" + error + ")");
+            LOGGER.warn("OpenAL Error during {}: {} ({})", operation, errorMsg, error);
+            throw new RuntimeException("al error occurred while \"" + operation + "\": " + errorMsg);
         }
     }
 
@@ -495,18 +524,31 @@ public class StreamAudioPlayer {
                     while (processed-- > 0) {
                         int[] buffer = new int[1];
                         AL10.alSourceUnqueueBuffers(source, buffer);
-                        checkALError("alSourceUnqueueBuffers");
+                        try {
+                            checkALError("alSourceUnqueueBuffers");
+                        } catch (Exception ignored) {
+                            LOGGER.warn("Failed to unqueue buffers: {}", processed);
+                        }
                     }
 
                     AL10.alDeleteSources(source);
-                    checkALError("alDeleteSources");
+                    try {
+                        checkALError("alDeleteSources");
+                    } catch (Exception ignored) {
+                        LOGGER.warn("Failed to delete sources");
+                    }
+
                     source = 0;
                 }
 
                 for (int i = 0; i < buffers.length; i++) {
                     if (buffers[i] != 0 && AL10.alIsBuffer(buffers[i])) {
                         AL10.alDeleteBuffers(buffers[i]);
-                        checkALError("alDeleteBuffers");
+                        try {
+                            checkALError("alDeleteBuffers");
+                        } catch (Exception ignored) {
+                            LOGGER.warn("Failed to delete buffers: {}", i);
+                        }
                         buffers[i] = 0;
                     }
                 }

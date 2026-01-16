@@ -10,7 +10,6 @@ public class BackgroundColor {
         this.colorBL = colorBL;
     }
 
-    // 便捷方法:单一颜色
     public static BackgroundColor solid(int color) {
         return new BackgroundColor(color, color, color, color);
     }
