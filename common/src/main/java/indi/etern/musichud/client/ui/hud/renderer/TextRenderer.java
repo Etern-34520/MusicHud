@@ -145,23 +145,14 @@ public class TextRenderer {
         String text = textData.text;
         if (text == null || text.isEmpty()) return;
 
-        ModernStringSplitter splitter = TextLayoutEngine.getInstance().getStringSplitter();
-        int maxIndex = splitter.indexByWidth(text, layout.width / scale, Style.EMPTY);
-
-        String trimmedText = text.substring(0, maxIndex);
-        if (maxIndex < text.length()) {
-            int endIndex = trimmedText.length() - 2;
-            if (endIndex <= 3) {
-                return;
-            }
-            trimmedText = trimmedText.substring(0, endIndex) + "...";
-        }
+        String trimmedText = trimToWidth(text, layout.width / scale);
+        if (trimmedText.isEmpty()) return;
 
         // 计算带透明度的颜色
         int color = getColorWithAlpha(textData.baseColor, alpha);
 
         // 计算位置
-        float x = position.computeX(absolutePosition.x(), scale, trimmedText);
+        float x = position.computeX(absolutePosition.x(), scale, trimmedText, this::measureWidth);
         gr.pose().translate(x, absolutePosition.y());
         gr.pose().scale(scale, scale);
 
@@ -185,32 +176,29 @@ public class TextRenderer {
         if (currentTextData == null || currentTextData.text == null || currentTextData.text.isEmpty()) {
             return 0f;
         } else {
-            ModernStringSplitter splitter = TextLayoutEngine.getInstance().getStringSplitter();
-            return splitter.measureText(currentTextData.text) * (layout.height / 8f);
+            return measureWidth(currentTextData.text) * (layout.height / 8f);
         }
     }
 
     public enum Position {
         LEFT {
             @Override
-            float computeX(float startX, float scale, String text) {
+            float computeX(float startX, float scale, String text, WidthFunction widthFn) {
                 return startX;
             }
         }, CENTER {
             @Override
-            float computeX(float startX, float scale, String text) {
-                ModernStringSplitter splitter = TextLayoutEngine.getInstance().getStringSplitter();
-                return startX - 0.5f * splitter.measureText(text) * scale;
+            float computeX(float startX, float scale, String text, WidthFunction widthFn) {
+                return startX - 0.5f * widthFn.measure(text) * scale;
             }
         }, RIGHT {
             @Override
-            float computeX(float startX, float scale, String text) {
-                ModernStringSplitter splitter = TextLayoutEngine.getInstance().getStringSplitter();
-                return startX - splitter.measureText(text) * scale;
+            float computeX(float startX, float scale, String text, WidthFunction widthFn) {
+                return startX - widthFn.measure(text) * scale;
             }
         };
 
-        abstract float computeX(float startX, float scale, String text);
+        abstract float computeX(float startX, float scale, String text, WidthFunction widthFn);
     }
 
     public static class TextStyle {
@@ -221,5 +209,72 @@ public class TextRenderer {
             this.text = text;
             this.baseColor = baseColor;
         }
+    }
+
+    @FunctionalInterface
+    private interface WidthFunction {
+        float measure(String text);
+    }
+
+    private ModernStringSplitter tryGetSplitter() {
+        try {
+            return TextLayoutEngine.getInstance().getStringSplitter();
+        } catch (Throwable t) {
+            return null;
+        }
+    }
+
+    private String trimToWidth(String text, float maxWidth) {
+        ModernStringSplitter splitter = tryGetSplitter();
+        if (splitter != null) {
+            int maxIndex = splitter.indexByWidth(text, maxWidth, Style.EMPTY);
+            String trimmed = text.substring(0, maxIndex);
+            if (maxIndex < text.length()) {
+                trimmed = addEllipsis(trimmed);
+            }
+            return trimmed;
+        }
+
+        return trimWithVanilla(text, maxWidth);
+    }
+
+    private String trimWithVanilla(String text, float maxWidth) {
+        var font = Minecraft.getInstance().font;
+        float width = 0;
+        int index = 0;
+        final int len = text.length();
+        while (index < len) {
+            int codePoint = text.codePointAt(index);
+            int cpLen = Character.charCount(codePoint);
+            String cpStr = new String(new int[]{codePoint}, 0, 1);
+            int w = font.width(cpStr);
+            if (width + w > maxWidth) {
+                break;
+            }
+            width += w;
+            index += cpLen;
+        }
+
+        String trimmed = text.substring(0, index);
+        if (index < len) {
+            trimmed = addEllipsis(trimmed);
+        }
+        return trimmed;
+    }
+
+    private String addEllipsis(String base) {
+        if (base.length() <= 3) {
+            return "";
+        }
+        int cut = Math.max(0, base.length() - 3);
+        return base.substring(0, cut) + "...";
+    }
+
+    private float measureWidth(String text) {
+        ModernStringSplitter splitter = tryGetSplitter();
+        if (splitter != null) {
+            return splitter.measureText(text);
+        }
+        return Minecraft.getInstance().font.width(text);
     }
 }
