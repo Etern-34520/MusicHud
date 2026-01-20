@@ -1,0 +1,93 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '9.2.2'
+}
+
+group = rootProject.maven_group
+version = rootProject.mod_version
+
+base {
+    archivesName = "$rootProject.archives_name-bukkit"
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'papermc-repo'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+    maven {
+        name = 'spigotmc-repo'
+        url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+    }
+    maven {
+        name = 'sonatype'
+        url = 'https://oss.sonatype.org/content/groups/public/'
+    }
+}
+
+dependencies {
+    // Spigot API
+    compileOnly 'org.spigotmc:spigot-api:1.21.3-R0.1-SNAPSHOT'
+    
+    // Netty for ByteBuf handling
+    implementation 'io.netty:netty-buffer:4.1.97.Final'
+    
+    // Lombok
+    compileOnly "org.projectlombok:lombok:$rootProject.lombok_version"
+    annotationProcessor "org.projectlombok:lombok:$rootProject.lombok_version"
+    
+    // JSON processing (optional, for API calls)
+    implementation "com.fasterxml.jackson.core:jackson-databind:$rootProject.jackson_version"
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+    
+    withSourcesJar()
+    withJavadocJar()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('plugin.yml') {
+        expand props
+    }
+}
+
+shadowJar {
+    archiveClassifier.set('')
+    
+    // Relocate netty to avoid conflicts with server's netty
+    relocate 'io.netty', 'indi.etern.musichud.bukkit.libs.netty'
+    
+    dependencies {
+        // Include netty-buffer
+        include(dependency('io.netty:netty-buffer'))
+        include(dependency('io.netty:netty-common'))
+        include(dependency('com.fasterxml.jackson.core:.*'))
+    }
+    
+    minimize()
+}
+
+build {
+    dependsOn shadowJar
+}
+
+jar {
+    manifest {
+        attributes(
+            'Implementation-Title': 'MusicHud Bukkit Plugin',
+            'Implementation-Version': version,
+            'Implementation-Vendor': 'Etern'
+        )
+    }
+}

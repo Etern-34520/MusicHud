@@ -1,0 +1,29 @@
+# MusicHud Bukkit Plugin Configuration
+
+# Music API settings
+api:
+  # NeteaseCloudMusic API base URL
+  base-url: "http://localhost:3000"
+  # Request timeout in milliseconds
+  timeout: 10000
+
+# Music playback settings
+playback:
+  # Interval between songs in milliseconds
+  interval: 1000
+  # Whether to enable idle playlist playback
+  enable-idle-playlist: true
+
+# Vote skip settings
+vote-skip:
+  # Whether to enable vote skip
+  enabled: true
+  # Required ratio of players to skip (0.0 to 1.0)
+  required-ratio: 0.5
+  # Minimum votes required regardless of ratio
+  min-votes: 1
+
+# Debug settings
+debug:
+  # Enable debug logging
+  enabled: false

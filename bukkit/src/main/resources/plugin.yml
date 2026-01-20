@@ -1,0 +1,34 @@
+name: MusicHud
+version: '${version}'
+main: indi.etern.musichud.bukkit.MusicHudPlugin
+api-version: '1.21'
+description: MusicHud Bukkit plugin for music synchronization with MusicHud client mod
+authors:
+  - Etern
+website: https://github.com/Etern-34520/MusicHud
+softdepend: []
+
+commands:
+  musichud:
+    description: MusicHud main command
+    usage: /<command> <subcommand>
+    aliases:
+      - mhud
+      - mh
+
+permissions:
+  musichud.admin:
+    description: Allows access to admin commands
+    default: op
+  musichud.use:
+    description: Allows basic usage of MusicHud
+    default: true
+  musichud.queue:
+    description: Allows adding music to queue
+    default: true
+  musichud.skip:
+    description: Allows voting to skip music
+    default: true
+  musichud.playlist:
+    description: Allows managing idle playlists
+    default: true
