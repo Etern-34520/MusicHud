@@ -7,6 +7,14 @@
 
 #### 一个 GUI 化的全服点歌模组
 
+## 相关链接
+[ModRinth](https://modrinth.com/mod/music-hud)
+
+[MC 百科](https://www.mcmod.cn/class/23688.html)
+
+![img](https://cdn-alt.modrinth.com/data/7Rnb6oJr/images/96714cbb6621950e3daceee1ab2f7343836e9bbb.png)
+![img](https://cdn-alt.modrinth.com/data/7Rnb6oJr/images/49fdedf9f26ec05930035f9f79ba388502f0f62d.png)
+
 ## 前置依赖
 - ModernUI
 - Forge Config API Port
@@ -51,6 +59,4 @@ useRandomCnIp = true
 ```
 
 ## 已知问题
-- 未登录时，由于使用音源替换，部分音乐可能会出现音频瑕疵
-- 网络断开或卡顿时暂停播放前可能出现短时片段重复播放一次
-- 疑似网易云控加强导致游客登录大概率失效，但是绝大部分功能不受影响
+- 未登录时，由于使用音源替换，部分音乐可能会出现音频瑕疵以及加载缓慢
