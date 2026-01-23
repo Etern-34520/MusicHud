@@ -12,6 +12,8 @@
 
 [MC 百科](https://www.mcmod.cn/class/23688.html)
 
+[第三方bukkit插件实现](https://github.com/Shiroiame-Kusu/MusicHud-Bukkit)
+
 ![img](https://cdn-alt.modrinth.com/data/7Rnb6oJr/images/96714cbb6621950e3daceee1ab2f7343836e9bbb.png)
 ![img](https://cdn-alt.modrinth.com/data/7Rnb6oJr/images/49fdedf9f26ec05930035f9f79ba388502f0f62d.png)
 
