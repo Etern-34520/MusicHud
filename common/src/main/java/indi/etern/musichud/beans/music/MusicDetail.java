@@ -2,6 +2,8 @@ package indi.etern.musichud.beans.music;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import indi.etern.musichud.network.Codecs;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -64,11 +66,14 @@ public class MusicDetail {
         this.musicResourceInfo = musicResourceInfo;
     }
 
+    @JsonSetter(nulls = Nulls.SKIP)
     private String name = "";
     private long id;
 //    private MusicResourceType resourceType = MusicResourceType.NORMAL;
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("ar")
     private List<Artist> artists = List.of();
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("alia")
     private List<String> alias = List.of();
     @JsonProperty("pop")
@@ -77,6 +82,7 @@ public class MusicDetail {
     private int infoVersion;
     @JsonProperty("version")
     private int musicVersion;
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("al")
     private AlbumInfo album = AlbumInfo.NONE;
     @JsonProperty("dt")
@@ -93,7 +99,9 @@ public class MusicDetail {
     private QualityInfo low = QualityInfo.NONE;
     @JsonProperty
     private long mark; // bit mask
+    @JsonSetter(nulls = Nulls.SKIP)
     private OriginCoverType originCoverType;
+    @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("tns")
     private List<String> translations = List.of();
     PrivilegeInfo privilege = PrivilegeInfo.NONE;
@@ -102,6 +110,43 @@ public class MusicDetail {
     PusherInfo pusherInfo = PusherInfo.EMPTY;
     @Setter
     MusicResourceInfo musicResourceInfo = MusicResourceInfo.NONE;
+
+    public String getName() {
+        return name == null ? "" : name;
+    }
+
+    public List<Artist> getArtists() {
+        if (artists == null || artists.isEmpty()) {
+            return List.of();
+        }
+        return artists.stream().filter(Objects::nonNull).toList();
+    }
+
+    public List<String> getAlias() {
+        if (alias == null || alias.isEmpty()) {
+            return List.of();
+        }
+        return alias.stream().filter(Objects::nonNull).toList();
+    }
+
+    public AlbumInfo getAlbum() {
+        return album == null ? AlbumInfo.NONE : album;
+    }
+
+    public List<String> getTranslations() {
+        if (translations == null || translations.isEmpty()) {
+            return List.of();
+        }
+        return translations.stream().filter(Objects::nonNull).toList();
+    }
+
+    public PusherInfo getPusherInfo() {
+        return pusherInfo == null ? PusherInfo.EMPTY : pusherInfo;
+    }
+
+    public MusicResourceInfo getMusicResourceInfo() {
+        return musicResourceInfo == null ? MusicResourceInfo.NONE : musicResourceInfo;
+    }
 
     @Override
     public boolean equals(Object obj) {

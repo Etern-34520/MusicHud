@@ -49,6 +49,29 @@ public class Playlist {
     List<MusicDetail> tracks = List.of();
     @JsonSetter(nulls = Nulls.SKIP)
     List<PrivilegeInfo> privileges = List.of();
+
+    public String getName() {
+        return name == null ? "" : name;
+    }
+
+    public String getCoverImgId_str() {
+        return coverImgId_str == null ? "" : coverImgId_str;
+    }
+
+    public String getCoverImgUrl() {
+        return coverImgUrl == null ? "" : coverImgUrl;
+    }
+
+    public Profile getCreator() {
+        return creator == null ? Profile.ANONYMOUS : creator;
+    }
+
+    public List<MusicDetail> getTracks() {
+        if (tracks == null || tracks.isEmpty()) {
+            return List.of();
+        }
+        return tracks.stream().filter(Objects::nonNull).toList();
+    }
     protected Playlist(
             long id,
             String name,

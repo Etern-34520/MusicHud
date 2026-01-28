@@ -1,6 +1,8 @@
 package indi.etern.musichud.beans.music;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import indi.etern.musichud.network.Codecs;
 import lombok.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -34,12 +36,16 @@ public class MusicResourceInfo {
     );
     public static final MusicResourceInfo NONE = new MusicResourceInfo();
     long id;
+    @JsonSetter(nulls = Nulls.SKIP)
     String url = "";
     @JsonProperty("br")
     int bitrate;
     long size;//byte
+    @JsonSetter(nulls = Nulls.SKIP)
     FormatType type = FormatType.AUTO;
+    @JsonSetter(nulls = Nulls.SKIP)
     String md5 = "";
+    @JsonSetter(nulls = Nulls.SKIP)
     Fee fee = Fee.UNSET;
     int time;
     // Not contained in the original API response, set separately
@@ -54,5 +60,25 @@ public class MusicResourceInfo {
             musicResourceInfo.md5 = "";
         musicResourceInfo.time = musicDetail.getDurationMillis();
         return musicResourceInfo;
+    }
+
+    public String getUrl() {
+        return url == null ? "" : url;
+    }
+
+    public FormatType getType() {
+        return type == null ? FormatType.AUTO : type;
+    }
+
+    public String getMd5() {
+        return md5 == null ? "" : md5;
+    }
+
+    public Fee getFee() {
+        return fee == null ? Fee.UNSET : fee;
+    }
+
+    public LyricInfo getLyricInfo() {
+        return lyricInfo == null ? LyricInfo.NONE : lyricInfo;
     }
 }
