@@ -1,5 +1,7 @@
 package indi.etern.musichud.beans.music;
 
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
 import io.netty.buffer.ByteBuf;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,5 +22,11 @@ public class Artist {
             Artist::new
     );
     private long id;
-    private String name;
+
+    @JsonSetter(nulls = Nulls.SKIP)
+    private String name = "";
+
+    public String getName() {
+        return name == null ? "" : name;
+    }
 }
