@@ -284,6 +284,7 @@ public class StreamAudioPlayer {
                                 }
 
                                 int state = AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE);
+                                checkALError("alGetSourcei");
                                 if (state != AL10.AL_PLAYING && shouldContinuePlaying) {
                                     AL10.alSourcePlay(source);
                                     checkALError("alSourcePlay");
@@ -523,6 +524,7 @@ public class StreamAudioPlayer {
                     }
 
                     int processed = AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED);
+                    checkALError("alGetSourcei");
                     while (processed-- > 0) {
                         int[] buffer = new int[1];
                         AL10.alSourceUnqueueBuffers(source, buffer);

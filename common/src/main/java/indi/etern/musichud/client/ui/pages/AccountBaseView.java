@@ -42,7 +42,7 @@ public class AccountBaseView extends LinearLayout {
         removeAllViews();
 
         var scrollView = new ScrollView(context);
-        scrollView.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+        scrollView.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
         scrollView.setFillViewport(true);
         addView(scrollView, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 

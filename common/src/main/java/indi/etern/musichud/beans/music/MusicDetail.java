@@ -43,7 +43,6 @@ public class MusicDetail {
     );
     public static final MusicDetail NONE = new MusicDetail();
 
-    //    protected MusicDetail() {}
     protected MusicDetail(
             String name,
             long id,
@@ -69,7 +68,6 @@ public class MusicDetail {
     @JsonSetter(nulls = Nulls.SKIP)
     private String name = "";
     private long id;
-//    private MusicResourceType resourceType = MusicResourceType.NORMAL;
     @JsonSetter(nulls = Nulls.SKIP)
     @JsonProperty("ar")
     private List<Artist> artists = List.of();

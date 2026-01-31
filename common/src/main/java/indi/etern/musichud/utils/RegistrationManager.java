@@ -48,7 +48,7 @@ public class RegistrationManager {
     private static final Set<Class<?>> registeredSet = new HashSet<>();
 
     public static void performAutoRegistration(EnvType envType) {
-        MusicHud.LOGGER.info("Starting explicit auto-registration (call-based) in environment: {}", envType);
+        MusicHud.LOGGER.info("Starting explicit auto-registration in environment: {}", envType);
 
         // 根据环境注册特定接口
         if (envType == EnvType.CLIENT) {
@@ -72,7 +72,7 @@ public class RegistrationManager {
                         Register instance = regClass.getDeclaredConstructor().newInstance();
                         instance.register();
                         registeredSet.add(clazz);
-                        MusicHud.LOGGER.debug("Successfully registered (call-based): {}", clazz.getCanonicalName());
+                        MusicHud.LOGGER.debug("Successfully registered: {}", clazz.getCanonicalName());
                     }
                 } else {
                     MusicHud.LOGGER.warn("Class {} does not implement Register, skipping", className);

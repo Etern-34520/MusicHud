@@ -28,6 +28,7 @@ import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import indi.etern.musichud.network.pushMessages.c2s.VoteSkipCurrentMusicMessage;
 import lombok.NonNull;
 import lombok.Setter;
+import net.minecraft.client.multiplayer.PlayerInfo;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -101,7 +102,8 @@ public class MainFragment extends Fragment {
                 instance.titleText.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 instance.albumImage.loadUrl(musicDetail.getAlbum().getThumbnailPicUrl(200));
                 instance.titleText.setText(musicDetail.getName());
-                String name = NowPlayingInfo.getInstance().getPusherPlayerInfo().getProfile().getName();
+                PlayerInfo pusherPlayerInfo = NowPlayingInfo.getInstance().getPusherPlayerInfo();
+                String name = pusherPlayerInfo != null ? pusherPlayerInfo.getProfile().getName() : null;
                 if (name == null || name.isEmpty()) {
                     instance.pusherText.setText("");
                 } else {

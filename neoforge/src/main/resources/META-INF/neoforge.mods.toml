@@ -33,5 +33,17 @@ versionRange = "[17.0.8,)"
 ordering = "AFTER"
 side = "BOTH"
 
+[[dependencies.music_hud]]
+modId = "modernui"
+type = "required"
+ordering = "AFTER"
+side = "CLIENT"
+
+[[dependencies.music_hud]]
+modId = "architectury"
+type = "required"
+ordering = "AFTER"
+side = "CLIENT"
+
 [[mixins]]
 config = "music_hud.mixins.json"

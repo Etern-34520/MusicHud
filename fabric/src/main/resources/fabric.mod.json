@@ -39,11 +39,10 @@
     "java": ">=21",
     "architectury": ">=17.0.8",
     "fabric-api": "*",
-    "modmenu": "*",
-    "modernui": "*",
     "forgeconfigapiport": "*"
   },
-  "suggests": {
-    "another-mod": "*"
+  "recommends": {
+    "modmenu": "*",
+    "modernui": "*"
   }
 }
