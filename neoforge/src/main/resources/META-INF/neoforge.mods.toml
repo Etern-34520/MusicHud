@@ -22,7 +22,7 @@ side = "BOTH"
 [[dependencies.music_hud]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.6,)"
+versionRange = "[1.21.6,1.21.8]"
 ordering = "NONE"
 side = "BOTH"
 

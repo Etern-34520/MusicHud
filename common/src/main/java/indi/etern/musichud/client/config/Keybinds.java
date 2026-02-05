@@ -19,7 +19,7 @@ public class Keybinds implements ClientRegister {
                 MusicHud.MOD_ID + ".open_main",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_M,
-                MusicHud.MOD_ID + ".category"
+                "key.category" + MusicHud.MOD_ID + "." + MusicHud.MOD_ID
         );
         KeyMappingRegistry.register(mapping);
         ClientTickEvent.CLIENT_POST.register(instance -> {
