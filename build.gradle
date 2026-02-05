@@ -50,6 +50,9 @@ subprojects {
             name "JitPack"
             url 'https://jitpack.io'
         }
+        flatDir{
+            dir "$projectDir/libs"
+        }
     }
 
     loom {
