@@ -4,15 +4,10 @@ import indi.etern.musichud.utils.JsonUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 public class RegexJsonExtractor {
 
     private static final ObjectMapper MAPPER = JsonUtil.objectMapper;
-
-    // 匹配所有JSON对象的正则表达式
-    private static final Pattern JSON_OBJECT_PATTERN =
-            Pattern.compile("\\{(?:[^{}]|\\{(?:[^{}]|\\{[^{}]*\\})*\\})*\\}");
 
     // 改进版：处理嵌套和转义
     public static <T> List<T> extractJsonObjectsSafely(String input, Class<T> valueType) {

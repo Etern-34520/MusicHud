@@ -1,10 +1,8 @@
 package indi.etern.musichud.client.ui.hud.renderer;
 
-import indi.etern.musichud.client.music.NowPlayingInfo;
 import indi.etern.musichud.client.ui.hud.metadata.Layout;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
@@ -34,7 +32,7 @@ public class PlayerHeadRenderer {
         this.layout = layout;
     }
 
-    public void render(GuiGraphics guiGraphics, DeltaTracker deltaTracker) {
+    public void render(GuiGraphics guiGraphics) {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null || minecraft.player == null) return;
 

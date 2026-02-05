@@ -23,6 +23,7 @@ public class ImageBlurPostProcessor {
             }
 
             Bitmap bitmap = originalImageData.convertToBitmap();
+            assert bitmap != null;
             var result = applyGaussianBlur(bitmap, radius);
 
             NativeImage nativeImage = convertBitmapToNativeImage(result);
@@ -66,7 +67,7 @@ public class ImageBlurPostProcessor {
         // 水平模糊
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                float[] color = horizontalConvolve(sourcePixmap, x, y, width, height, radius, kernel);
+                float[] color = horizontalConvolve(sourcePixmap, x, y, width, radius, kernel);
                 tempPixmap.setColor4f(x, y, color);
             }
         }
@@ -74,7 +75,7 @@ public class ImageBlurPostProcessor {
         // 垂直模糊
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                float[] color = verticalConvolve(tempPixmap, x, y, width, height, radius, kernel);
+                float[] color = verticalConvolve(tempPixmap, x, y, height, radius, kernel);
                 resultPixmap.setColor4f(x, y, color);
             }
         }
@@ -84,7 +85,7 @@ public class ImageBlurPostProcessor {
     }
 
     private static float[] horizontalConvolve(Pixmap pixmap, int x, int y,
-                                              int width, int height, int radius, float[] kernel) {
+                                              int width, int radius, float[] kernel) {
         float[] sum = new float[4]; // RGBA
         float weightSum = 0;
 
@@ -116,7 +117,7 @@ public class ImageBlurPostProcessor {
     }
 
     private static float[] verticalConvolve(Pixmap pixmap, int x, int y,
-                                            int width, int height, int radius, float[] kernel) {
+                                            int height, int radius, float[] kernel) {
         float[] sum = new float[4]; // RGBA
         float weightSum = 0;
 

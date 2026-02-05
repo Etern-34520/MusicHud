@@ -17,6 +17,7 @@ import java.util.Set;
 
 import static org.apache.logging.log4j.LogManager.getLogger;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class ServerApiMeta {
     public static final String DEFAULT_API_BASE_URL = "http://localhost:3000";
     private static String apiBaseUrl = DEFAULT_API_BASE_URL;
@@ -37,6 +38,7 @@ public class ServerApiMeta {
             String uri = apiBaseUrl + url;
             List<String> query = new ArrayList<>();
             if (ServerConfigDefinition.configure.getLeft().useRandomCnIp.get()) {
+                //noinspection SpellCheckingInspection
                 query.add("randomCNIP=true");
             }
             if (noCache) {

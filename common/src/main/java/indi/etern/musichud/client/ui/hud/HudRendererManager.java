@@ -89,21 +89,11 @@ public class HudRendererManager {
             if (!idleText.equals(currentText)) {
                 String s = currentText.replace(errorAppendText, "").replace(retryingAppendText, "").replace(bufferingAppendText, "");
                 switch (c) {
-                    case IDLE -> {
-                        instance.TITLE_RENDERER.setText("暂无播放音乐");
-                    }
-                    case PLAYING -> {
-                        instance.TITLE_RENDERER.setText(s);
-                    }
-                    case ERROR -> {
-                        instance.TITLE_RENDERER.setText(s + errorAppendText);
-                    }
-                    case BUFFERING -> {
-                        instance.TITLE_RENDERER.setText(s + bufferingAppendText);
-                    }
-                    case RETRYING -> {
-                        instance.TITLE_RENDERER.setText(s + retryingAppendText);
-                    }
+                    case IDLE -> instance.TITLE_RENDERER.setText("暂无播放音乐");
+                    case PLAYING -> instance.TITLE_RENDERER.setText(s);
+                    case ERROR -> instance.TITLE_RENDERER.setText(s + errorAppendText);
+                    case BUFFERING -> instance.TITLE_RENDERER.setText(s + bufferingAppendText);
+                    case RETRYING -> instance.TITLE_RENDERER.setText(s + retryingAppendText);
                 }
             }
         }
@@ -143,16 +133,16 @@ public class HudRendererManager {
 
         float progressWidth = baseLayout.width - imageHeightAndWidth - 3 * padding - baseLayout.radius / 3;
         float progressHeight = 2;
-        float progressX = padding + imageHeightAndWidth + padding;
+        float mainContentX = padding + imageHeightAndWidth + padding;
         float progressY = padding + imageHeightAndWidth - progressHeight - 1;
         float progressRadius = progressHeight / 2;
-        Layout progressLayout = new Layout(progressX, progressY, progressWidth, progressHeight, progressRadius);
+        Layout progressLayout = new Layout(mainContentX, progressY, progressWidth, progressHeight, progressRadius);
         progressLayout.setParent(baseLayout);
 
         configureProgressRenderer(progressLayout);
 
         float headSize = 8f;
-        float headX = Math.max(progressX + progressWidth - headSize, imageHeightAndWidth + padding - headSize);
+        float headX = Math.max(mainContentX + progressWidth - headSize, imageHeightAndWidth + padding - headSize);
         float headY = padding + 1f;
 
         Layout layout1 = new Layout(headX, headY, headSize, headSize, 0f);
@@ -165,23 +155,22 @@ public class HudRendererManager {
         float lyricsSize = rest <= 8f ? 0 : 6f;
         float subLyricsSize = rest <= 14f ? 0 : 5f;
         float lyricsY = padding + 10f + Math.max(0, (rest - lyricsSize - subLyricsSize - 7) / 2);
-        float textStartX = progressX;
         float titleY = padding + 1f;
         float aboveProgressY = progressY - normalTextSize - 1f;
-        float progressRightX = progressX + progressWidth;
+        float progressRightX = mainContentX + progressWidth;
 
-        Layout titleLayout = Layout.ofTextLayout(textStartX, titleY, progressWidth - 8f, titleSize);
+        Layout titleLayout = Layout.ofTextLayout(mainContentX, titleY, progressWidth - 8f, titleSize);
         titleLayout.setParent(baseLayout);
         TITLE_RENDERER.configureLayout(titleLayout, Theme.EMPHASIZE_TEXT_COLOR, TextRenderer.Position.LEFT);
 
-        Layout lyricsLayout = Layout.ofTextLayout(textStartX, lyricsY, progressWidth, lyricsSize);
+        Layout lyricsLayout = Layout.ofTextLayout(mainContentX, lyricsY, progressWidth, lyricsSize);
         lyricsLayout.setParent(baseLayout);
-        Layout subLyricsLayout = Layout.ofTextLayout(textStartX, lyricsY + lyricsSize + 1, progressWidth, subLyricsSize);
+        Layout subLyricsLayout = Layout.ofTextLayout(mainContentX, lyricsY + lyricsSize + 1, progressWidth, subLyricsSize);
         subLyricsLayout.setParent(baseLayout);
         LYRICS_RENDERER.configureLayout(lyricsLayout, Theme.NORMAL_TEXT_COLOR, TextRenderer.Position.LEFT);
         SUB_LYRICS_RENDERER.configureLayout(subLyricsLayout, Theme.SECONDARY_TEXT_COLOR, TextRenderer.Position.LEFT);
 
-        Layout artistAndAlbumLayout = Layout.ofTextLayout(textStartX, aboveProgressY, progressWidth, normalTextSize);
+        Layout artistAndAlbumLayout = Layout.ofTextLayout(mainContentX, aboveProgressY, progressWidth, normalTextSize);
         artistAndAlbumLayout.setParent(baseLayout);
         Layout playTimeLayout = Layout.ofTextLayout(progressRightX, aboveProgressY, progressWidth, normalTextSize);
         playTimeLayout.setParent(baseLayout);
@@ -312,19 +301,19 @@ public class HudRendererManager {
             PLAY_TIME_RENDERER.setText(playTimeString);
         }
 
-        HUD_RENDERER.render(graphics, deltaTracker);
-        IMAGE_RENDERER.render(graphics, deltaTracker);
-        PLAYER_HEAD_RENDERER.render(graphics, deltaTracker);
-        PROGRESS_RENDERER.render(graphics, deltaTracker);
+        HUD_RENDERER.render(graphics);
+        IMAGE_RENDERER.render(graphics);
+        PLAYER_HEAD_RENDERER.render(graphics);
+        PROGRESS_RENDERER.render(graphics);
 
-        TITLE_RENDERER.render(graphics, deltaTracker);
-        LYRICS_RENDERER.render(graphics, deltaTracker);
-        SUB_LYRICS_RENDERER.render(graphics, deltaTracker);
+        TITLE_RENDERER.render(graphics);
+        LYRICS_RENDERER.render(graphics);
+        SUB_LYRICS_RENDERER.render(graphics);
 
         float progressWidth = PROGRESS_RENDERER.getCurrentData().getLayout().width;
         ARTISTS_AND_ALBUM_RENDERER.getLayout().width = progressWidth - PLAY_TIME_RENDERER.calcDisplayWidth() - 1f;
-        ARTISTS_AND_ALBUM_RENDERER.render(graphics, deltaTracker);
-        PLAY_TIME_RENDERER.render(graphics, deltaTracker);
+        ARTISTS_AND_ALBUM_RENDERER.render(graphics);
+        PLAY_TIME_RENDERER.render(graphics);
     }
 
     public void updateRenderPass(RenderPass renderPass) {

@@ -5,7 +5,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.Utf8String;
 import net.minecraft.network.codec.StreamCodec;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Mixin;
 
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
@@ -83,20 +82,6 @@ public class Codecs {
                     Utf8String.write(buf, clazz.getName(), STRING_SIZE);
                 }
             };
-
-    public static <T> StreamCodec<ByteBuf, T> ofConst(T value) {
-        return new StreamCodec<>() {
-            @Override
-            @NotNull
-            public T decode(@NotNull ByteBuf buf) {
-                return value;
-            }
-
-            @Override
-            public void encode(@NotNull ByteBuf buf, @NotNull T t) {
-            }
-        };
-    }
 
     public static <B extends ByteBuf, T> StreamCodec<B, List<T>> ofList(StreamCodec<B, T> codec) {
         return new StreamCodec<>() {

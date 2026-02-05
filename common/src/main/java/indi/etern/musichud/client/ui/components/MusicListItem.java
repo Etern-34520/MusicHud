@@ -107,12 +107,4 @@ public class MusicListItem extends LinearLayout {
         }
     }
 
-    public void reset() {
-        albumImage.cancelLoad(); // 取消图片加载
-        musicName.setText("");
-        musicArtistAndAlbum.setText("");
-        durationText.setText("");
-        pusherText.setText("");
-        setOnClickListener(null);
-    }
 }

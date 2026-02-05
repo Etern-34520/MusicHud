@@ -36,7 +36,6 @@ public class StreamAudioPlayer {
     private final int[] buffers = new int[BUFFER_COUNT];
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final AtomicReference<Status> status = new AtomicReference<>(Status.IDLE);
-    private final int retryDelayAdditionalMs = 1000;
     private final BlockingQueue<byte[]> audioBuffer = new LinkedBlockingQueue<>(30); // 最大30个数据块的缓冲区
 
     @Getter
@@ -158,7 +157,7 @@ public class StreamAudioPlayer {
                     try {
                         fullyRetryCurrent();
                     } catch (RuntimeException e1) {
-                        LOGGER.error("Retry failed: " + e1.getClass() + ": " + e1.getMessage());
+                        LOGGER.error("Retry failed: {}: {}", e1.getClass(), e1.getMessage());
                     }
                 }
             });
@@ -179,6 +178,7 @@ public class StreamAudioPlayer {
         }
     }
 
+    @SuppressWarnings("BusyWait")
     private void playAudioWithRetry(CompletableFuture<ZonedDateTime> startPlayingFuture) {
         boolean finished = false;
         try {
@@ -232,11 +232,13 @@ public class StreamAudioPlayer {
                                 if (!initialized.get() || source == 0) break;
 
                                 int processed = AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED);
+                                //noinspection SpellCheckingInspection
                                 checkALError("alGetSourcei");
 
                                 while (processed-- > 0) {
                                     int[] buffer = new int[1];
                                     AL10.alSourceUnqueueBuffers(source, buffer);
+                                    //noinspection SpellCheckingInspection
                                     checkALError("alSourceUnqueueBuffers");
 
                                     // 从缓冲区获取音频数据，最多等待500ms
@@ -284,6 +286,7 @@ public class StreamAudioPlayer {
                                 }
 
                                 int state = AL10.alGetSourcei(source, AL10.AL_SOURCE_STATE);
+                                //noinspection SpellCheckingInspection
                                 checkALError("alGetSourcei");
                                 if (state != AL10.AL_PLAYING && shouldContinuePlaying) {
                                     AL10.alSourcePlay(source);
@@ -324,6 +327,7 @@ public class StreamAudioPlayer {
         }
     }
 
+    @SuppressWarnings("BusyWait")
     private void downloadAudioWithRetry(String urlString, FormatType formatType, boolean forceSync) {
         int localRetryCount = 0;
         boolean forceSyncInternal = forceSync;
@@ -422,6 +426,7 @@ public class StreamAudioPlayer {
 
                 try {
                     // 等待重试延迟
+                    int retryDelayAdditionalMs = 1000;
                     int delay = localRetryCount * retryDelayAdditionalMs;
                     LOGGER.debug("Waiting {} ms before retry", delay);
                     Thread.sleep(delay);
@@ -446,8 +451,7 @@ public class StreamAudioPlayer {
     private int getBytesPerSample(int format) {
         return switch (format) {
             case AL10.AL_FORMAT_MONO8 -> 1;
-            case AL10.AL_FORMAT_MONO16 -> 2;
-            case AL10.AL_FORMAT_STEREO8 -> 2;
+            case AL10.AL_FORMAT_MONO16, AL10.AL_FORMAT_STEREO8 -> 2;
             case AL10.AL_FORMAT_STEREO16 -> 4;
             default -> 4;
         };
@@ -524,13 +528,16 @@ public class StreamAudioPlayer {
                     }
 
                     int processed = AL10.alGetSourcei(source, AL10.AL_BUFFERS_PROCESSED);
+                    //noinspection SpellCheckingInspection
                     checkALError("alGetSourcei");
                     while (processed-- > 0) {
                         int[] buffer = new int[1];
                         AL10.alSourceUnqueueBuffers(source, buffer);
                         try {
+                            //noinspection SpellCheckingInspection
                             checkALError("alSourceUnqueueBuffers");
                         } catch (Exception ignored) {
+                            //noinspection SpellCheckingInspection
                             LOGGER.warn("Failed to unqueue buffers: {}", processed);
                         }
                     }
@@ -572,6 +579,7 @@ public class StreamAudioPlayer {
     }
 
     // 获取当前缓冲状态（秒）
+    @SuppressWarnings("unused")
     public float getBufferedSeconds() {
         if (currentDecoder == null) return 0;
         return calculateBufferedSeconds(currentDecoder.getFormat());

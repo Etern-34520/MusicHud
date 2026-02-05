@@ -48,7 +48,7 @@ public class MusicService {
             .maximumSize(20)
             .build();
     private static volatile MusicService instance;
-    private static ProfileConfigData profileConfigData = ProfileConfigData.getInstance();
+    private static final ProfileConfigData profileConfigData = ProfileConfigData.getInstance();
     @Getter
     private final Set<Playlist> idlePlaylists = new HashSet<>();
     @Getter
@@ -91,7 +91,7 @@ public class MusicService {
                                 getInstance().addToIdlePlaySource(playlist1);
                             }, MusicHud.EXECUTOR);
                         } catch (Exception e) {
-                            logger.error("Failed to load idle play source playlist with id:" + id, e);
+                            logger.error("Failed to load idle play source playlist with id:{}", id, e);
                         }
                     }
                 });

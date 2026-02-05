@@ -36,6 +36,7 @@ public class Account {
     //unclear
     int status;
     VipType vipType;
+    @SuppressWarnings("SpellCheckingInspection")
     @JsonProperty("anonimousUser")
     boolean anonymous;
 }

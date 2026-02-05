@@ -10,7 +10,6 @@ import indi.etern.musichud.client.ui.hud.metadata.Layout;
 import indi.etern.musichud.client.ui.hud.metadata.ProgressBar;
 import indi.etern.musichud.client.ui.hud.piplines.HudRenderPipelines;
 import lombok.Getter;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.client.gui.render.TextureSetup;
@@ -41,7 +40,7 @@ public class ProgressRenderer {
         this.currentData = data;
     }
 
-    public void render(GuiGraphics gr, DeltaTracker deltaTracker) {
+    public void render(GuiGraphics gr) {
         if (currentData == null || currentData.getProgressBar() == null) {
             return;
         }

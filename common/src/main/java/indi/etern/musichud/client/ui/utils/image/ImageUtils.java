@@ -14,6 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -79,6 +80,7 @@ public class ImageUtils {
      *
      * @param maxDownloads 最大并发下载数
      */
+    @SuppressWarnings("unused")
     public static void setMaxConcurrentDownloads(int maxDownloads) {
         if (maxDownloads <= 0) {
             throw new IllegalArgumentException("Max concurrent downloads must be positive");
@@ -182,17 +184,8 @@ public class ImageUtils {
                 Bitmap source = BitmapFactory.decodeStream(stream, opts);
                 NativeImage nativeImage = convertBitmapToNativeImage(source);
 
-                ResourceLocation imageLocation = ResourceLocation.fromNamespaceAndPath(
-                        MusicHud.MOD_ID,
-                        "image_" + nativeImage.hashCode()
-                );
-
-                AtomicReference<DynamicTexture> texture = new AtomicReference<>();
-                Minecraft.getInstance().submit(() -> {
-                    texture.set(new DynamicTexture(() -> "image_" + source.hashCode(), nativeImage));
-                }).join();
-                ImageTextureData imageTextureData = new ImageTextureData(url, imageLocation, texture.get(), false);
-                return imageTextureData;
+                assert nativeImage != null;
+                return getImageTextureData(url, source, nativeImage);
             }
         } finally {
             if (connection != null) {
@@ -271,6 +264,7 @@ public class ImageUtils {
         return bitmap;
     }
 
+    @SuppressWarnings("unused")
     public static void cleanup() {
         cachedTexturesData.invalidateAll();
         pendingDownloads.clear();
@@ -304,11 +298,15 @@ public class ImageUtils {
         byte[] imageBytes = Base64.getDecoder().decode(base64Data);
         Bitmap source = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
         NativeImage nativeImage = convertBitmapToNativeImage(source);
+        return getImageTextureData(data, source, nativeImage);
+    }
+
+    @NotNull
+    private static ImageTextureData getImageTextureData(String data, Bitmap source, NativeImage nativeImage) {
         ResourceLocation imageLocation = ResourceLocation.fromNamespaceAndPath(
                 MusicHud.MOD_ID,
                 "image_" + nativeImage.hashCode()
         );
-
         AtomicReference<DynamicTexture> texture = new AtomicReference<>();
         Minecraft.getInstance().submit(() -> {
             texture.set(new DynamicTexture(() -> "image_" + source.hashCode(), nativeImage));

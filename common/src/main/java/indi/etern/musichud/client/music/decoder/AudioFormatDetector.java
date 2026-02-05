@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class AudioFormatDetector {
-    private static final byte[] ID3_HEADER = {0x49, 0x44, 0x33}; // "ID3"
-    private static final byte[] FLAC_HEADER = {0x66, 0x4C, 0x61, 0x43}; // "fLaC"
+    private static final byte[] ID3_HEADER = {0x49, 0x44, 0x33};
+    private static final byte[] FLAC_HEADER = {0x66, 0x4C, 0x61, 0x43};
 
     public static FormatType detectFormat(InputStream inputStream) throws IOException {
         if (!inputStream.markSupported()) {
@@ -52,7 +52,6 @@ public class AudioFormatDetector {
                 if ((secondByte & 0xE0) == 0xE0) {
                     // 进一步验证这是一个有效的MP3帧头
                     int thirdByte = header[i + 2] & 0xFF;
-                    int fourthByte = header[i + 3] & 0xFF;
 
                     // 检查位率索引（不能是1111，表示无效）
                     if ((thirdByte & 0xF0) != 0xF0) {

@@ -19,6 +19,7 @@ import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
 /*
 * 相较于Fragment在切换时保留了上下文
 * */
+@SuppressWarnings("unused")
 public class RouterContainer extends FrameLayout {
     @Getter
     private static RouterContainer instance;
@@ -43,7 +44,7 @@ public class RouterContainer extends FrameLayout {
 
     private boolean isTransitioning = false;
     private String pendingNavigationKey = null;
-    private Easings defaultEasing = Easings.EASE_IN_OUT_QUINT;
+    private final Easings defaultEasing = Easings.EASE_IN_OUT_QUINT;
 
     public enum TransitionType {
         FADE {

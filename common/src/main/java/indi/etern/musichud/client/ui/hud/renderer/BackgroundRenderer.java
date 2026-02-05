@@ -12,7 +12,6 @@ import indi.etern.musichud.client.ui.hud.metadata.Layout;
 import indi.etern.musichud.client.ui.hud.piplines.HudRenderPipelines;
 import indi.etern.musichud.client.ui.utils.image.ImageTextureData;
 import indi.etern.musichud.client.ui.utils.image.ImageUtils;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
@@ -43,7 +42,7 @@ public class BackgroundRenderer {
         this.currentData = data;
     }
 
-    public void render(GuiGraphics gr, DeltaTracker deltaTracker) {
+    public void render(GuiGraphics gr) {
         if (currentData == null) {
             return;
         }

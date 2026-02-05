@@ -54,16 +54,7 @@ public class AccountBaseView extends LinearLayout {
         boolean enabled = ClientConfigDefinition.enable.get();
         if (!MusicHud.isConnected() || !enabled) {
             view.setGravity(Gravity.CENTER);
-            TextView textView = new TextView(context);
-            textView.setTextSize(textView.dp(8f));
-            int color = Theme.EMPHASIZE_TEXT_COLOR;
-            textView.setTextColor(color);
-            if (enabled) {
-                textView.setText("需要安装了 Music Hud 的服务器支持");
-            } else {
-                textView.setText("Music Hud 已禁用");
-            }
-            textView.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+            TextView textView = Theme.getNotificationTextView(context, enabled);
             view.addView(textView);
         } else {
             setGravity(Gravity.CENTER_HORIZONTAL);

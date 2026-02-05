@@ -2,7 +2,6 @@ package indi.etern.musichud.client.ui.pages;
 
 import icyllis.modernui.core.Context;
 import icyllis.modernui.graphics.drawable.Drawable;
-import icyllis.modernui.mc.MinecraftSurfaceView;
 import icyllis.modernui.mc.MuiModApi;
 import icyllis.modernui.mc.ScrollController;
 import icyllis.modernui.text.TextPaint;
@@ -43,7 +42,7 @@ public class HomeView extends LinearLayout {
     private final ScrollController lyricScrollController;
     private TextView lastHighlightLine;
     private LinearLayout lyricLinesView;
-    private HashMap<LyricLine, TextView> textViewMap = new LinkedHashMap<>();
+    private final HashMap<LyricLine, TextView> textViewMap = new LinkedHashMap<>();
     private ScrollView lyricScrollView;
     private long lastUserScrollTime = 0;
     private boolean isUserManuallyScrolling = false;
@@ -51,8 +50,6 @@ public class HomeView extends LinearLayout {
     private boolean hasInitializedScroll = false;
     // 标记是否正在进行归位滚动
     private boolean isRecenterScroll = false;
-    // 用于存储滚动控制器的监听器
-    private ScrollController.IListener scrollListener;
     // 记录当前滚动位置
     private int currentScrollPosition = 0;
     // 标记是否正在进行自动滚动（由滚动控制器引起的）
@@ -108,13 +105,13 @@ public class HomeView extends LinearLayout {
             }
         }
     };
-    private volatile MinecraftSurfaceView scrollUpdateSurfaceView;
 
     public HomeView(Context context) {
         super(context);
 
         // 初始化滚动控制器的监听器
-        scrollListener = (controller, amount) -> {
+        // 用于存储滚动控制器的监听器
+        ScrollController.IListener scrollListener = (controller, amount) -> {
             if (lyricScrollView != null) {
                 lyricScrollView.scrollTo(0, (int) amount);
                 currentScrollPosition = (int) amount;
@@ -169,16 +166,7 @@ public class HomeView extends LinearLayout {
         boolean enabled = ClientConfigDefinition.enable.get();
         if (!MusicHud.isConnected() || !enabled) {
             setGravity(Gravity.CENTER);
-            TextView textView = new TextView(context);
-            textView.setTextSize(textView.dp(8f));
-            int color = Theme.EMPHASIZE_TEXT_COLOR;
-            textView.setTextColor(color);
-            if (enabled) {
-                textView.setText("需要安装了 Music Hud 的服务器支持");
-            } else {
-                textView.setText("Music Hud 已禁用");
-            }
-            textView.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+            TextView textView = Theme.getNotificationTextView(context, enabled);
             addView(textView);
             return;
         }
@@ -465,6 +453,7 @@ public class HomeView extends LinearLayout {
         layoutParams.setMargins(0, 0, 0, dp(16));
         LinearLayout actions = new LinearLayout(getContext());
 
+        assert Minecraft.getInstance().player != null;
         if (musicDetail.getPusherInfo().playerUUID().equals(Minecraft.getInstance().player.getUUID())) {
             Button removeButton = new Button(getContext());
             removeButton.setText("移除");

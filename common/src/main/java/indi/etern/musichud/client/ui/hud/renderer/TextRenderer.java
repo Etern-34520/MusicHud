@@ -5,7 +5,6 @@ import icyllis.modernui.mc.text.TextLayoutEngine;
 import indi.etern.musichud.client.ui.hud.metadata.Layout;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Style;
@@ -60,10 +59,7 @@ public class TextRenderer {
                 // 如果已经在过渡中，有两种处理方式：
                 // 1. 如果新文本与nextTextData相同，保持当前过渡
                 // 2. 如果不同，重置过渡，重新开始
-                if (nextTextData != null && text.equals(nextTextData.text)) {
-                    // 新文本与将要显示的文本相同，保持当前过渡
-                    return;
-                } else {
+                if (nextTextData == null || !text.equals(nextTextData.text)) {
                     // 新文本不同，快速完成当前过渡，然后开始新的过渡
                     if (nextTextData != null) {
                         // 立即完成当前过渡
@@ -84,7 +80,7 @@ public class TextRenderer {
         }
     }
 
-    private void updateTransition(DeltaTracker deltaTracker) {
+    private void updateTransition() {
         if (!isTransitioning) return;
 
         long currentTime = System.currentTimeMillis();
@@ -103,9 +99,9 @@ public class TextRenderer {
         }
     }
 
-    public void render(GuiGraphics gr, DeltaTracker deltaTracker) {
+    public void render(GuiGraphics gr) {
         // 更新过渡进度
-        updateTransition(deltaTracker);
+        updateTransition();
 
         if (currentTextData == null || layout.height <= 0 || layout.width <= 0) {
             return;

@@ -31,8 +31,8 @@ public class AccountView extends LinearLayout {
     private static AccountView instance;
     private final AccountService accountService = AccountService.getInstance();
     private Context context;
-    private MusicService musicService = MusicService.getInstance();
-    private HashMap<Playlist, PlaylistCard> idlePlaylistCardMap = new HashMap<>();
+    private final MusicService musicService = MusicService.getInstance();
+    private final HashMap<Playlist, PlaylistCard> idlePlaylistCardMap = new HashMap<>();
 
     public AccountView(Context context) {
         super(context);

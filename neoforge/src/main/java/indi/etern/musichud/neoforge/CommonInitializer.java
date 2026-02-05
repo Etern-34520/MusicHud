@@ -20,7 +20,8 @@ import net.neoforged.neoforge.common.NeoForge;
 @Mod(MusicHud.MOD_ID)
 public final class CommonInitializer {
 
-    public CommonInitializer(IEventBus eventBus,ModContainer container) {
+    @SuppressWarnings("unused")
+    public CommonInitializer(IEventBus eventBus, ModContainer container) {
         eventBus.register(this);
 
         // 根据环境注册配置

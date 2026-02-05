@@ -34,7 +34,7 @@ public class LoginService {
     @Setter
     private Consumer<StartQRLoginResponse> loginResponseHandler;
     @Getter
-    private List<Consumer<LoginCookieInfo>> loginCompleteListeners = new ArrayList<>();
+    private final List<Consumer<LoginCookieInfo>> loginCompleteListeners = new ArrayList<>();
     @Getter
     NetworkManager.NetworkReceiver<StartQRLoginResponse> qrLoginResponseReceiver = (qrLoginResponse, context) -> {
         if (loginResponseHandler != null)

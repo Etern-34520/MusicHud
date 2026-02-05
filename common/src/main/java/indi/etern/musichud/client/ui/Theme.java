@@ -1,14 +1,18 @@
 package indi.etern.musichud.client.ui;
 
 import icyllis.modernui.R;
+import icyllis.modernui.core.Context;
 import icyllis.modernui.util.ColorStateList;
 import icyllis.modernui.util.StateSet;
+import icyllis.modernui.widget.LinearLayout;
+import icyllis.modernui.widget.TextView;
+
+import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class Theme {
     public static final int BASE_BACKGROUND_COLOR = 0xB0000000;
 
     public static final int PRIMARY_COLOR = 0xFFE0BFB7;
-    public static final int PRIMARY_COLOR_DARK = 0xFF53433F;
 
     public static final int EMPHASIZE_TEXT_COLOR = 0xFFFFFFFF;
     public static final int NORMAL_TEXT_COLOR = 0xFFE0E0E0;
@@ -50,4 +54,18 @@ public class Theme {
                     0x08000000,
             }
     );
+
+    public static TextView getNotificationTextView(Context context, boolean enabled) {
+        TextView textView = new TextView(context);
+        textView.setTextSize(textView.dp(8f));
+        int color = EMPHASIZE_TEXT_COLOR;
+        textView.setTextColor(color);
+        if (enabled) {
+            textView.setText("需要安装了 Music Hud 的服务器支持");
+        } else {
+            textView.setText("Music Hud 已禁用");
+        }
+        textView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+        return textView;
+    }
 }

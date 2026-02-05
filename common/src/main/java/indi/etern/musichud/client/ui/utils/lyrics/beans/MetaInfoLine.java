@@ -1,7 +1,6 @@
 package indi.etern.musichud.client.ui.utils.lyrics.beans;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import indi.etern.musichud.beans.music.LyricLine;
 
 import java.time.Duration;
 import java.util.List;

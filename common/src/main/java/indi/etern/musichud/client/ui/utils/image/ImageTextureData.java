@@ -12,8 +12,6 @@ import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.Logger;
 
 import java.io.Closeable;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
@@ -90,8 +88,9 @@ public final class ImageTextureData implements Closeable {
         }
     }
 
-    public CompletableFuture<Void> release() {
-        return Minecraft.getInstance().submit(() -> {
+    public void release() {
+        //noinspection ResultOfMethodCallIgnored
+        Minecraft.getInstance().submit(() -> {
             Minecraft.getInstance().getTextureManager().release(location);
             logger.debug("Released texture {} : {}", location, texture);
             registered = true;
@@ -109,10 +108,10 @@ public final class ImageTextureData implements Closeable {
                 this.registered == that.registered;
     }
 
-    /*@Override
+    @Override
     public int hashCode() {
         return Objects.hash(source, location, texture, registered);
-    }*/
+    }
 
     @Override
     public String toString() {
@@ -122,5 +121,4 @@ public final class ImageTextureData implements Closeable {
                 "texture=" + texture + ", " +
                 "registered=" + registered + ']';
     }
-
 }

@@ -3,7 +3,6 @@ package indi.etern.musichud.client.ui.components;
 import icyllis.arc3d.core.MathUtil;
 import icyllis.modernui.R;
 import icyllis.modernui.core.Context;
-import icyllis.modernui.mc.ConfigItem;
 import icyllis.modernui.mc.MuiModApi;
 import icyllis.modernui.mc.ui.PreferencesFragment;
 import icyllis.modernui.view.ViewGroup;
@@ -13,12 +12,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class DynamicIntegerOption extends PreferencesFragment.IntegerOption {
-    public DynamicIntegerOption(Context context, String name,
-                                ConfigItem<Integer> config,
-                                Runnable onChanged) {
-        super(context, name, config, config, onChanged);
-    }
-
     public DynamicIntegerOption(Context context, String name,
                                 Supplier<Integer> getter,
                                 Consumer<Integer> setter) {
@@ -58,6 +51,7 @@ public class DynamicIntegerOption extends PreferencesFragment.IntegerOption {
 
         // 保存父容器和位置
         ViewGroup parent = (ViewGroup) slider.getParent();
+        assert parent != null;
         int index = parent.indexOfChild(slider);
         ViewGroup.LayoutParams params = slider.getLayoutParams();
 

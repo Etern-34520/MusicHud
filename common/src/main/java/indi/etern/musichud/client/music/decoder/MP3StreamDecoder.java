@@ -8,8 +8,8 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 
 public class MP3StreamDecoder implements AudioDecoder {
-    private Bitstream bitstream;
-    private Decoder decoder;
+    private final Bitstream bitstream;
+    private final Decoder decoder;
     private int format;
     private int sampleRate;
     private boolean initialized = false;
@@ -74,9 +74,7 @@ public class MP3StreamDecoder implements AudioDecoder {
     @Override
     public void close() {
         try {
-            if (bitstream != null) {
-                bitstream.close();
-            }
+            bitstream.close();
         } catch (Exception e) {
             // 忽略关闭错误
         }

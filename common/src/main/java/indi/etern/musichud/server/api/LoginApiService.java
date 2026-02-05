@@ -80,6 +80,7 @@ public class LoginApiService {
     }
 
     public String randomVipCookieOr(Supplier<String> defaultCookieSupplier) {
+        //noinspection ComparatorMethodParameterNotUsed
         Comparator<String> randomComparator = (a, b) -> MusicHud.RANDOM.nextInt(-1, 1);
         return loginedPlayerInfoMap.values().stream()
                 .filter(info -> info.getVipType() != null && info.getVipType() == VipType.VIP)

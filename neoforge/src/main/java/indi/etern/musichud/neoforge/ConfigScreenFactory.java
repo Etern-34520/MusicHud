@@ -7,6 +7,7 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("unused")
 public class ConfigScreenFactory implements IConfigScreenFactory {
     @Override
     @NotNull

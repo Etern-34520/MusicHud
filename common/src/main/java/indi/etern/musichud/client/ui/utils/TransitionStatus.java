@@ -43,8 +43,4 @@ public class TransitionStatus<NextData> {
             }
         }
     }
-
-    public float getProgress(Easings easingType) {
-        return easingType.transferValue(progress);
-    }
 }

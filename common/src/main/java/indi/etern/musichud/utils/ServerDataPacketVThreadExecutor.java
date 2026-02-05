@@ -19,6 +19,7 @@ public class ServerDataPacketVThreadExecutor {
                         consumer.accept(payload, serverPlayer);
                     } catch (Exception e) {
                         MusicHud.getLogger(payload.getClass()).error(e);
+                        //noinspection CallToPrintStackTrace
                         e.printStackTrace();
                     }
                 } else {

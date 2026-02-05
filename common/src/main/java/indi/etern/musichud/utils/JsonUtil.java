@@ -8,8 +8,6 @@ import java.text.SimpleDateFormat;
 
 public class JsonUtil {
     public static final ObjectMapper objectMapper;
-
-    //    public static final Gson gson = new Gson();
     static {
         objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

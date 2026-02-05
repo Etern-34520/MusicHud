@@ -15,9 +15,6 @@ import indi.etern.musichud.server.config.ServerConfigDefinition;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.status.ServerStatus;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Logger;
 
@@ -36,8 +33,7 @@ public class MusicPlayerServerService {
     ArrayDeque<MusicDetail> musicQueue = new ArrayDeque<>();
     Map<ServerPlayer, Set<Playlist>> idlePlaySources = new ConcurrentHashMap<>();
     boolean continuable;
-    private Logger logger = MusicHud.getLogger(MusicPlayerServerService.class);
-    private int musicIntervalMillis = 1000;
+    private final Logger logger = MusicHud.getLogger(MusicPlayerServerService.class);
     @Getter
     private volatile MusicDetail currentMusicDetail = MusicDetail.NONE;
     @Getter
@@ -112,6 +108,7 @@ public class MusicPlayerServerService {
                     nowPlayingStartTime = ZonedDateTime.now();
                     logger.info("Switched to music: {} (ID: {})", switchedToPlay.getName(), switchedToPlay.getId());
                     try {
+                        int musicIntervalMillis = 1000;
                         //noinspection BusyWait
                         Thread.sleep(switchedToPlay.getDurationMillis() + musicIntervalMillis);
                     } catch (InterruptedException ignored) {//When force switch
