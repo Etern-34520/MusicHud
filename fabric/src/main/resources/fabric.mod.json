@@ -34,10 +34,10 @@
     "music_hud.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.17.3",
-    "minecraft": "~1.21.8",
+    "fabricloader": "*",
+    "minecraft": "~1.21.6",
     "java": ">=21",
-    "architectury": ">=17.0.8",
+    "architectury": ">=17.0.0",
     "fabric-api": "*",
     "forgeconfigapiport": "*"
   },

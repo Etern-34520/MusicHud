@@ -28,32 +28,31 @@ public class LyricDecoder {
         List<LyricLine> lyricLinesWithoutValidTimestamp = new ArrayList<>(0);
         matchLine(lyric, (duration, s) -> {
             LyricLine lyricLine = map.get(duration);
+            String lyricString = s == null ? "" : s.replace('\u00A0', ' ').trim();
             if (lyricLine == null) {
                 lyricLine = new LyricLine();
+                lyricLine.setStartTime(duration);
+                lyricLine.setText(lyricString);
                 if (duration != null) {
                     map.put(duration, lyricLine);
                 } else if (lyricLine.getText() != null && !lyricLine.getText().startsWith("}")) {
                     lyricLinesWithoutValidTimestamp.add(lyricLine);
                 }
-            }
-            lyricLine.setStartTime(duration);
-            if (s != null) {
-                lyricLine.setText(s.replace('\u00A0', ' ').trim());
-            } else if (lyricLine.getText() != null && !lyricLine.getText().startsWith("}")) {
-                lyricLine.setText("");
+            } else {
+                lyricLine.setText(lyricLine.getText() + "\n" + lyricString);
             }
         });
         matchLine(translatedLyric, (duration, s) -> {
             LyricLine lyricLine = map.get(duration);
             if (lyricLine == null) {
                 lyricLine = new LyricLine();
+                lyricLine.setStartTime(duration);
                 if (duration != null) {
                     map.put(duration, lyricLine);
                 } else {
                     lyricLinesWithoutValidTimestamp.add(lyricLine);
                 }
             }
-            lyricLine.setStartTime(duration);
             if (s != null) {
                 lyricLine.setTranslatedText(s.replace('\u00A0', ' ').trim());
             } else {

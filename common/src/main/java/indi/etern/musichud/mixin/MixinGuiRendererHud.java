@@ -17,7 +17,6 @@ import java.util.function.Supplier;
 
 @Mixin(GuiRenderer.class)
 public class MixinGuiRendererHud {
-
     @Inject(method = "executeDrawRange",
             at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;bindDefaultUniforms" +
                     "(Lcom/mojang/blaze3d/systems/RenderPass;)V", shift = At.Shift.AFTER, remap = false),

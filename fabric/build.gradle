@@ -46,7 +46,7 @@ dependencies {
     modImplementation "com.terraformersmc:modmenu:$rootProject.modmenu_version"
 
     // ModernUI Fabric
-    modImplementation("icyllis.modernui:ModernUI-Fabric:${rootProject.minecraft_version}-${rootProject.modernui_version}.+")
+    modImplementation("icyllis.modernui:ModernUI-Fabric:1.21.8-${rootProject.modernui_version}.+")
 
 //    implementation "io.github.classgraph:classgraph:$rootProject.classgraph_version"
 //    shadowBundle "io.github.classgraph:classgraph:$rootProject.classgraph_version"

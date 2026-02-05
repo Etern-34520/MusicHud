@@ -31,26 +31,24 @@ public class FLACStreamDecoder implements AudioDecoder {
 
             // 根据声道数和位深度确定OpenAL格式
             if (channels == 1) {
-                if (bitsPerSample == 16) {
-                    this.format = AL10.AL_FORMAT_MONO16;
-                } else if (bitsPerSample == 8) {
-                    this.format = AL10.AL_FORMAT_MONO8;
-                } else if (bitsPerSample == 24) {
-                    convert24bitsTo16bits = true;
-                    this.format = AL10.AL_FORMAT_STEREO16;
-                } else {
-                    throw new UnsupportedEncodingException("bits per sample is not 8/16/24");
+                switch (bitsPerSample) {
+                    case 8 -> this.format = AL10.AL_FORMAT_MONO8;
+                    case 16 -> this.format = AL10.AL_FORMAT_MONO16;
+                    case 24 -> {
+                        convert24bitsTo16bits = true;
+                        this.format = AL10.AL_FORMAT_STEREO16;
+                    }
+                    default -> throw new UnsupportedEncodingException("bits per sample is not 8/16/24");
                 }
             } else if (channels == 2) {
-                if (bitsPerSample == 16) {
-                    this.format = AL10.AL_FORMAT_STEREO16;
-                } else if (bitsPerSample == 8) {
-                    this.format = AL10.AL_FORMAT_STEREO8;
-                } else if (bitsPerSample == 24) {
-                    convert24bitsTo16bits = true;
-                    this.format = AL10.AL_FORMAT_STEREO16;
-                } else {
-                    throw new UnsupportedEncodingException("bits per sample is not 8/16/24");
+                switch (bitsPerSample) {
+                    case 8 -> this.format = AL10.AL_FORMAT_STEREO8;
+                    case 16 -> this.format = AL10.AL_FORMAT_STEREO16;
+                    case 24 -> {
+                        convert24bitsTo16bits = true;
+                        this.format = AL10.AL_FORMAT_STEREO16;
+                    }
+                    default -> throw new UnsupportedEncodingException("bits per sample is not 8/16/24");
                 }
             } else {
                 throw new UnsupportedEncodingException("More than 2 channels");

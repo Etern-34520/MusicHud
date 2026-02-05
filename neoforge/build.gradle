@@ -40,7 +40,7 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 
-    implementation("icyllis.modernui:ModernUI-NeoForge:${rootProject.minecraft_version}-${rootProject.modernui_version}.+")
+    implementation("icyllis.modernui:ModernUI-NeoForge:1.21.8-${rootProject.modernui_version}.+")
     modImplementation("icyllis.modernui:ModernUI-Core:${modernui_version}") {
         exclude group: "org.slf4j", module: "slf4j-api"
         exclude group: "org.apache.logging.log4j", module: "log4j-core"

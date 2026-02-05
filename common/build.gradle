@@ -27,7 +27,7 @@ dependencies {
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$rootProject.jackson_version"
     implementation "com.github.umjammer:jlayer:$rootProject.jlayer_version"
     implementation "org.jflac:jflac-codec:$rootProject.jflac_version"
-    compileOnly "icyllis.modernui:ModernUI-NeoForge:${rootProject.minecraft_version}-${rootProject.modernui_version}.+"
+    compileOnly "icyllis.modernui:ModernUI-NeoForge:1.21.8-${rootProject.modernui_version}.+"
 }
 
 test {

@@ -8,40 +8,35 @@ modId = "music_hud"
 version = "${version}"
 displayName = "Music Hud"
 authors = "Etern"
-description = "A mod allow to play music from NCM in whole server "
+description = "A mod allow to play music from NCM in whole server"
 displayURL = "https://github.com/Etern-34520/MusicHud"
 logoFile = "assets/music_hud/icon.png"
 
 [[dependencies.music_hud]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.8,)"
+versionRange = "[21.6,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.music_hud]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.8,)"
+versionRange = "[1.21.6,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.music_hud]]
 modId = "architectury"
 type = "required"
-versionRange = "[17.0.8,)"
+versionRange = "[17.0.0,)"
 ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.music_hud]]
 modId = "modernui"
 type = "required"
-ordering = "AFTER"
-side = "CLIENT"
-
-[[dependencies.music_hud]]
-modId = "architectury"
-type = "required"
+versionRange = "[3.12.0.4,)"
 ordering = "AFTER"
 side = "CLIENT"
 
