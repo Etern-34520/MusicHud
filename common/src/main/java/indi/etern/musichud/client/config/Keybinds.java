@@ -10,6 +10,7 @@ import indi.etern.musichud.interfaces.ClientRegister;
 import indi.etern.musichud.interfaces.RegisterMark;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 @RegisterMark
@@ -19,7 +20,7 @@ public class Keybinds implements ClientRegister {
                 MusicHud.MOD_ID + ".open_main",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_M,
-                "category."+MusicHud.MOD_ID
+                KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath(MusicHud.MOD_ID,"category"))
         );
         KeyMappingRegistry.register(mapping);
         ClientTickEvent.CLIENT_POST.register(instance -> {
