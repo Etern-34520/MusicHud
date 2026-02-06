@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.SneakyThrows;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -303,7 +303,7 @@ public class ImageUtils {
 
     @NotNull
     private static ImageTextureData getImageTextureData(String data, Bitmap source, NativeImage nativeImage) {
-        ResourceLocation imageLocation = ResourceLocation.fromNamespaceAndPath(
+        Identifier imageLocation = Identifier.fromNamespaceAndPath(
                 MusicHud.MOD_ID,
                 "image_" + nativeImage.hashCode()
         );

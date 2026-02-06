@@ -20,7 +20,7 @@ import indi.etern.musichud.client.ui.hud.metadata.HorizontalAlign;
 import indi.etern.musichud.client.ui.hud.metadata.VerticalAlign;
 import indi.etern.musichud.client.ui.screen.MainFragment;
 import lombok.Getter;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.resources.language.I18n;
 
 import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -50,9 +50,9 @@ public class ConfigView extends LinearLayout {
 
             HudRendererManager hudRendererManager = HudRendererManager.getInstance();
 
-            var commonCategory = PreferencesFragment.createCategoryList(view, I18n.get("music_hud.config.category.common"));
+            var commonCategory = PreferencesFragment.createCategoryList(view, "通用");
             PreferencesFragment.BooleanOption booleanOption = new PreferencesFragment.BooleanOption(context,
-                    I18n.get("music_hud.config.common.switch.enable"),
+                    "启用 Music Hud",
                     ClientConfigDefinition.enable,
                     ClientConfigDefinition.enable::set);
             booleanOption.create(commonCategory);
