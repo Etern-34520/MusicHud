@@ -19,7 +19,7 @@ import indi.etern.musichud.client.ui.hud.metadata.VPosition;
 import indi.etern.musichud.client.ui.screen.MainFragment;
 import indi.etern.musichud.client.music.StreamAudioPlayer;
 import lombok.Getter;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 
 import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
