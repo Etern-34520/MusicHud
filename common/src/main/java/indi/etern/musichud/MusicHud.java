@@ -5,7 +5,7 @@ import dev.architectury.platform.Platform;
 import indi.etern.musichud.utils.RegistrationManager;
 import lombok.Getter;
 import lombok.Setter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +37,7 @@ public final class MusicHud {
         RegistrationManager.performAutoRegistration(Platform.getEnv());
     }
 
-    public static ResourceLocation location(String s) {
-        return ResourceLocation.fromNamespaceAndPath(MusicHud.MOD_ID, s);
+    public static Identifier location(String s) {
+        return Identifier.fromNamespaceAndPath(MusicHud.MOD_ID, s);
     }
 }
