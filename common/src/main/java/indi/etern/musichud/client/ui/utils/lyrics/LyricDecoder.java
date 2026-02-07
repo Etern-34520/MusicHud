@@ -1,5 +1,6 @@
 package indi.etern.musichud.client.ui.utils.lyrics;
 
+import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.LyricInfo;
 import indi.etern.musichud.beans.music.LyricLine;
 import indi.etern.musichud.client.ui.utils.lyrics.beans.MetaInfoLine;
@@ -18,8 +19,11 @@ import java.util.regex.Pattern;
 
 public class LyricDecoder {
 
-    private static final Pattern mainPattern = Pattern.compile("\\[[^]]+].*");
-    private static final Pattern timestampPattern = Pattern.compile("\\[[^]]+]");
+    private static final Pattern mainPattern = Pattern.compile("\\[[0-9:.]+].*");
+    private static final DateTimeFormatter TIME_FORMATTER = new DateTimeFormatterBuilder()
+            .appendPattern("HH:mm:ss")
+            .appendFraction(java.time.temporal.ChronoField.MILLI_OF_SECOND, 1, 3, true)
+            .toFormatter();
 
     public static ArrayDeque<LyricLine> decode(LyricInfo lyricInfo) {
         String lyric = lyricInfo.getLrc().getLyric();
@@ -64,11 +68,6 @@ public class LyricDecoder {
         return lyricLines;
     }
 
-    private static final DateTimeFormatter TIME_FORMATTER = new DateTimeFormatterBuilder()
-            .appendPattern("HH:mm:ss")
-            .appendFraction(java.time.temporal.ChronoField.MILLI_OF_SECOND, 1, 3, true)
-            .toFormatter();
-
     static Duration parseToDuration(String timeString) {
         try {
             String normalizedTime = timeString;
@@ -94,28 +93,29 @@ public class LyricDecoder {
         Matcher matcher = mainPattern.matcher(lyric);
         while (matcher.find()) {
             String item = matcher.group();
-            if (!item.contains(".")) {
-                int colonCount = Math.toIntExact(item.chars().filter(c -> c == ':').count());
-                int i = item.lastIndexOf(":");
-                StringBuilder stringBuilder = new StringBuilder(item);
-                if (colonCount == 2) {
-                    stringBuilder.setCharAt(i, '.');
-                } else if (colonCount == 1){
-                    stringBuilder.insert(i+3,".000");
+            try {
+                if (!item.contains(".")) {
+                    int colonCount = Math.toIntExact(item.chars().filter(c -> c == ':').count());
+                    int i = item.lastIndexOf(":");
+                    StringBuilder stringBuilder = new StringBuilder(item);
+                    if (colonCount == 2) {
+                        stringBuilder.setCharAt(i, '.');
+                    } else if (colonCount == 1) {
+                        stringBuilder.insert(i + 3, ".000");
+                    }
+                    item = stringBuilder.toString();
                 }
-                item = stringBuilder.toString();
-            }
-            Matcher timestampMatcher = timestampPattern.matcher(item);
-            if (timestampMatcher.find()) {
-                String timestamp = timestampMatcher.group();
-                int timestampLength = timestamp.length();
-                timestamp = timestamp.substring(1,timestamp.length()-1);
+                String[] split = item.split("]", 2);
+                String timestamp = split[0];
+                String lyricLineContent = split[1];
                 try {
-                    Duration duration = parseToDuration(timestamp);
-                    matchedConsumer.accept(duration, item.substring(timestampLength));
+                    Duration duration = parseToDuration(timestamp.substring(1, timestamp.length() - 1));
+                    matchedConsumer.accept(duration, lyricLineContent);
                 } catch (Exception ignored) {
-                    matchedConsumer.accept(null, item.substring(timestampLength));
+                    matchedConsumer.accept(null, lyricLineContent);
                 }
+            } catch (Exception e) {
+                MusicHud.getLogger(LyricDecoder.class).debug("failed to parse line \"{}\"", item);
             }
         }
     }
