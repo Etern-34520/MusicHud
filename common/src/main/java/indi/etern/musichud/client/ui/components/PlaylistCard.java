@@ -15,6 +15,7 @@ import indi.etern.musichud.client.ui.Theme;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.minecraft.client.resources.language.I18n;
 
 import java.util.function.Consumer;
 
@@ -61,10 +62,10 @@ public class PlaylistCard extends LinearLayout {
         addToWaitingListButton.setBackground(background1);
         addToWaitingListButton.setOnClickListener((v) -> {
             if (musicService.getIdlePlaylists().contains(playlist)) {
-                Toast.makeText(context, "已从空闲播放源移除\n" + playlist.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, I18n.get("music_hud.text.removedFromIdlePlaySource") + "\n" + playlist.getName(), Toast.LENGTH_SHORT).show();
                 musicService.removeFromIdlePlaySource(playlist);
             } else {
-                Toast.makeText(context, "已添加到空闲播放源\n" + playlist.getName(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, I18n.get("music_hud.text.addedToIdlePlaySource") + "\n" + playlist.getName(), Toast.LENGTH_SHORT).show();
                 musicService.addToIdlePlaySource(playlist);
             }
         });
@@ -108,9 +109,9 @@ public class PlaylistCard extends LinearLayout {
 
     private void updateButton() {
         if (musicService.getIdlePlaylists().contains(playlist)) {
-            addToWaitingListButton.setText("从空闲播放源移除");
+            addToWaitingListButton.setText(I18n.get("music_hud.button.removeFromIdlePlaySource"));
         } else {
-            addToWaitingListButton.setText("添加到空闲播放源");
+            addToWaitingListButton.setText(I18n.get("music_hud.button.addToIdlePlaySource"));
         }
     }
 }

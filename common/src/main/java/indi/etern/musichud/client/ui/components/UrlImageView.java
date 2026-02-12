@@ -20,6 +20,7 @@ import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import indi.etern.musichud.client.ui.utils.image.ImageTextureData;
 import indi.etern.musichud.client.ui.utils.image.ImageUtils;
 import lombok.Setter;
+import net.minecraft.client.resources.language.I18n;
 
 import javax.annotation.Nonnull;
 import java.util.concurrent.CompletableFuture;
@@ -81,7 +82,7 @@ public class UrlImageView extends FrameLayout {
         errorLayout.setVisibility(GONE);
 
         errorText = new TextView(context);
-        errorText.setText("加载失败");
+        errorText.setText(I18n.get("music_hud.button.loadingError"));
         errorText.setTextSize(dp(8));
         errorText.setTextAlignment(TEXT_ALIGNMENT_CENTER);
         errorText.setTextColor(Theme.ERROR_TEXT_COLOR);
@@ -89,7 +90,7 @@ public class UrlImageView extends FrameLayout {
         errorLayout.addView(errorText, new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
         Button retryButton = new Button(context);
-        retryButton.setText("重试");
+        retryButton.setText(I18n.get("music_hud.button.retry"));
         retryButton.setTextSize(dp(6));
         retryButton.setTextColor(Theme.PRIMARY_COLOR);
         var background = ButtonInsetBackground.builder()
@@ -223,7 +224,7 @@ public class UrlImageView extends FrameLayout {
                     ImageTextureData imageTextureData = ImageUtils.loadBase64(base64String);
                     createDrawable(imageTextureData.convertToBitmap());
                 } catch (Exception e) {
-                    showError("加载失败");
+                    showError(I18n.get("music_hud.button.loadingError"));
                 }
             });
         }, MusicHud.EXECUTOR);
@@ -237,14 +238,14 @@ public class UrlImageView extends FrameLayout {
                         Bitmap bitmap = imageTextureData.convertToBitmap();
                         MuiModApi.postToUiThread(() -> createDrawable(bitmap));
                     } else {
-                        MuiModApi.postToUiThread(() -> showError("下载失败"));
+                        MuiModApi.postToUiThread(() -> showError(I18n.get("music_hud.button.downloadError")));
                     }
                 }, MusicHud.EXECUTOR).exceptionally((e) -> {
-                    MuiModApi.postToUiThread(() -> showError("加载失败"));
+                    MuiModApi.postToUiThread(() -> showError(I18n.get("music_hud.button.loadingError")));
                     return null;
                 });
             } catch (Exception e) {
-                MuiModApi.postToUiThread(() -> showError("加载失败"));
+                MuiModApi.postToUiThread(() -> showError(I18n.get("music_hud.button.loadingError")));
             }
         }, MusicHud.EXECUTOR);
     }

@@ -19,6 +19,7 @@ import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.client.ui.Theme;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import lombok.Getter;
+import net.minecraft.client.resources.language.I18n;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -60,12 +61,11 @@ public class AccountView extends LinearLayout {
         Profile currentProfile = Profile.getCurrent();
         if (currentProfile == null) {
             setGravity(Gravity.CENTER_HORIZONTAL);
-            MusicHud.getLogger(AccountView.class).warn("Profile.current is null, the account view will not display");
 
             TextView textView = new TextView(context);
             textView.setTextSize(dp(8f));
             textView.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-            textView.setText("获取账户信息出错");
+            textView.setText(I18n.get("music_hud.error.getAccountInfo"));
             textView.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
             LayoutParams params1 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             params1.setMargins(0, dp(64), 0, 0);
@@ -77,7 +77,7 @@ public class AccountView extends LinearLayout {
             retryButton.setHeight(dp(36));
             retryButton.setWidth(dp(84));
             retryButton.setTextSize(dp(8));
-            retryButton.setText("重试");
+            retryButton.setText(I18n.get("music_hud.button.retry"));
 
             ProgressBar progressRing = new ProgressBar(context);
             progressRing.setIndeterminate(true);
@@ -143,7 +143,7 @@ public class AccountView extends LinearLayout {
 
             LayoutParams logoutButtonParam = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             Button logoutButton = new Button(context);
-            logoutButton.setText("登出");
+            logoutButton.setText(I18n.get("music_hud.button.logout"));
             logoutButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
             logoutButton.setTextSize(dp(8));
             Drawable background = ButtonInsetBackground.builder()
@@ -173,7 +173,7 @@ public class AccountView extends LinearLayout {
             TextView textView = new TextView(context);
             textView.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
             textView.setTextSize(dp(10));
-            textView.setText("我的歌单");
+            textView.setText(I18n.get("music_hud.text.myPlaylists"));
             LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             layout1.addView(textView, params);
 
@@ -194,14 +194,14 @@ public class AccountView extends LinearLayout {
             TextView textView1 = new TextView(context);
             textView1.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
             textView1.setTextSize(dp(10));
-            textView1.setText("空闲播放源");
+            textView1.setText(I18n.get("music_hud.text.idlePlaySources"));
             LayoutParams params2 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             layout2.addView(textView1, params2);
 
             TextView textView2 = new TextView(context);
             textView2.setTextColor(Theme.SECONDARY_TEXT_COLOR);
             textView2.setTextSize(dp(8));
-            textView2.setText("播放器空闲时可能会播放这些歌单中的音乐");
+            textView2.setText(I18n.get("music_hud.text.idlePlaySourcesDescription"));
             LayoutParams params3 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             layout2.addView(textView2, params3);
 

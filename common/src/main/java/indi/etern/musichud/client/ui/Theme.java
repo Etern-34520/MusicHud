@@ -6,6 +6,8 @@ import icyllis.modernui.util.ColorStateList;
 import icyllis.modernui.util.StateSet;
 import icyllis.modernui.widget.LinearLayout;
 import icyllis.modernui.widget.TextView;
+import indi.etern.musichud.MusicHud;
+import net.minecraft.client.resources.language.I18n;
 
 import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -58,12 +60,15 @@ public class Theme {
     public static TextView getNotificationTextView(Context context, boolean enabled) {
         TextView textView = new TextView(context);
         textView.setTextSize(textView.dp(8f));
-        int color = EMPHASIZE_TEXT_COLOR;
-        textView.setTextColor(color);
+        textView.setTextColor(EMPHASIZE_TEXT_COLOR);
         if (enabled) {
-            textView.setText("需要安装了 Music Hud 的服务器支持");
+            if (MusicHud.getStatus() == MusicHud.ConnectStatus.NOT_CONNECTED) {
+                textView.setText(I18n.get("music_hud.text.notConnected"));
+            } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.INCAPABLE) {
+                textView.setText(I18n.get("music_hud.text.incapableWithServer"));
+            }
         } else {
-            textView.setText("Music Hud 已禁用");
+            textView.setText(I18n.get("music_hud.text.disabled"));
         }
         textView.setLayoutParams(new LinearLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
         return textView;

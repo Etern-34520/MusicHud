@@ -5,10 +5,9 @@ import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.LyricInfo;
 import indi.etern.musichud.beans.music.LyricLine;
 import indi.etern.musichud.beans.music.MusicDetail;
-import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.client.ui.hud.HudRendererManager;
 import indi.etern.musichud.client.ui.screen.MainFragment;
-import indi.etern.musichud.client.ui.utils.lyrics.LyricDecoder;
+import indi.etern.musichud.client.ui.utils.lyrics.LyricParser;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -33,8 +32,6 @@ public class NowPlayingInfo {
     private final Set<BiConsumer<MusicDetail, MusicDetail>> musicSwitchListener = new HashSet<>();
     @Getter
     private MusicDetail currentlyPlayingMusicDetail;
-    @Getter
-    private MusicResourceInfo currentlyPlayingMusicResourceInfo;
     @Getter
     private volatile Duration musicDuration = null;
     @Getter
@@ -100,22 +97,21 @@ public class NowPlayingInfo {
         return (float) Duration.between(musicStartTime, ZonedDateTime.now()).toMillis() / musicDuration.toMillis();
     }
 
-    public void switchMusic(MusicDetail musicDetail, MusicResourceInfo resourceInfo, ZonedDateTime musicStartTime) {
+    public void switchMusic(MusicDetail musicDetail, ZonedDateTime musicStartTime) {
         MusicDetail previous = currentlyPlayingMusicDetail;
         currentlyPlayingMusicDetail = musicDetail;
-        currentlyPlayingMusicResourceInfo = resourceInfo;
-        if (!resourceInfo.equals(MusicResourceInfo.NONE)) {
+        if (!musicDetail.equals(MusicDetail.NONE)) {
             musicDuration = Duration.ofMillis(musicDetail.getDurationMillis());
             this.musicStartTime = musicStartTime;
         } else {
             musicDuration = null;
             this.musicStartTime = null;
         }
-        LyricInfo lyricInfo = resourceInfo.getLyricInfo();
+        LyricInfo lyricInfo = musicDetail.getLyricInfo();
         ArrayDeque<LyricLine> lyricLines = null;
         if (!lyricInfo.equals(LyricInfo.NONE)) {
             try {
-                lyricLines = LyricDecoder.decode(lyricInfo);
+                lyricLines = LyricParser.parse(lyricInfo);
                 this.lyricLines = lyricLines;
                 this.atomicLyricLines.set(new ArrayDeque<>(lyricLines));
             } catch (Exception e) {
@@ -200,7 +196,6 @@ public class NowPlayingInfo {
         }
         lyricUpdaterThread = null;
         currentlyPlayingMusicDetail = null;
-        currentlyPlayingMusicResourceInfo = null;
         musicDuration = null;
         musicStartTime = null;
         lyricLines = null;

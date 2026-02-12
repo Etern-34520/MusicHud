@@ -21,6 +21,9 @@ public record GetPlaylistDetailResponse(Playlist playlist) implements S2CPayload
 
     static Map<Long, Consumer<GetPlaylistDetailResponse>> consumerMap = new HashMap<>();
     public static void setReceiver(long id, Consumer<GetPlaylistDetailResponse> consumer) {
+        if (consumerMap.containsKey(id)) {
+            consumerMap.get(id).accept(null);
+        }
         GetPlaylistDetailResponse.consumerMap.put(id, consumer);
     }
 

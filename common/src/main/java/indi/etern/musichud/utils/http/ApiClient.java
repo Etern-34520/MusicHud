@@ -83,7 +83,7 @@ public class ApiClient {
                         t = JsonUtil.objectMapper.readValue(string, urlMeta.responseType());
                     }
                 } catch (ConnectException e) {
-                    MusicHud.getLogger(ApiClient.class).error("请检查 API 服务器状态");
+                    MusicHud.getLogger(ApiClient.class).error("Please check Api server status");
                     throw e;
                 }
             } catch (ConnectException e) {
@@ -125,7 +125,7 @@ public class ApiClient {
                         t = JsonUtil.objectMapper.readValue(string, urlMeta.responseType());
                     }
                 } catch (ConnectException e) {
-                    MusicHud.getLogger(ApiClient.class).error("请检查 API 服务器状态");
+                    MusicHud.getLogger(ApiClient.class).error("Please check Api server status");
                     throw e;
                 }
             } catch (ConnectException e) {

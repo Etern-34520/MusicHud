@@ -24,6 +24,7 @@ import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.language.I18n;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
@@ -164,7 +165,7 @@ public class HomeView extends LinearLayout {
         removeAllViews();
 
         boolean enabled = ClientConfigDefinition.enable.get();
-        if (!MusicHud.isConnected() || !enabled) {
+        if (MusicHud.getStatus() != MusicHud.ConnectStatus.CONNECTED || !enabled) {
             setGravity(Gravity.CENTER);
             TextView textView = Theme.getNotificationTextView(context, enabled);
             addView(textView);
@@ -180,7 +181,7 @@ public class HomeView extends LinearLayout {
 
             TextView title = new TextView(context);
             title.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-            title.setText("歌词");
+            title.setText(I18n.get("music_hud.text.lyrics"));
             LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             params.setMargins(0, 0, 0, dp(32));
             lyricsView.addView(title, params);
@@ -215,7 +216,7 @@ public class HomeView extends LinearLayout {
 
             TextView title = new TextView(context);
             title.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-            title.setText("播放列表");
+            title.setText(I18n.get("music_hud.text.playlist"));
             LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             params.setMargins(0, 0, 0, dp(32));
             queueView.addView(title, params);
@@ -456,7 +457,7 @@ public class HomeView extends LinearLayout {
         assert Minecraft.getInstance().player != null;
         if (musicDetail.getPusherInfo().playerUUID().equals(Minecraft.getInstance().player.getUUID())) {
             Button removeButton = new Button(getContext());
-            removeButton.setText("移除");
+            removeButton.setText(I18n.get("music_hud.button.remove"));
             removeButton.setTextSize(dp(8));
             removeButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
             Drawable background = ButtonInsetBackground.builder()

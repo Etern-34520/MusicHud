@@ -3,6 +3,7 @@ package indi.etern.musichud.client.ui.utils.lyrics;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.LyricInfo;
 import indi.etern.musichud.beans.music.LyricLine;
+import indi.etern.musichud.client.config.ClientConfigDefinition;
 import indi.etern.musichud.client.ui.utils.lyrics.beans.MetaInfoLine;
 
 import java.time.Duration;
@@ -17,7 +18,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LyricDecoder {
+public class LyricParser {
 
     private static final Pattern mainPattern = Pattern.compile("\\[[0-9:.]+].*");
     private static final DateTimeFormatter TIME_FORMATTER = new DateTimeFormatterBuilder()
@@ -25,7 +26,7 @@ public class LyricDecoder {
             .appendFraction(java.time.temporal.ChronoField.MILLI_OF_SECOND, 1, 3, true)
             .toFormatter();
 
-    public static ArrayDeque<LyricLine> decode(LyricInfo lyricInfo) {
+    public static ArrayDeque<LyricLine> parse(LyricInfo lyricInfo) {
         String lyric = lyricInfo.getLrc().getLyric();
         String translatedLyric = lyricInfo.getTlyric().getLyric();
         LinkedHashMap<Duration, LyricLine> map = new LinkedHashMap<>();
@@ -46,23 +47,25 @@ public class LyricDecoder {
                 lyricLine.setText(lyricLine.getText() + "\n" + lyricString);
             }
         });
-        matchLine(translatedLyric, (duration, s) -> {
-            LyricLine lyricLine = map.get(duration);
-            if (lyricLine == null) {
-                lyricLine = new LyricLine();
-                lyricLine.setStartTime(duration);
-                if (duration != null) {
-                    map.put(duration, lyricLine);
-                } else {
-                    lyricLinesWithoutValidTimestamp.add(lyricLine);
+        if (ClientConfigDefinition.showTranslatedCnLyrics.get()) {
+            matchLine(translatedLyric, (duration, s) -> {
+                LyricLine lyricLine = map.get(duration);
+                if (lyricLine == null) {
+                    lyricLine = new LyricLine();
+                    lyricLine.setStartTime(duration);
+                    if (duration != null) {
+                        map.put(duration, lyricLine);
+                    } else {
+                        lyricLinesWithoutValidTimestamp.add(lyricLine);
+                    }
                 }
-            }
-            if (s != null) {
-                lyricLine.setTranslatedText(s.replace('\u00A0', ' ').trim());
-            } else {
-                lyricLine.setTranslatedText("");
-            }
-        });
+                if (s != null) {
+                    lyricLine.setTranslatedText(s.replace('\u00A0', ' ').trim());
+                } else {
+                    lyricLine.setTranslatedText("");
+                }
+            });
+        }
         ArrayDeque<LyricLine> lyricLines = new ArrayDeque<>(lyricLinesWithoutValidTimestamp);
         lyricLines.addAll(map.values());
         return lyricLines;
@@ -104,6 +107,14 @@ public class LyricDecoder {
                         stringBuilder.insert(i + 3, ".000");
                     }
                     item = stringBuilder.toString();
+                } else {
+                    int i = item.indexOf(']');
+                    int millisDigit = i - item.indexOf('.') - 1;
+                    if (millisDigit < 3) {
+                        StringBuilder stringBuilder = new StringBuilder(item);
+                        stringBuilder.insert(i, "0".repeat(3 - millisDigit));
+                        item = stringBuilder.toString();
+                    }
                 }
                 String[] split = item.split("]", 2);
                 String timestamp = split[0];
@@ -115,7 +126,7 @@ public class LyricDecoder {
                     matchedConsumer.accept(null, lyricLineContent);
                 }
             } catch (Exception e) {
-                MusicHud.getLogger(LyricDecoder.class).debug("failed to parse line \"{}\"", item);
+                MusicHud.getLogger(LyricParser.class).debug("failed to parse line \"{}\"", item);
             }
         }
     }

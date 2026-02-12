@@ -30,8 +30,6 @@ public class MusicResourceInfo {
             MusicResourceInfo::getFee,
             ByteBufCodecs.INT,
             MusicResourceInfo::getTime,
-            LyricInfo.CODEC,
-            MusicResourceInfo::getLyricInfo,
             MusicResourceInfo::new
     );
     public static final MusicResourceInfo NONE = new MusicResourceInfo();
@@ -48,9 +46,6 @@ public class MusicResourceInfo {
     @JsonSetter(nulls = Nulls.SKIP)
     Fee fee = Fee.UNSET;
     int time;
-    // Not contained in the original API response, set separately
-    @Setter
-    LyricInfo lyricInfo = LyricInfo.NONE;
 
     public static MusicResourceInfo from(String url, MusicDetail musicDetail) {
         MusicResourceInfo musicResourceInfo = new MusicResourceInfo();
@@ -76,9 +71,5 @@ public class MusicResourceInfo {
 
     public Fee getFee() {
         return fee == null ? Fee.UNSET : fee;
-    }
-
-    public LyricInfo getLyricInfo() {
-        return lyricInfo == null ? LyricInfo.NONE : lyricInfo;
     }
 }

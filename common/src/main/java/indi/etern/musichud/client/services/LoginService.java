@@ -96,7 +96,7 @@ public class LoginService {
     public boolean isLogined() {
         return LoginCookieInfo.clientCurrentCookie().type() != LoginType.UNLOGGED &&
                 LoginCookieInfo.clientCurrentCookie().type() != LoginType.ANONYMOUS &&
-                MusicHud.isConnected();
+                MusicHud.getStatus() ==  MusicHud.ConnectStatus.CONNECTED;
     }
 
     public void logout() {
@@ -118,7 +118,7 @@ public class LoginService {
 
     public void setDisconnected() {
         if (ClientConfigDefinition.enable.get()) {
-            MusicHud.setConnected(false);
+            MusicHud.setStatus(MusicHud.ConnectStatus.NOT_CONNECTED);
         }
     }
 

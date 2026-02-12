@@ -1,16 +1,19 @@
 package indi.etern.musichud.client.config;
 
 import indi.etern.musichud.MusicHud;
-import indi.etern.musichud.client.ui.hud.metadata.HPosition;
-import indi.etern.musichud.client.ui.hud.metadata.VPosition;
+import indi.etern.musichud.beans.music.Quality;
+import indi.etern.musichud.client.ui.hud.metadata.HorizontalAlign;
+import indi.etern.musichud.client.ui.hud.metadata.VerticalAlign;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class ClientConfigDefinition {
     public static Pair<ClientConfigDefinition, ModConfigSpec> configure;
     public static ModConfigSpec.ConfigValue<Boolean> enable;
+    public static ModConfigSpec.ConfigValue<Boolean> showTranslatedCnLyrics;
     public static ModConfigSpec.ConfigValue<Boolean> disableVanillaMusic;
     public static ModConfigSpec.ConfigValue<Boolean> hideHudWhenNotPlaying;
+    public static ModConfigSpec.ConfigValue<String> primaryChosenQuality;
     public static ModConfigSpec.ConfigValue<String> hudVerticalPosition;
     public static ModConfigSpec.ConfigValue<String> hudHorizontalPosition;
     public static ModConfigSpec.ConfigValue<Integer> hudOffsetX;
@@ -20,24 +23,30 @@ public class ClientConfigDefinition {
     public static ModConfigSpec.ConfigValue<Integer> hudCornerRadius;
     public static ModConfigSpec.ConfigValue<String> clientCookie;
     public static ModConfigSpec.ConfigValue<String> clientAccountConfig;
-    public static final String ENABLE_KEY = MusicHud.MOD_ID + ".config.enable";
-    public static final String DISABLE_VANILLA_MUSIC_KEY = MusicHud.MOD_ID + ".config.disableVanillaMusic";
-    public static final String HIDE_HUD_WHEN_NOT_PLAYING_KEY = MusicHud.MOD_ID + ".config.hideHudWhenNotPlaying";
-    public static final String VERTICAL_POSITION_KEY = MusicHud.MOD_ID + ".config.verticalPosition";
-    public static final String HORIZONTAL_POSITION_KEY = MusicHud.MOD_ID + ".config.horizontalPosition";
-    public static final String OFFSET_X_KEY = MusicHud.MOD_ID + ".config.offsetX";
-    public static final String OFFSET_Y_KEY = MusicHud.MOD_ID + ".config.offsetY";
-    public static final String HUD_WIDTH_KEY = MusicHud.MOD_ID + ".config.hudWidth";
-    public static final String HUD_HEIGHT_KEY = MusicHud.MOD_ID + ".config.hudHeight";
-    public static final String HUD_CORNER_RADIUS_KEY = MusicHud.MOD_ID + ".config.hudCornerRadius";
-    public static final String CLIENT_COOKIE_KEY = MusicHud.MOD_ID + ".clientCookie";
-    public static final String CLIENT_ACCOUNT_CONFIG = MusicHud.MOD_ID + ".clientAccountConfig";
+    public static final String ENABLE_KEY = MusicHud.MOD_ID + ".config.common.enable";
+    public static final String SHOW_TRANSLATED_CN_LYRICS = MusicHud.MOD_ID + ".config.common.showTranslatedCnLyrics";
+    public static final String DISABLE_VANILLA_MUSIC_KEY = MusicHud.MOD_ID + ".config.commmon.disableVanillaMusic";
+    public static final String HIDE_HUD_WHEN_NOT_PLAYING_KEY = MusicHud.MOD_ID + ".config.common.hideHudWhenNotPlaying";
+    public static final String PRIMARY_CHOSEN_QUALITY_KEY = MusicHud.MOD_ID + ".config.common.primaryChosenQuality";
+    public static final String VERTICAL_POSITION_KEY = MusicHud.MOD_ID + ".config.layout.verticalAlign";
+    public static final String HORIZONTAL_POSITION_KEY = MusicHud.MOD_ID + ".config.layout.horizontalAlign";
+    public static final String OFFSET_X_KEY = MusicHud.MOD_ID + ".config.layout.offsetX";
+    public static final String OFFSET_Y_KEY = MusicHud.MOD_ID + ".config.layout.offsetY";
+    public static final String HUD_WIDTH_KEY = MusicHud.MOD_ID + ".config.layout.hudWidth";
+    public static final String HUD_HEIGHT_KEY = MusicHud.MOD_ID + ".config.layout.hudHeight";
+    public static final String HUD_CORNER_RADIUS_KEY = MusicHud.MOD_ID + ".config.layout.hudCornerRadius";
+    public static final String CLIENT_COOKIE_KEY = MusicHud.MOD_ID + ".internal.clientCookie";
+    public static final String CLIENT_ACCOUNT_CONFIG = MusicHud.MOD_ID + ".internal.clientAccountConfig";
 
     ClientConfigDefinition(ModConfigSpec.Builder builder) {
         ClientConfigDefinition.enable = builder
                 .comment("Enable Music Hud Functions")
                 .translation(ENABLE_KEY)
                 .define("enable", true);
+        ClientConfigDefinition.showTranslatedCnLyrics = builder
+                .comment("Show translated Chinese lyrics")
+                .translation(SHOW_TRANSLATED_CN_LYRICS)
+                .define("showTranslatedCnLyrics", true);
         ClientConfigDefinition.disableVanillaMusic = builder
                 .comment("Disable vanilla game music")
                 .translation(DISABLE_VANILLA_MUSIC_KEY)
@@ -46,14 +55,18 @@ public class ClientConfigDefinition {
                 .comment("Hide hud when not playing music")
                 .translation(HIDE_HUD_WHEN_NOT_PLAYING_KEY)
                 .define("hideHudWhenNotPlaying", true);
+        ClientConfigDefinition.primaryChosenQuality = builder
+                .comment("Primary chosen quality")
+                .translation(PRIMARY_CHOSEN_QUALITY_KEY)
+                .define("primaryChosenQuality", Quality.LOSSLESS.name());
         ClientConfigDefinition.hudVerticalPosition = builder
                 .comment("Vertical position (TOP|CENTER|BOTTOM)")
                 .translation(VERTICAL_POSITION_KEY)
-                .define("verticalPosition", VPosition.TOP.name());
+                .define("verticalPosition", VerticalAlign.TOP.name());
         ClientConfigDefinition.hudHorizontalPosition = builder
                 .comment("Horizontal position (LEFT|CENTER|RIGHT)")
                 .translation(HORIZONTAL_POSITION_KEY)
-                .define("horizontalPosition", HPosition.LEFT.name());
+                .define("horizontalPosition", HorizontalAlign.LEFT.name());
         ClientConfigDefinition.hudOffsetX = builder
                 .comment("Hud offset x")
                 .translation(OFFSET_X_KEY)

@@ -8,18 +8,20 @@ import icyllis.modernui.view.View;
 import icyllis.modernui.widget.FrameLayout;
 import icyllis.modernui.widget.LinearLayout;
 import icyllis.modernui.widget.ScrollView;
+import indi.etern.musichud.beans.music.Quality;
 import indi.etern.musichud.client.config.ClientConfigDefinition;
 import indi.etern.musichud.client.music.NowPlayingInfo;
+import indi.etern.musichud.client.music.StreamAudioPlayer;
 import indi.etern.musichud.client.services.LoginService;
 import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.client.ui.components.DynamicIntegerOption;
 import indi.etern.musichud.client.ui.hud.HudRendererManager;
-import indi.etern.musichud.client.ui.hud.metadata.HPosition;
-import indi.etern.musichud.client.ui.hud.metadata.VPosition;
+import indi.etern.musichud.client.ui.hud.metadata.HorizontalAlign;
+import indi.etern.musichud.client.ui.hud.metadata.VerticalAlign;
 import indi.etern.musichud.client.ui.screen.MainFragment;
-import indi.etern.musichud.client.music.StreamAudioPlayer;
 import lombok.Getter;
 import net.minecraft.Util;
+import net.minecraft.client.resources.language.I18n;
 
 import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -48,9 +50,9 @@ public class ConfigView extends LinearLayout {
 
             HudRendererManager hudRendererManager = HudRendererManager.getInstance();
 
-            var commonCategory = PreferencesFragment.createCategoryList(view, "通用");
+            var commonCategory = PreferencesFragment.createCategoryList(view, I18n.get("music_hud.config.category.common"));
             PreferencesFragment.BooleanOption booleanOption = new PreferencesFragment.BooleanOption(context,
-                    "启用 Music Hud",
+                    I18n.get("music_hud.config.common.switch.enable"),
                     ClientConfigDefinition.enable,
                     ClientConfigDefinition.enable::set);
             booleanOption.create(commonCategory);
@@ -66,47 +68,61 @@ public class ConfigView extends LinearLayout {
                 }
             });
             new PreferencesFragment.BooleanOption(context,
-                    "播放时禁用原版音乐",
+                    I18n.get("music_hud.config.common.switch.showTranslatedCnLyrics"),
+                    ClientConfigDefinition.showTranslatedCnLyrics,
+                    ClientConfigDefinition.showTranslatedCnLyrics::set)
+                    .create(commonCategory);
+            new PreferencesFragment.BooleanOption(context,
+                    I18n.get("music_hud.config.common.switch.disableVanillaMusicWhilePlaying"),
                     ClientConfigDefinition.disableVanillaMusic,
                     ClientConfigDefinition.disableVanillaMusic::set)
                     .create(commonCategory);
             new PreferencesFragment.BooleanOption(context,
-                    "无音乐时隐藏 HUD",
+                    I18n.get("music_hud.config.common.switch.autoHide"),
                     ClientConfigDefinition.hideHudWhenNotPlaying,
                     ClientConfigDefinition.hideHudWhenNotPlaying::set)
                     .create(commonCategory);
-            view.addView(commonCategory);
-
-            var positionCategory = PreferencesFragment.createCategoryList(view, "布局");
             new PreferencesFragment.DropDownOption<>(
                     context,
-                    "垂直对齐",
-                    VPosition.values(),
-                    VPosition::ordinal,
-                    () -> VPosition.valueOf(ClientConfigDefinition.hudVerticalPosition.get()),
-                    (vPosition) -> ClientConfigDefinition.hudVerticalPosition.set(vPosition.name()))
+                    I18n.get("music_hud.config.common.primaryChosenQuality"),
+                    new Quality[]{Quality.STANDARD, Quality.HIGHER, Quality.EX_HIGH, Quality.LOSSLESS, Quality.HIRES, Quality.JY_EFFECT, Quality.SKY, Quality.DOLBY, Quality.JY_MASTER},
+                    Quality::ordinal,
+                    () -> Quality.valueOf(ClientConfigDefinition.primaryChosenQuality.get()),
+                    (verticalAlign) -> ClientConfigDefinition.primaryChosenQuality.set(verticalAlign.name()))
+                    .setDefaultValue(Quality.LOSSLESS)
+                    .create(commonCategory);
+            view.addView(commonCategory);
+
+            var positionCategory = PreferencesFragment.createCategoryList(view, I18n.get("music_hud.config.category.layout"));
+            new PreferencesFragment.DropDownOption<>(
+                    context,
+                    I18n.get("music_hud.config.layout.verticalAlign"),
+                    VerticalAlign.values(),
+                    VerticalAlign::ordinal,
+                    () -> VerticalAlign.valueOf(ClientConfigDefinition.hudVerticalPosition.get()),
+                    (verticalAlign) -> ClientConfigDefinition.hudVerticalPosition.set(verticalAlign.name()))
                     .setOnChanged(() -> {
                         hudRendererManager.updateLayoutFromConfig();
                         hudRendererManager.refreshStyle();
                     })
-                    .setDefaultValue(VPosition.TOP)
+                    .setDefaultValue(VerticalAlign.TOP)
                     .create(positionCategory);
             new PreferencesFragment.DropDownOption<>(
                     context,
-                    "水平对齐",
-                    HPosition.values(),
-                    HPosition::ordinal,
-                    () -> HPosition.valueOf(ClientConfigDefinition.hudHorizontalPosition.get()),
+                    I18n.get("music_hud.config.layout.horizontalAlign"),
+                    HorizontalAlign.values(),
+                    HorizontalAlign::ordinal,
+                    () -> HorizontalAlign.valueOf(ClientConfigDefinition.hudHorizontalPosition.get()),
                     (hPosition) -> ClientConfigDefinition.hudHorizontalPosition.set(hPosition.name()))
                     .setOnChanged(() -> {
                         hudRendererManager.updateLayoutFromConfig();
                         hudRendererManager.refreshStyle();
                     })
-                    .setDefaultValue(HPosition.LEFT)
+                    .setDefaultValue(HorizontalAlign.LEFT)
                     .create(positionCategory);
             new PreferencesFragment.IntegerOption(
                     context,
-                    "X 轴偏移量",
+                    I18n.get("music_hud.config.layout.offsetX"),
                     ClientConfigDefinition.hudOffsetX,
                     ClientConfigDefinition.hudOffsetX::set)
                     .setOnChanged(() -> {
@@ -118,7 +134,7 @@ public class ConfigView extends LinearLayout {
                     .create(positionCategory);
             new PreferencesFragment.IntegerOption(
                     context,
-                    "Y 轴偏移量",
+                    I18n.get("music_hud.config.layout.offsetY"),
                     ClientConfigDefinition.hudOffsetY,
                     ClientConfigDefinition.hudOffsetY::set)
                     .setRange(0, 1920)
@@ -130,7 +146,7 @@ public class ConfigView extends LinearLayout {
                     .create(positionCategory);
             DynamicIntegerOption cornerRadiusOption = new DynamicIntegerOption(
                     context,
-                    "圆角半径",
+                    I18n.get("music_hud.config.layout.hudCornerRadius"),
                     ClientConfigDefinition.hudCornerRadius,
                     ClientConfigDefinition.hudCornerRadius::set);
             cornerRadiusOption.setRange(0, ClientConfigDefinition.hudHeight.get() / 2);
@@ -141,7 +157,7 @@ public class ConfigView extends LinearLayout {
             cornerRadiusOption.setDefaultValue(8);
             DynamicIntegerOption widthOption = new DynamicIntegerOption(
                     context,
-                    "宽度",
+                    I18n.get("music_hud.config.layout.hudWidth"),
                     ClientConfigDefinition.hudWidth,
                     ClientConfigDefinition.hudWidth::set);
             widthOption.setOnChanged(() -> {
@@ -152,7 +168,7 @@ public class ConfigView extends LinearLayout {
             widthOption.setDefaultValue(150);
             PreferencesFragment.IntegerOption heightOption = new PreferencesFragment.IntegerOption(
                     context,
-                    "高度",
+                    I18n.get("music_hud.config.layout.hudHeight"),
                     ClientConfigDefinition.hudHeight,
                     ClientConfigDefinition.hudHeight::set)
                     .setOnChanged(() -> {

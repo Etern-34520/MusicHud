@@ -20,16 +20,13 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.language.I18n;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.format.DateTimeFormatter;
 
 public class HudRendererManager {
-    private static final String idleText = "暂无播放音乐";
-    private static final String retryingAppendText = " (重试中)";
-    private static final String errorAppendText = " (播放出错)";
-    private static final String bufferingAppendText = " (缓冲中)";
     private static volatile HudRendererManager instance;
     @Getter
     private static volatile boolean loaded = false;
@@ -86,10 +83,13 @@ public class HudRendererManager {
         if (instance != null) {
             MusicDetail currentlyPlayingMusicDetail = NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail();
             String currentText = currentlyPlayingMusicDetail == null ? "" : currentlyPlayingMusicDetail.getName();
-            if (!idleText.equals(currentText)) {
+            String retryingAppendText = I18n.get("music_hud.hud.append.retrying");
+            String errorAppendText = I18n.get("music_hud.hud.append.error");
+            String bufferingAppendText = I18n.get("music_hud.hud.append.buffering");
+            if (!I18n.get("music_hud.text.idle").equals(currentText)) {
                 String s = currentText.replace(errorAppendText, "").replace(retryingAppendText, "").replace(bufferingAppendText, "");
                 switch (c) {
-                    case IDLE -> instance.TITLE_RENDERER.setText("暂无播放音乐");
+                    case IDLE -> instance.TITLE_RENDERER.setText(I18n.get("music_hud.text.idle"));
                     case PLAYING -> instance.TITLE_RENDERER.setText(s);
                     case ERROR -> instance.TITLE_RENDERER.setText(s + errorAppendText);
                     case BUFFERING -> instance.TITLE_RENDERER.setText(s + bufferingAppendText);
@@ -106,8 +106,8 @@ public class HudRendererManager {
                 ClientConfigDefinition.hudWidth.get(),
                 ClientConfigDefinition.hudHeight.get(),
                 ClientConfigDefinition.hudCornerRadius.get(),
-                HPosition.valueOf(ClientConfigDefinition.hudHorizontalPosition.get()),
-                VPosition.valueOf(ClientConfigDefinition.hudVerticalPosition.get())
+                HorizontalAlign.valueOf(ClientConfigDefinition.hudHorizontalPosition.get()),
+                VerticalAlign.valueOf(ClientConfigDefinition.hudVerticalPosition.get())
         );
         setBaseLayout(layout);
     }
@@ -261,7 +261,7 @@ public class HudRendererManager {
     }
 
     public void reset() {
-        TITLE_RENDERER.setText("暂无播放音乐");
+        TITLE_RENDERER.setText(I18n.get("music_hud.text.idle"));
         ARTISTS_AND_ALBUM_RENDERER.setText("");
         LYRICS_RENDERER.setText("");
         SUB_LYRICS_RENDERER.setText("");

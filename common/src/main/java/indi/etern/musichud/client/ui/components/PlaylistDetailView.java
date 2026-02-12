@@ -14,6 +14,7 @@ import indi.etern.musichud.beans.music.Playlist;
 import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.client.ui.Theme;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
+import net.minecraft.client.resources.language.I18n;
 
 import java.util.stream.Collectors;
 
@@ -32,7 +33,7 @@ public class PlaylistDetailView extends LinearLayout {
         topBar.setLayoutParams(params);
 
         Button backButton = new Button(context);
-        backButton.setText("< 返回");
+        backButton.setText(I18n.get("music_hud.button.back"));
         backButton.setTextColor(Theme.NORMAL_TEXT_COLOR);
         backButton.setOnClickListener(view -> {
             RouterContainer.getInstance().popNavigate();
@@ -64,7 +65,7 @@ public class PlaylistDetailView extends LinearLayout {
         TextView type = new TextView(context);
         type.setTextSize(dp(10));
         type.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-        type.setText("歌单");
+        type.setText(I18n.get("music_hud.text.playlist"));
         LayoutParams params2 = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         params2.setMargins(0, 0, 0, dp(4));
         type.setLayoutParams(params2);
@@ -97,7 +98,7 @@ public class PlaylistDetailView extends LinearLayout {
 
         MusicService.getInstance().loadPlaylistDetail(playlist.getId()).thenAcceptAsync(playlistDetail -> {
             MuiModApi.postToUiThread(() -> {
-                type.setText("歌单  共 " + playlistDetail.getTracks().size() + " 项");
+                type.setText(I18n.get("music_hud.text.playlist") + "  " + I18n.get("music_hud.text.totalCount").replace("{}", String.valueOf(playlistDetail.getTracks().size())));
                 removeView(progressBar);
                 for (MusicDetail musicDetail : playlistDetail.getTracks()) {
                     addItem(context, musicDetail, tracks);
@@ -120,7 +121,7 @@ public class PlaylistDetailView extends LinearLayout {
                 .map(Artist::getName).collect(Collectors.joining(" / "));
         musicLayout.setOnClickListener((view) -> {
             MusicService.getInstance().sendPushMusicToQueue(musicDetail);
-            Toast.makeText(context, "已添加到播放列表\n" + musicDetail.getName() + " - " + artistsName, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, I18n.get("music_hud.text.pushedMusicToPlaylist") + "\n" + musicDetail.getName() + " - " + artistsName, Toast.LENGTH_SHORT).show();
         });
         tracks.addView(musicLayout);
     }

@@ -15,6 +15,7 @@ import indi.etern.musichud.network.requestResponseCycle.CancelQRLoginRequest;
 import indi.etern.musichud.network.requestResponseCycle.StartQRLoginRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import net.minecraft.client.resources.language.I18n;
 
 import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -33,12 +34,12 @@ public class QRLoginView extends LinearLayout {
         TextView textView = new TextView(context);
         textView.setTextSize(dp(10));
         textView.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-        textView.setText("通过扫描二维码登录网易云音乐");
+        textView.setText(I18n.get("music_hud.text.loginWithQRCode"));
         textView.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
         TextView textView1 = new TextView(context);
         textView1.setTextSize(dp(8));
         textView1.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-        textView1.setText("Music Hud 可能会使用你的登录状态获取音源");
+        textView1.setText(I18n.get("music_hud.text.loginDescription"));
         LayoutParams params1 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
         params1.setMargins(0, dp(4), 0, 0);
         textView1.setLayoutParams(params1);
@@ -55,7 +56,7 @@ public class QRLoginView extends LinearLayout {
         loginButton.setHeight(dp(36));
         loginButton.setWidth(dp(84));
         loginButton.setTextSize(dp(8));
-        loginButton.setText("获取二维码");
+        loginButton.setText(I18n.get("music_hud.button.loadQRCode"));
 
         messageTextView = new TextView(context);
         messageTextView.setTextSize(dp(8));

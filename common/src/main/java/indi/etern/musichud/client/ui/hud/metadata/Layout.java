@@ -7,8 +7,8 @@ import net.minecraft.client.gui.GuiGraphics;
 public class Layout {
     public volatile float x, y, width, height;
     public volatile float radius;
-    public volatile HPosition hPosition;
-    public volatile VPosition vPosition;
+    public volatile HorizontalAlign hPosition;
+    public volatile VerticalAlign verticalAlign;
     @Setter
     @Getter
     private volatile Layout parent;
@@ -19,18 +19,18 @@ public class Layout {
         this.width = width;
         this.height = height;
         this.radius = radius;
-        hPosition = HPosition.LEFT;
-        vPosition = VPosition.TOP;
+        hPosition = HorizontalAlign.LEFT;
+        verticalAlign = VerticalAlign.TOP;
     }
 
-    public Layout(float x, float y, float width, float height, float radius, HPosition hPosition, VPosition vPosition) {
+    public Layout(float x, float y, float width, float height, float radius, HorizontalAlign hPosition, VerticalAlign verticalAlign) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.radius = radius;
         this.hPosition = hPosition;
-        this.vPosition = vPosition;
+        this.verticalAlign = verticalAlign;
     }
 
     public record AbsolutePosition(float x, float y) {}
@@ -38,11 +38,11 @@ public class Layout {
         if (parent != null) {
             AbsolutePosition absolutePosition = parent.calcAbsolutePosition(graphics);
             float xOffset = hPosition.calcX(x, graphics, getRootLayout());
-            float yOffset = vPosition.calcY(y, graphics, getRootLayout());
+            float yOffset = verticalAlign.calcY(y, graphics, getRootLayout());
             return new AbsolutePosition(absolutePosition.x + xOffset, absolutePosition.y + yOffset);
         } else {
             float xOffset = hPosition.calcX(x, graphics, getRootLayout());
-            float yOffset = vPosition.calcY(y, graphics, getRootLayout());
+            float yOffset = verticalAlign.calcY(y, graphics, getRootLayout());
             return new AbsolutePosition(xOffset, yOffset);
         }
     }

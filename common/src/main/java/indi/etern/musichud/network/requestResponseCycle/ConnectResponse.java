@@ -30,8 +30,17 @@ public record ConnectResponse(boolean accepted, Version serverVersion) implement
                     ConnectResponse.class, CODEC,
                     (payload, context) -> {
                         LOGGER.info("Connecting {}", payload.accepted() ? "accepted" : "denied");
-                        MusicHud.setConnected(true);
-                        LoginService.getInstance().loginToServer();
+                        if (payload.accepted()) {
+                            if (Version.capableWith(payload.serverVersion)) {
+                                MusicHud.setStatus(MusicHud.ConnectStatus.CONNECTED);
+                                LoginService.getInstance().loginToServer();
+                            } else {
+                                LoginService.getInstance().logout();
+                                MusicHud.setStatus(MusicHud.ConnectStatus.INCAPABLE);
+                            }
+                        } else {
+                            MusicHud.setStatus(MusicHud.ConnectStatus.INCAPABLE);
+                        }
                     }
             );
         }

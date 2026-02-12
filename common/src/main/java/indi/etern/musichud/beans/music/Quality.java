@@ -1,7 +1,10 @@
 package indi.etern.musichud.beans.music;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import dev.architectury.platform.Platform;
+import dev.architectury.utils.Env;
 import indi.etern.musichud.network.Codecs;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
@@ -25,5 +28,14 @@ public enum Quality {
     @JsonValue
     public String getValueName() {
         return this.name().replace("_", "").toLowerCase();
+    }
+
+    @Override
+    public String toString() {
+        if (Platform.getEnvironment() == Env.CLIENT) {
+            return I18n.get("music_hud.config.common.primaryChosenQuality." + this.name());
+        } else {
+            return this.name();
+        }
     }
 }

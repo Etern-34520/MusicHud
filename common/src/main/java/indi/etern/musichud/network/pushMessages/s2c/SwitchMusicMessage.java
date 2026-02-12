@@ -2,11 +2,14 @@ package indi.etern.musichud.network.pushMessages.s2c;
 
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.MusicDetail;
+import indi.etern.musichud.client.config.ClientConfigDefinition;
 import indi.etern.musichud.client.services.MusicService;
+import indi.etern.musichud.client.ui.utils.image.ImageUtils;
 import indi.etern.musichud.interfaces.CommonRegister;
 import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.network.NetworkRegisterUtil;
 import indi.etern.musichud.network.S2CPayload;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -30,9 +33,15 @@ public record SwitchMusicMessage(MusicDetail musicDetail, MusicDetail next, Stri
                     (message, context) -> {
                         MusicHud.EXECUTOR.execute(() -> {
                             MusicService musicService = MusicService.getInstance();
-                            musicService.switchMusic(message.musicDetail, message.musicDetail().getMusicResourceInfo(), null, message.message);
+                            String message1 = message.message;
+                            if (message1.startsWith("music_hud.")) {
+                                message1 = I18n.get(message1);
+                            }
+                            musicService.switchMusic(message.musicDetail, null, message1);
                             if (!message.next.equals(MusicDetail.NONE)) {
-                                musicService.loadResource(message.next);
+                                if (ClientConfigDefinition.enable.get()) {
+                                    ImageUtils.downloadAsync(message.next.getAlbum().getThumbnailPicUrl(200));
+                                }
                             }
                         });
                     }

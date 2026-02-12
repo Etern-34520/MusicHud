@@ -29,6 +29,7 @@ import indi.etern.musichud.network.pushMessages.c2s.VoteSkipCurrentMusicMessage;
 import lombok.NonNull;
 import lombok.Setter;
 import net.minecraft.client.multiplayer.PlayerInfo;
+import net.minecraft.client.resources.language.I18n;
 
 import java.time.Duration;
 import java.time.LocalTime;
@@ -72,11 +73,13 @@ public class MainFragment extends Fragment {
         }
         if (instance != null && instance.titleText != null) {
             if (!ClientConfigDefinition.enable.get()) {
-                instance.titleText.setText("已禁用 Music Hud");
-            } else if (!MusicHud.isConnected()) {
-                instance.titleText.setText("未连接");
+                instance.titleText.setText(I18n.get("music_hud.text.disabled"));
+            } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.NOT_CONNECTED) {
+                instance.titleText.setText(I18n.get("music_hud.text.notConnected"));
+            } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.INCAPABLE) {
+                instance.titleText.setText(I18n.get("music_hud.text.incapableWithServer"));
             } else {
-                instance.titleText.setText("暂无播放音乐");
+                instance.titleText.setText(I18n.get("music_hud.text.idle"));
             }
         }
     }
@@ -85,12 +88,14 @@ public class MainFragment extends Fragment {
         if (instance != null) {
             if (musicDetail == null || musicDetail.equals(MusicDetail.NONE)) {
                 instance.albumImage.loadUrl(MusicHud.ICON_BASE64);
-                if (!MusicHud.isConnected()) {
-                    instance.titleText.setText("未连接");
-                } else if (!ClientConfigDefinition.enable.get()) {
-                    instance.titleText.setText("已禁用 Music Hud");
+                if (!ClientConfigDefinition.enable.get()) {
+                    instance.titleText.setText(I18n.get("music_hud.text.disabled"));
+                } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.NOT_CONNECTED) {
+                    instance.titleText.setText(I18n.get("music_hud.text.notConnected"));
+                } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.INCAPABLE) {
+                    instance.titleText.setText(I18n.get("music_hud.text.incapableWithServer"));
                 } else {
-                    instance.titleText.setText("暂无播放音乐");
+                    instance.titleText.setText(I18n.get("music_hud.text.idle"));
                 }
                 instance.titleText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
                 instance.artistsText.setText("");
@@ -107,13 +112,13 @@ public class MainFragment extends Fragment {
                 if (name == null || name.isEmpty()) {
                     instance.pusherText.setText("");
                 } else {
-                    instance.pusherText.setText("来自 " + name);
+                    instance.pusherText.setText(I18n.get("music_hud.text.pusherSource") + name);
                 }
                 instance.artistsText.setText(musicDetail.getArtists().stream()
                         .map(Artist::getName)
                         .reduce((a, b) -> a + " / " + b)
                         .orElse(""));
-                instance.skipCurrentButton.setText("投票跳过当前歌曲");
+                instance.skipCurrentButton.setText(I18n.get("music_hud.button.voteForSkip"));
                 instance.skipCurrentButton.setEnabled(true);
                 instance.skipCurrentButton.setVisibility(ClientConfigDefinition.enable.get() ? View.VISIBLE : View.GONE);
                 instance.progressBar.setVisibility(View.VISIBLE);
@@ -185,10 +190,10 @@ public class MainFragment extends Fragment {
 
             {
                 var sideMenu = new SideMenu(context, routerContainer);
-                var homeNav = sideMenu.createNavigationPage("主页", HomeView::new);
-                var searchNav = sideMenu.createNavigationPage("搜索", SearchView::new);
-                var accountNav = sideMenu.createNavigationPage("账户", AccountBaseView::new);
-                var settingsNav = sideMenu.createNavigationPage("设置", ConfigView::new);
+                var homeNav = sideMenu.createNavigationPage(I18n.get("music_hud.text.page.home"), HomeView::new);
+                var searchNav = sideMenu.createNavigationPage(I18n.get("music_hud.text.page.search"), SearchView::new);
+                var accountNav = sideMenu.createNavigationPage(I18n.get("music_hud.text.page.account"), AccountBaseView::new);
+                var settingsNav = sideMenu.createNavigationPage(I18n.get("music_hud.text.page.setting"), ConfigView::new);
 
                 SideMenu.NavigationMeta defaultMeta = List.of(homeNav, searchNav, accountNav, settingsNav).get(defaultSelectedIndex);
                 defaultMeta.select();
@@ -211,11 +216,13 @@ public class MainFragment extends Fragment {
                 titleText.setTextSize(titleText.dp(10));
                 titleText.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 if (!ClientConfigDefinition.enable.get()) {
-                    titleText.setText("已禁用 Music Hud");
-                } else if (!MusicHud.isConnected()) {
-                    titleText.setText("未连接");
+                    instance.titleText.setText(I18n.get("music_hud.text.disabled"));
+                } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.NOT_CONNECTED) {
+                    instance.titleText.setText(I18n.get("music_hud.text.notConnected"));
+                } else if (MusicHud.getStatus() == MusicHud.ConnectStatus.INCAPABLE) {
+                    instance.titleText.setText(I18n.get("music_hud.text.incapableWithServer"));
                 } else {
-                    titleText.setText("暂无播放音乐");
+                    instance.titleText.setText(I18n.get("music_hud.text.idle"));
                 }
                 musicInfo.addView(titleText);
 
@@ -250,7 +257,7 @@ public class MainFragment extends Fragment {
                 skipCurrentButton.setTextSize(skipCurrentButton.dp(8));
                 skipCurrentButton.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 skipCurrentButton.setGravity(Gravity.CENTER);
-                skipCurrentButton.setText("投票跳过当前歌曲");
+                skipCurrentButton.setText(I18n.get("music_hud.button.voteForSkip"));
 
                 MusicDetail currentlyPlayingMusicDetail = NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail();
 
@@ -265,7 +272,7 @@ public class MainFragment extends Fragment {
                         NetworkManager.sendToServer(new VoteSkipCurrentMusicMessage(NowPlayingInfo.getInstance().getCurrentlyPlayingMusicDetail().getId()));
                         MuiModApi.postToUiThread(() -> {
                             skipCurrentButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                            skipCurrentButton.setText("已投票");
+                            skipCurrentButton.setText(I18n.get("music_hud.text.voted"));
                             skipCurrentButton.setEnabled(false);
                         });
                     }

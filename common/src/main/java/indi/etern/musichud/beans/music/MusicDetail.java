@@ -37,8 +37,8 @@ public class MusicDetail {
             MusicDetail::getTranslations,
             PusherInfo.CODEC,
             MusicDetail::getPusherInfo,
-            MusicResourceInfo.CODEC,
-            MusicDetail::getMusicResourceInfo,
+            LyricInfo.CODEC,
+            MusicDetail::getLyricInfo,
             MusicDetail::new
     );
     public static final MusicDetail NONE = new MusicDetail();
@@ -52,7 +52,7 @@ public class MusicDetail {
             int durationMillis,
             List<String> translations,
             PusherInfo pusherInfo,
-            MusicResourceInfo musicResourceInfo
+            LyricInfo lyricInfo
     ) {
         this.name = name;
         this.id = id;
@@ -62,7 +62,7 @@ public class MusicDetail {
         this.durationMillis = durationMillis;
         this.translations = translations;
         this.pusherInfo = pusherInfo;
-        this.musicResourceInfo = musicResourceInfo;
+        this.lyricInfo = lyricInfo;
     }
 
     @JsonSetter(nulls = Nulls.SKIP)
@@ -107,7 +107,10 @@ public class MusicDetail {
     @Setter
     PusherInfo pusherInfo = PusherInfo.EMPTY;
     @Setter
-    MusicResourceInfo musicResourceInfo = MusicResourceInfo.NONE;
+    LyricInfo lyricInfo = LyricInfo.NONE;
+
+//    @Setter
+//    MusicResourceInfo musicResourceInfo = MusicResourceInfo.NONE;
 
     public String getName() {
         return name == null ? "" : name;
@@ -142,8 +145,8 @@ public class MusicDetail {
         return pusherInfo == null ? PusherInfo.EMPTY : pusherInfo;
     }
 
-    public MusicResourceInfo getMusicResourceInfo() {
-        return musicResourceInfo == null ? MusicResourceInfo.NONE : musicResourceInfo;
+    public LyricInfo getLyricInfo() {
+        return lyricInfo == null ? LyricInfo.NONE : lyricInfo;
     }
 
     @Override

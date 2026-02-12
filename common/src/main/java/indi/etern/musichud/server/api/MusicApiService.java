@@ -116,7 +116,7 @@ public class MusicApiService {
         }
     }
 
-    public MusicResourceInfo getResourceInfo(MusicDetail musicDetail) {
+    public MusicResourceInfo getResourceInfo(MusicDetail musicDetail, Quality quality) {
         if (musicDetail == null || musicDetail.equals(MusicDetail.NONE)) {
             return MusicResourceInfo.NONE;
         } else {
@@ -128,7 +128,7 @@ public class MusicApiService {
                     logger.error("Failed to load music resource for \"{}\"(id:{}), as resource url is not available", musicDetail.getName(), musicDetail.getId());
                     return MusicResourceInfo.NONE;
                 }
-                var request = new GetDirectResourceUrlRequest(musicDetail.getId(), false, Quality.LOSSLESS);
+                var request = new GetDirectResourceUrlRequest(musicDetail.getId(), false, quality);
                 var response = ApiClient.post(ServerApiMeta.Music.URL, request, loginApiService.randomVipCookieOr(null));
                 if (response.code == 200) {
                     musicResourceInfo = response.data.getFirst();
@@ -136,12 +136,12 @@ public class MusicApiService {
                     if (musicResourceInfo.getTime() <= 30040 || musicResourceInfo.getUrl() == null) {
                         musicResourceInfo = getMusicResourceInfoFromMatcher(musicDetail);
                     }
-                    completeLyricInfo(musicDetail, musicResourceInfo);
+                    completeLyricInfo(musicDetail);
                 } else {
                     logger.warn("Failed to get resource for music: {} (ID: {}), trying substitute", musicDetail.getName(), musicDetail.getId());
                     try {
                         musicResourceInfo = getMusicResourceInfoFromMatcher(musicDetail);
-                        completeLyricInfo(musicDetail, musicResourceInfo);
+                        completeLyricInfo(musicDetail);
                     } catch (Exception e) {
                         logger.error("Failed to get resource for music from substitute: {} (ID: {})", musicDetail.getName(), musicDetail.getId());
                         musicResourceInfo = MusicResourceInfo.NONE;
@@ -154,10 +154,10 @@ public class MusicApiService {
         }
     }
 
-    private void completeLyricInfo(MusicDetail musicDetail, MusicResourceInfo musicResourceInfo) {
+    private void completeLyricInfo(MusicDetail musicDetail) {
         try {
             LyricInfo lyricInfo = getLyricInfo(musicDetail);
-            musicResourceInfo.setLyricInfo(lyricInfo);
+            musicDetail.setLyricInfo(lyricInfo);
         } catch (Exception e) {
             logger.warn("Failed to get lyric for music: {} (ID: {})", musicDetail.getName(), musicDetail.getId(), e);
         }

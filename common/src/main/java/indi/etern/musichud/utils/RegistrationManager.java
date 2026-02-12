@@ -33,6 +33,8 @@ public class RegistrationManager {
             "indi.etern.musichud.network.requestResponseCycle.CancelQRLoginRequest$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.AnonymousLoginRequest$RegisterImpl",
             "indi.etern.musichud.network.requestResponseCycle.CookieLoginRequest$RegisterImpl",
+            "indi.etern.musichud.network.requestResponseCycle.GetMusicResourceRequest$RegisterImpl",
+            "indi.etern.musichud.network.requestResponseCycle.GetMusicResourceResponse$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.s2c.RefreshMusicQueueMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.s2c.SwitchMusicMessage$RegisterImpl",
             "indi.etern.musichud.network.pushMessages.s2c.LoginResultMessage$RegisterImpl",

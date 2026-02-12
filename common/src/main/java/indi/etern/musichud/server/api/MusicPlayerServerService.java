@@ -1,11 +1,10 @@
 package indi.etern.musichud.server.api;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dev.architectury.networking.NetworkManager;
 import indi.etern.musichud.MusicHud;
-import indi.etern.musichud.beans.music.MusicDetail;
-import indi.etern.musichud.beans.music.MusicResourceInfo;
-import indi.etern.musichud.beans.music.Playlist;
-import indi.etern.musichud.beans.music.PusherInfo;
+import indi.etern.musichud.beans.music.*;
 import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.interfaces.ServerRegister;
 import indi.etern.musichud.network.pushMessages.s2c.RefreshMusicQueueMessage;
@@ -17,23 +16,29 @@ import lombok.Setter;
 import lombok.SneakyThrows;
 import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MusicPlayerServerService {
     private static volatile MusicPlayerServerService instance;
     private final MusicApiService musicApiService = MusicApiService.getInstance();
     private final CurrentVoteInfo currentVoteInfo = new CurrentVoteInfo();
+    private final Logger logger = MusicHud.getLogger(MusicPlayerServerService.class);
+    private final Cache<CacheKey, MusicResourceInfo> musicResourceInfoCache = CacheBuilder.newBuilder()
+            .expireAfterAccess(5, TimeUnit.MINUTES)
+            .maximumSize(20)
+            .build();
     @Getter
     ArrayDeque<MusicDetail> musicQueue = new ArrayDeque<>();
     Map<ServerPlayer, Set<Playlist>> idlePlaySources = new ConcurrentHashMap<>();
     boolean continuable;
-    private final Logger logger = MusicHud.getLogger(MusicPlayerServerService.class);
     @Getter
     private volatile MusicDetail currentMusicDetail = MusicDetail.NONE;
     @Getter
@@ -96,7 +101,9 @@ public class MusicPlayerServerService {
                         nextMusicDetail = preloadMusicDetail != null ? preloadMusicDetail : MusicDetail.NONE;
                     }
 
-                    loadResourceInfoIfUnloaded(switchedToPlay);
+                    if (switchedToPlay.getLyricInfo() == null || switchedToPlay.getLyricInfo().equals(LyricInfo.NONE)) {
+                        switchedToPlay.setLyricInfo(musicApiService.getLyricInfo(switchedToPlay));
+                    }
                     NetworkManager.sendToPlayers(
                             loginedPlayerInfoMap.keySet(),
                             new SwitchMusicMessage(switchedToPlay, nextMusicDetail, message)
@@ -113,7 +120,7 @@ public class MusicPlayerServerService {
                         Thread.sleep(switchedToPlay.getDurationMillis() + musicIntervalMillis);
                     } catch (InterruptedException ignored) {//When force switch
                         logger.info("Skip current, switch to next");
-                        message = "投票切歌通过";
+                        message = "music_hud.text.votePassed";
                     }
                 } catch (Exception e) {
                     logger.error("Failed to push music: {} (id: {})",
@@ -205,20 +212,6 @@ public class MusicPlayerServerService {
             haveSentMusic = false;
             if (pusherThread == null) {
                 MusicHud.EXECUTOR.execute(musicPusher);
-            }
-        }
-    }
-
-    private void loadResourceInfoIfUnloaded(MusicDetail musicDetail) {
-        if (musicDetail != null && !musicDetail.equals(MusicDetail.NONE)) {
-            MusicResourceInfo musicResourceInfo = musicDetail.getMusicResourceInfo();
-            if (musicResourceInfo == null || musicResourceInfo.equals(MusicResourceInfo.NONE)) {
-                MusicResourceInfo resourceInfo = musicApiService.getResourceInfo(musicDetail);
-                if (resourceInfo != null && !resourceInfo.equals(MusicResourceInfo.NONE)) {
-                    musicDetail.setMusicResourceInfo(resourceInfo);
-                } else {
-                    throw new RuntimeException("Failed to get resource info for music: " + musicDetail.getName() + " (ID: " + musicDetail.getId() + ")");
-                }
             }
         }
     }
@@ -334,6 +327,46 @@ public class MusicPlayerServerService {
 
     public void voteSkipCurrent(long id, ServerPlayer player) {
         currentVoteInfo.vote(id, player);
+    }
+
+    public MusicResourceInfo getMusicResourceInfo(long id, Quality quality, String retryFor) {
+        List<MusicDetail> musicDetails = MusicApiService.getInstance().getMusicDetailByIds(List.of(id));
+        if (musicDetails.size() == 1) {
+            MusicDetail musicDetail = musicDetails.getFirst();
+            try {
+                logger.debug("Try to load music resource info from cache with id: {}", id);
+                MusicResourceInfo musicResourceInfo = musicResourceInfoCache.get(new CacheKey(id, quality),
+                        () -> {
+                            logger.debug("Cache not found with id: {}, loading", id);
+                            return getMusicResourceInfoWithoutCache(quality, musicDetail);
+                        });
+                if (musicResourceInfo.getUrl().equals(retryFor)) {
+                    logger.debug("Reload music resource info due to client retry for url \"{}\"", retryFor);
+                    musicResourceInfo = getMusicResourceInfoWithoutCache(quality, musicDetail);
+                    musicResourceInfoCache.put(new CacheKey(id, quality), musicResourceInfo);
+                }
+                return musicResourceInfo;
+            } catch (Exception e) {
+                logger.error("Failed to get resource info for music: {}", musicDetail.getName(), e);
+                return MusicResourceInfo.NONE;
+            }
+        } else if (musicDetails.size() > 1) {
+            throw new IllegalStateException();
+        } else {
+            return MusicResourceInfo.NONE;
+        }
+    }
+
+    private @NotNull MusicResourceInfo getMusicResourceInfoWithoutCache(Quality quality, MusicDetail musicDetail) {
+        MusicResourceInfo resourceInfo = musicApiService.getResourceInfo(musicDetail, quality);
+        if (resourceInfo != null && !resourceInfo.equals(MusicResourceInfo.NONE)) {
+            return resourceInfo;
+        } else {
+            throw new RuntimeException("Failed to get resource info for music: " + musicDetail.getName() + " (ID: " + musicDetail.getId() + ")");
+        }
+    }
+
+    private record CacheKey(long musicId, Quality quality) {
     }
 
     @RegisterMark

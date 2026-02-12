@@ -52,7 +52,7 @@ public class AccountBaseView extends LinearLayout {
         scrollView.addView(view, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
         boolean enabled = ClientConfigDefinition.enable.get();
-        if (!MusicHud.isConnected() || !enabled) {
+        if (MusicHud.getStatus() != MusicHud.ConnectStatus.CONNECTED || !enabled) {
             view.setGravity(Gravity.CENTER);
             TextView textView = Theme.getNotificationTextView(context, enabled);
             view.addView(textView);

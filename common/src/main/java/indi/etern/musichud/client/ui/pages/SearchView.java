@@ -19,6 +19,7 @@ import indi.etern.musichud.client.ui.components.MusicListItem;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import indi.etern.musichud.network.requestResponseCycle.SearchRequest;
 import lombok.Getter;
+import net.minecraft.client.resources.language.I18n;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,7 +46,7 @@ public class SearchView extends LinearLayout {
         setOrientation(VERTICAL);
 
         boolean enabled = ClientConfigDefinition.enable.get();
-        if (!MusicHud.isConnected() || !enabled) {
+        if (MusicHud.getStatus() != MusicHud.ConnectStatus.CONNECTED || !enabled) {
             setGravity(Gravity.CENTER);
             TextView textView = Theme.getNotificationTextView(context, enabled);
             addView(textView);
@@ -61,14 +62,14 @@ public class SearchView extends LinearLayout {
         top.addView(new View(context), new LayoutParams(0, WRAP_CONTENT, 2));
         searchTextInput = new EditText(context, null, R.attr.editTextOutlinedStyle);
         searchTextInput.setTextAlignment(SearchView.TEXT_ALIGNMENT_CENTER);
-        searchTextInput.setHint("搜索音乐...");
+        searchTextInput.setHint(I18n.get("music_hud.field.hint.searchMusic"));
         searchTextInput.setSingleLine();
         LayoutParams params = new LayoutParams(0, WRAP_CONTENT, 6);
         params.setMargins(dp(52), 0, 0, 0);
         top.addView(searchTextInput, params);
 
         Button searchButton = new Button(context);
-        searchButton.setText("搜索");
+        searchButton.setText(I18n.get("music_hud.button.searchMusic"));
         LayoutParams buttonParams = new LayoutParams(WRAP_CONTENT, MATCH_PARENT);
         Drawable background = ButtonInsetBackground.builder()
                 .inset(0).padding(new ButtonInsetBackground.Padding(dp(8), 0, dp(8), 0))
@@ -122,7 +123,7 @@ public class SearchView extends LinearLayout {
         resultArea.removeAllViews();
         if (result.isEmpty()) {
             TextView noResultText = new TextView(getContext());
-            noResultText.setText("未找到相关音乐");
+            noResultText.setText(I18n.get("music_hud.text.searchMusicNoResult"));
             noResultText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
             noResultText.setTextSize(dp(8));
             noResultText.setTextAlignment(TEXT_ALIGNMENT_CENTER);
@@ -148,7 +149,7 @@ public class SearchView extends LinearLayout {
                 .map(Artist::getName).collect(Collectors.joining(" / "));
         musicLayout.setOnClickListener((view) -> {
             MusicService.getInstance().sendPushMusicToQueue(musicDetail);
-            Toast.makeText(context, "已添加到播放列表\n" + musicDetail.getName() + " - " + artistsName, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, I18n.get("music_hud.text.pushedMusicToPlaylist")+ "\n" + musicDetail.getName() + " - " + artistsName, Toast.LENGTH_SHORT).show();
         });
         resultArea.addView(musicLayout);
     }

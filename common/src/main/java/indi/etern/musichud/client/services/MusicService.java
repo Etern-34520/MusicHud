@@ -11,7 +11,6 @@ import icyllis.modernui.widget.Toast;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.login.LoginType;
 import indi.etern.musichud.beans.music.MusicDetail;
-import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.beans.music.Playlist;
 import indi.etern.musichud.client.config.ClientConfigDefinition;
 import indi.etern.musichud.client.config.ProfileConfigData;
@@ -47,8 +46,8 @@ public class MusicService {
             .expireAfterAccess(5, TimeUnit.MINUTES)
             .maximumSize(20)
             .build();
-    private static volatile MusicService instance;
     private static final ProfileConfigData profileConfigData = ProfileConfigData.getInstance();
+    private static volatile MusicService instance;
     @Getter
     private final Set<Playlist> idlePlaylists = new HashSet<>();
     @Getter
@@ -199,7 +198,7 @@ public class MusicService {
         NetworkManager.sendToServer(new ClientRemoveMusicFromQueueMessage(index, musicDetail.getId()));
     }
 
-    public synchronized void switchMusic(MusicDetail musicDetail, MusicResourceInfo resourceInfo, ZonedDateTime serverStartTime, String message) {
+    public synchronized void switchMusic(MusicDetail musicDetail, ZonedDateTime serverStartTime, String message) {
         if (ClientConfigDefinition.enable.get()) {
             if (!message.isEmpty()) {
                 MuiModApi.postToUiThread(() -> {
@@ -209,44 +208,26 @@ public class MusicService {
                 });
             }
             if (!musicDetail.equals(MusicDetail.NONE)) {
-                loadResource(musicDetail);
+                ImageUtils.downloadAsync(musicDetail.getAlbum().getThumbnailPicUrl(200));
                 StreamAudioPlayer streamAudioPlayer = StreamAudioPlayer.getInstance();
-                streamAudioPlayer.playAsyncFromUrl(resourceInfo.getUrl(), resourceInfo.getType(), serverStartTime).thenAccept(zonedDateTime -> {
-                    NowPlayingInfo.getInstance().switchMusic(musicDetail, resourceInfo, zonedDateTime);
+                streamAudioPlayer.playAsync(musicDetail, serverStartTime).thenAccept(zonedDateTime -> {
+                    NowPlayingInfo.getInstance().switchMusic(musicDetail, zonedDateTime);
                 }).exceptionally(e -> {
                     return null;//TODO display error in hud
                 });
             } else {
-                NowPlayingInfo.getInstance().switchMusic(MusicDetail.NONE, MusicResourceInfo.NONE, null);
+                NowPlayingInfo.getInstance().switchMusic(MusicDetail.NONE, null);
                 StreamAudioPlayer streamAudioPlayer = StreamAudioPlayer.getInstance();
                 streamAudioPlayer.stop();
             }
         }
     }
 
-    public void loadResource(MusicDetail musicDetail) {
-        if (ClientConfigDefinition.enable.get()) {
-            ImageUtils.downloadAsync(musicDetail.getAlbum().getThumbnailPicUrl(200));
-        }
-    }
-
     @RegisterMark
     public static class RegisterImpl implements ClientRegister {
-        @Override
-        public void register() {
-            LoginService.getInstance().getLoginCompleteListeners().add((loginCookieInfo) -> {
-                if (loginCookieInfo.type() != LoginType.ANONYMOUS) {
-                    MusicService.getInstance().loadIdlePlaylistsFromConfig();
-                }
-            });
-            ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
-                reset();
-            });
-        }
-
         public static void reset() {
             if (instance != null) {
-                instance.switchMusic(MusicDetail.NONE, MusicResourceInfo.NONE, null, "");
+                instance.switchMusic(MusicDetail.NONE, null, "");
                 instance.idlePlaySourceLoaded = false;
                 instance.musicQueue.clear();
                 instance.idlePlaylistAddListeners.clear();
@@ -259,7 +240,19 @@ public class MusicService {
             if (HudRendererManager.isLoaded()) {
                 HudRendererManager.getInstance().reset();
             }
-            NowPlayingInfo.getInstance().switchMusic(MusicDetail.NONE, MusicResourceInfo.NONE, null);
+            NowPlayingInfo.getInstance().switchMusic(MusicDetail.NONE, null);
+        }
+
+        @Override
+        public void register() {
+            LoginService.getInstance().getLoginCompleteListeners().add((loginCookieInfo) -> {
+                if (loginCookieInfo.type() != LoginType.ANONYMOUS) {
+                    MusicService.getInstance().loadIdlePlaylistsFromConfig();
+                }
+            });
+            ClientPlayerEvent.CLIENT_PLAYER_QUIT.register(player -> {
+                reset();
+            });
         }
     }
 }

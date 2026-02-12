@@ -1,10 +1,16 @@
 package indi.etern.musichud.client.music;
 
+import dev.architectury.networking.NetworkManager;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.FormatType;
+import indi.etern.musichud.beans.music.MusicDetail;
+import indi.etern.musichud.beans.music.MusicResourceInfo;
+import indi.etern.musichud.beans.music.Quality;
 import indi.etern.musichud.client.config.ClientConfigDefinition;
 import indi.etern.musichud.client.music.decoder.AudioDecoder;
 import indi.etern.musichud.client.music.decoder.AudioFormatDetector;
+import indi.etern.musichud.network.requestResponseCycle.GetMusicResourceRequest;
+import indi.etern.musichud.network.requestResponseCycle.GetMusicResourceResponse;
 import lombok.Getter;
 import lombok.SneakyThrows;
 import net.minecraft.client.Minecraft;
@@ -41,9 +47,6 @@ public class StreamAudioPlayer {
     @Getter
     private final Set<Consumer<Status>> statusChangeListener = new HashSet<>();
     private final AtomicLong totalBufferedBytes = new AtomicLong(0);
-    //For retry
-    String currentUrlString;
-    FormatType currentFormatType;
     ZonedDateTime currentStartTime;
     private int source = 0;
     private float lastVolume;
@@ -55,6 +58,7 @@ public class StreamAudioPlayer {
     private volatile long bytesPerSecond = 0;
     private volatile boolean isBuffering = false;
     private volatile ZonedDateTime serverStartTime;
+    private MusicDetail currentMusicDetail;
 
     public static StreamAudioPlayer getInstance() {
         if (instance == null) {
@@ -105,15 +109,14 @@ public class StreamAudioPlayer {
         } catch (InterruptedException ignored) {
         } finally {
             LOGGER.info("Fully retrying");
-            playAsyncFromUrl(currentUrlString, currentFormatType, currentStartTime);
+            playAsync(currentMusicDetail, currentStartTime);
         }
     }
 
-    public CompletableFuture<ZonedDateTime> playAsyncFromUrl(String urlString, FormatType formatType, ZonedDateTime startTime) {
+    public CompletableFuture<ZonedDateTime> playAsync(MusicDetail musicDetail, ZonedDateTime startTime) {
         synchronized (StreamAudioPlayer.class) {
             try {
-                currentUrlString = urlString;
-                currentFormatType = formatType;
+                currentMusicDetail = musicDetail;
                 currentStartTime = startTime == null ? ZonedDateTime.now() : startTime;
                 stop(); // 先停止之前的播放
 
@@ -143,14 +146,13 @@ public class StreamAudioPlayer {
             totalBufferedBytes.set(0);
             shouldContinuePlaying = true;
             shouldContinueDownloading = true;
-            serverStartTime = startTime == null ? ZonedDateTime.now() : startTime;
 
+            CompletableFuture<Void> downloadInitializedFuture = new CompletableFuture<>();
             CompletableFuture<ZonedDateTime> startPlayingFuture = new CompletableFuture<>();
-
             downloadFuture = MusicHud.EXECUTOR.submit(() -> {
                 Thread.currentThread().setName("Downloader");
                 try {
-                    downloadAudioWithRetry(urlString, formatType, startTime != null);
+                    downloadAudioWithRetry(startTime != null, downloadInitializedFuture);
                 } catch (Exception e) {
                     LOGGER.error("Download thread error", e);
                     setStatus(Status.ERROR);
@@ -161,17 +163,19 @@ public class StreamAudioPlayer {
                     }
                 }
             });
-
-            playingFuture = MusicHud.EXECUTOR.submit(() -> {
-                Thread.currentThread().setName("Music Player");
-                try {
-                    playAudioWithRetry(startPlayingFuture);
-                } catch (Exception e) {
-                    LOGGER.error("Play thread error", e);
-                    if (!startPlayingFuture.isDone()) {
-                        startPlayingFuture.completeExceptionally(e);
+            downloadInitializedFuture.thenAccept(ignore -> {
+                serverStartTime = startTime == null ? ZonedDateTime.now() : startTime;
+                playingFuture = MusicHud.EXECUTOR.submit(() -> {
+                    Thread.currentThread().setName("Music Player");
+                    try {
+                        playAudioWithRetry(startPlayingFuture);
+                    } catch (Exception e) {
+                        LOGGER.error("Play thread error", e);
+                        if (!startPlayingFuture.isDone()) {
+                            startPlayingFuture.completeExceptionally(e);
+                        }
                     }
-                }
+                });
             });
 
             return startPlayingFuture;
@@ -328,16 +332,21 @@ public class StreamAudioPlayer {
     }
 
     @SuppressWarnings("BusyWait")
-    private void downloadAudioWithRetry(String urlString, FormatType formatType, boolean forceSync) {
+    private void downloadAudioWithRetry(boolean forceSync, CompletableFuture<Void> downloadInitializedFuture) {
         int localRetryCount = 0;
         boolean forceSyncInternal = forceSync;
 
+        MusicResourceInfo musicResourceInfo = MusicResourceInfo.NONE;
         while (shouldContinueDownloading) {
             try {
+                if (musicResourceInfo.equals(MusicResourceInfo.NONE) || localRetryCount % 3 == 0) {
+                    musicResourceInfo = getCurrentMusicResourceInfo(Quality.valueOf(ClientConfigDefinition.primaryChosenQuality.get()), musicResourceInfo).get();
+                }
                 LOGGER.debug("Starting audio download (attempt {})", localRetryCount + 1);
 
-                AudioDecoder decoder = loadAudioDecoder(urlString, formatType);
+                AudioDecoder decoder = loadAudioDecoder(musicResourceInfo.getUrl(), musicResourceInfo.getType());
                 currentDecoder = decoder;
+                downloadInitializedFuture.complete(null);
 
                 if (status.get() != Status.ERROR && status.get() != Status.RETRYING) {
                     setStatus(Status.BUFFERING);
@@ -583,6 +592,14 @@ public class StreamAudioPlayer {
     public float getBufferedSeconds() {
         if (currentDecoder == null) return 0;
         return calculateBufferedSeconds(currentDecoder.getFormat());
+    }
+
+    public CompletableFuture<MusicResourceInfo> getCurrentMusicResourceInfo(Quality quality, MusicResourceInfo previous) {
+        CompletableFuture<MusicResourceInfo> future = new CompletableFuture<>();
+        GetMusicResourceResponse.setReceiver(currentMusicDetail.getId(), future::complete);
+        String url = previous.getUrl() == null ? "" : previous.getUrl();
+        NetworkManager.sendToServer(new GetMusicResourceRequest(currentMusicDetail.getId(), quality, url));
+        return future;
     }
 
     public enum Status {
