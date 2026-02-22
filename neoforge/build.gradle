@@ -65,26 +65,6 @@ dependencies {
         exclude group: "it.unimi.dsi", module: "fastutil"
     }
 
-//    implementation "io.github.classgraph:classgraph:$rootProject.classgraph_version"
-//    shadowBundle "io.github.classgraph:classgraph:$rootProject.classgraph_version"
-//    forgeRuntimeLibrary "io.github.classgraph:classgraph:$rootProject.classgraph_version"
-
-    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$rootProject.jackson_version") {
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-annotations"
-    }
-    shadowBundle ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$rootProject.jackson_version") {
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-annotations"
-    }
-    forgeRuntimeLibrary ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$rootProject.jackson_version") {
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-databind"
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-core"
-        exclude group: "com.fasterxml.jackson.core", module: "jackson-annotations"
-    }
-
     implementation "com.github.umjammer:jlayer:$rootProject.jlayer_version"
     shadowBundle "com.github.umjammer:jlayer:$rootProject.jlayer_version"
     forgeRuntimeLibrary "com.github.umjammer:jlayer:$rootProject.jlayer_version"
