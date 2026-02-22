@@ -18,36 +18,36 @@ public class MusicResourceInfo {
     public static final StreamCodec<RegistryFriendlyByteBuf, MusicResourceInfo> CODEC = StreamCodec.composite(
             ByteBufCodecs.LONG,
             MusicResourceInfo::getId,
+            ByteBufCodecs.STRING_UTF8,
+            MusicResourceInfo::getUrl,
             ByteBufCodecs.INT,
             MusicResourceInfo::getBitrate,
             ByteBufCodecs.LONG,
             MusicResourceInfo::getSize,
-            ByteBufCodecs.INT,
-            MusicResourceInfo::getTime,
-            ByteBufCodecs.STRING_UTF8,
-            MusicResourceInfo::getUrl,
-            ByteBufCodecs.STRING_UTF8,
-            MusicResourceInfo::getMd5,
             Codecs.ofEnum(FormatType.class),
             MusicResourceInfo::getType,
+            ByteBufCodecs.STRING_UTF8,
+            MusicResourceInfo::getMd5,
             Codecs.ofEnum(Fee.class),
             MusicResourceInfo::getFee,
+            ByteBufCodecs.INT,
+            MusicResourceInfo::getTime,
             MusicResourceInfo::new
     );
     public static final MusicResourceInfo NONE = new MusicResourceInfo();
     @Getter
     long id;
+    String url = "";
     @SerializedName("br")
     @Getter
     int bitrate;
     @Getter
     long size;//byte
+    FormatType type = FormatType.AUTO;
+    String md5 = "";
+    Fee fee = Fee.UNSET;
     @Getter
     int time;
-    String url = "";
-    String md5 = "";
-    FormatType type = FormatType.AUTO;
-    Fee fee = Fee.UNSET;
 
     public static MusicResourceInfo from(String url, MusicDetail musicDetail) {
         MusicResourceInfo musicResourceInfo = new MusicResourceInfo();
