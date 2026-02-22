@@ -25,12 +25,12 @@ import indi.etern.musichud.client.ui.components.FlexWrapLayout;
 import indi.etern.musichud.client.ui.components.MusicListItem;
 import indi.etern.musichud.client.ui.components.PlaylistCard;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
+import indi.etern.musichud.client.ui.utils.Easings;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 
-import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Queue;
@@ -201,7 +201,6 @@ public class HomeView extends LinearLayout {
             lyricsView.addView(lyricScrollView, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
             lyricLinesWrapper = new FrameLayout(context);
-//            lyricLinesWrapper.setOrientation(VERTICAL);
 
             lyricScrollView.addView(lyricLinesWrapper, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
@@ -317,18 +316,11 @@ public class HomeView extends LinearLayout {
                 });
             });
 
-            ArrayDeque<LyricLine> lyricLines = NowPlayingInfo.getInstance().getLyricLines();
-            if (lyricLines != null && !lyricLines.isEmpty()) {
-                switchMusic(lyricLines);
-            }
-
             NowPlayingInfo.getInstance().getLyricLineUpdateListener().add(lyricLineUpdateListener);
 
             addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
                 @Override
                 public void onViewAttachedToWindow(View v) {
-                    // 视图附加到窗口后，初始化滚动到当前歌词
-                    initializeScrollToCurrentLyric();
                     // 开始更新滚动控制器
                     startScrollControllerUpdate();
                 }
@@ -553,8 +545,9 @@ public class HomeView extends LinearLayout {
 
             LinearLayout oldLyricLinesView = lyricLinesView;
             if (oldLyricLinesView != null) {
-                ObjectAnimator slideOut = ObjectAnimator.ofFloat(lyricLinesView, View.TRANSLATION_X, 0, -lyricLinesWrapper.getWidth());
-                slideOut.setDuration(250);
+                ObjectAnimator slideOut = ObjectAnimator.ofFloat(oldLyricLinesView, View.TRANSLATION_X, 0, -lyricLinesWrapper.getWidth());
+                slideOut.setInterpolator(Easings.EASE_IN_OUT_QUINT);
+                slideOut.setDuration(300);
                 slideOut.addListener(new AnimatorListener() {
                     @Override
                     public void onAnimationEnd(Animator animation) {
@@ -562,12 +555,14 @@ public class HomeView extends LinearLayout {
                     }
                 });
                 slideOut.start();
+                createLyricLinesView(lyricLines);
+                ObjectAnimator slideIn = ObjectAnimator.ofFloat(lyricLinesView, View.TRANSLATION_X, lyricLinesWrapper.getWidth(), 0);
+                slideIn.setInterpolator(Easings.EASE_IN_OUT_QUINT);
+                slideIn.setDuration(300);
+                slideIn.start();
+            } else {
+                createLyricLinesView(lyricLines);
             }
-
-            createLyricLinesView(lyricLines);
-            ObjectAnimator slideIn = ObjectAnimator.ofFloat(lyricLinesView, View.TRANSLATION_X, lyricLinesWrapper.getWidth(), 0);
-            slideIn.setDuration(250);
-            slideIn.start();
         });
     }
 
@@ -578,7 +573,6 @@ public class HomeView extends LinearLayout {
         params1.setMargins(0, 0, 0, dp(256));
         lyricLinesWrapper.addView(lyricLinesView, params1);
 
-        lyricLinesView.removeAllViews();
         if (lyricLines != null) {
             for (LyricLine lyricLine : lyricLines) {
                 Context context = getContext();
@@ -622,14 +616,16 @@ public class HomeView extends LinearLayout {
                     }
                 }
             }
-        } else {
-            lyricLinesView.removeAllViews();
         }
+        lyricLinesView.setAlpha(0);
 
         lyricLinesView.post(() -> {
             lyricLinesView.requestLayout();
             lyricScrollView.requestLayout();
             initializeScrollToCurrentLyric();
+            ObjectAnimator fadeAnimator = ObjectAnimator.ofFloat(lyricLinesView, View.ALPHA, 0.0f, 1.0f);
+            fadeAnimator.setDuration(150);
+            fadeAnimator.start();
         });
     }
 
@@ -653,5 +649,14 @@ public class HomeView extends LinearLayout {
         }
         removeCallbacks(autoRecenterRunnable);
         instance = null;
+        lastHighlightLine = null;
+        lyricLinesView = null;
+        lyricLinesWrapper = null;
+        lastUserScrollTime = 0;
+        isUserManuallyScrolling = false;
+        hasInitializedScroll = false;
+        isRecenterScroll = false;
+        currentScrollPosition = 0;
+        isAutoScrolling = false;
     }
 }

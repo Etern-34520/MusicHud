@@ -27,11 +27,9 @@ public class AccountView extends LinearLayout {
     @Getter
     private static AccountView instance;
     private final AccountService accountService = AccountService.getInstance();
-    private Context context;
 
     public AccountView(Context context) {
         super(context);
-        this.context = context;
         refresh();
         instance = this;
         addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
@@ -41,7 +39,6 @@ public class AccountView extends LinearLayout {
 
             @Override
             public void onViewDetachedFromWindow(View v) {
-                AccountView.instance.context = null;
                 instance = null;
             }
         });
@@ -51,6 +48,7 @@ public class AccountView extends LinearLayout {
         removeAllViews();
         setOrientation(LinearLayout.VERTICAL);
         setLayoutParams(new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+        Context context = getContext();
 
         Profile currentProfile = Profile.getCurrent();
         if (currentProfile == null) {
