@@ -119,6 +119,7 @@ public class MainFragment extends Fragment {
                         .reduce((a, b) -> a + " / " + b)
                         .orElse(""));
                 instance.skipCurrentButton.setText(I18n.get("music_hud.button.voteForSkip"));
+                instance.skipCurrentButton.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 instance.skipCurrentButton.setEnabled(true);
                 instance.skipCurrentButton.setVisibility(ClientConfigDefinition.enable.get() ? View.VISIBLE : View.GONE);
                 instance.progressBar.setVisibility(View.VISIBLE);

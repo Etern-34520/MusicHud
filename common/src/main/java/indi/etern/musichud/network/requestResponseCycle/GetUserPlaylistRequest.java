@@ -15,7 +15,7 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.List;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class GetUserPlaylistRequest implements C2SPayload {
     public static final GetUserPlaylistRequest REQUEST = new GetUserPlaylistRequest();
     public static final StreamCodec<RegistryFriendlyByteBuf, GetUserPlaylistRequest> CODEC = StreamCodec.unit(REQUEST);

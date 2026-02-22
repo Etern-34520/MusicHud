@@ -1,14 +1,14 @@
 package indi.etern.musichud.client.ui.utils.lyrics.beans;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 import java.time.Duration;
 import java.util.List;
 
 public class MetaInfoLine {
-    @JsonProperty("t")
+    @SerializedName("t")
     protected int timestampMillis;
-    @JsonProperty("c")
+    @SerializedName("c")
     protected List<MetaInfoStringWrapper> metaInfoStrings;
 
     public Duration getTimestampDuration() {
@@ -20,7 +20,7 @@ public class MetaInfoLine {
     }
 
     public static class MetaInfoStringWrapper {
-        @JsonProperty("tx")
+        @SerializedName("tx")
         protected String string;
     }
 }

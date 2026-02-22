@@ -12,7 +12,7 @@ public class EasingInterpolator implements TimeInterpolator {
 
     @Override
     public float getInterpolation(float input) {
-        return easing.transferValue(input);
+        return easing.getInterpolation(input);
     }
 
     // 便捷的静态工厂方法

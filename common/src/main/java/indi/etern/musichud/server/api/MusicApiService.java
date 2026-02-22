@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class MusicApiService {
     private static final Logger logger = MusicHud.getLogger(MusicApiService.class);
     private static final Cache<Long, Playlist> playlistCache = CacheBuilder.newBuilder()

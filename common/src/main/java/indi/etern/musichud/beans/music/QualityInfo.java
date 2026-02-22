@@ -1,6 +1,6 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class QualityInfo {
-    @JsonProperty("br")
+    @SerializedName("br")
     int bitRate;
-    @JsonProperty("size")
+    @SerializedName("size")
     long sizeBytes;
-    @JsonProperty("vd")
+    @SerializedName("vd")
     int volumeDelta;
-    @JsonProperty("sr")
+    @SerializedName("sr")
     int sampleRate;
 
     public static final QualityInfo NONE = new QualityInfo(

@@ -1,6 +1,5 @@
 package indi.etern.musichud.server.api;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import dev.architectury.event.events.common.PlayerEvent;
 import dev.architectury.networking.NetworkManager;
 import indi.etern.musichud.MusicHud;
@@ -9,6 +8,7 @@ import indi.etern.musichud.beans.login.LoginType;
 import indi.etern.musichud.beans.user.AccountDetail;
 import indi.etern.musichud.beans.user.Profile;
 import indi.etern.musichud.beans.user.VipType;
+import indi.etern.musichud.interfaces.IntegerCodeEnum;
 import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.interfaces.ServerRegister;
 import indi.etern.musichud.network.pushMessages.s2c.LoginResultMessage;
@@ -24,7 +24,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class LoginApiService {
     private static final Logger logger = MusicHud.getLogger(LoginApiService.class);
     private static volatile LoginApiService loginApiService;
@@ -281,13 +281,13 @@ public class LoginApiService {
     }
 
     public record QRLoginStatus(Code code, String message, String cookie) {
-        public enum Code {
+        public enum Code implements IntegerCodeEnum {
             EXPIRED(800), PENDING(801), CONFIRMING(802), SUCCEED(803);
-            @JsonValue
-            public final int codeValue;
+            @Getter
+            public final int code;
 
-            Code(int codeValue) {
-                this.codeValue = codeValue;
+            Code(int code) {
+                this.code = code;
             }
         }
     }

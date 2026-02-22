@@ -1,9 +1,6 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.google.gson.annotations.SerializedName;
 import indi.etern.musichud.network.Codecs;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -16,9 +13,7 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
-@JsonIgnoreProperties(ignoreUnknown = true)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class MusicDetail {
     public static final StreamCodec<RegistryFriendlyByteBuf, MusicDetail> CODEC = StreamCodec.composite(
             ByteBufCodecs.STRING_UTF8,
@@ -42,6 +37,49 @@ public class MusicDetail {
             MusicDetail::new
     );
     public static final MusicDetail NONE = new MusicDetail();
+    PrivilegeInfo privilege = PrivilegeInfo.NONE;
+    String name = "";
+    @Getter
+    long id;
+    @SerializedName("ar")
+    List<Artist> artists = List.of();
+    @SerializedName("alia")
+    List<String> alias = List.of();
+    @SerializedName("pop")
+    @Getter
+    int popularity;
+    @SerializedName("v")
+    @Getter
+    int infoVersion;
+    @SerializedName("version")
+    @Getter
+    int musicVersion;
+    @SerializedName("al")
+    AlbumInfo album = AlbumInfo.NONE;
+    @SerializedName("dt")
+    @Getter
+    int durationMillis;
+    @SerializedName("hr")
+    QualityInfo hiRes = QualityInfo.NONE;
+    @SerializedName("sq")
+    QualityInfo sq = QualityInfo.NONE;
+    @SerializedName("h")
+    QualityInfo high = QualityInfo.NONE;
+    @SerializedName("m")
+    QualityInfo medium = QualityInfo.NONE;
+    @SerializedName("l")
+    QualityInfo low = QualityInfo.NONE;
+    @Getter
+    long mark; // bit mask
+    OriginCoverType originCoverType;
+    @SerializedName("tns")
+    List<String> translations = List.of();
+
+    // Not contained in the original API response, set separately
+    @Setter
+    PusherInfo pusherInfo = PusherInfo.EMPTY;
+    @Setter
+    LyricInfo lyricInfo = LyricInfo.NONE;
 
     protected MusicDetail(
             String name,
@@ -65,55 +103,36 @@ public class MusicDetail {
         this.lyricInfo = lyricInfo;
     }
 
-    @JsonSetter(nulls = Nulls.SKIP)
-    private String name = "";
-    private long id;
-    @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("ar")
-    private List<Artist> artists = List.of();
-    @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("alia")
-    private List<String> alias = List.of();
-    @JsonProperty("pop")
-    private int popularity;
-    @JsonProperty("v")
-    private int infoVersion;
-    @JsonProperty("version")
-    private int musicVersion;
-    @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("al")
-    private AlbumInfo album = AlbumInfo.NONE;
-    @JsonProperty("dt")
-    private int durationMillis;
-    @JsonProperty("hr")
-    private QualityInfo hiRes = QualityInfo.NONE;
-    @JsonProperty("sq")
-    private QualityInfo sq = QualityInfo.NONE;
-    @JsonProperty("h")
-    private QualityInfo high = QualityInfo.NONE;
-    @JsonProperty("m")
-    private QualityInfo medium = QualityInfo.NONE;
-    @JsonProperty("l")
-    private QualityInfo low = QualityInfo.NONE;
-    @JsonProperty
-    private long mark; // bit mask
-    @JsonSetter(nulls = Nulls.SKIP)
-    private OriginCoverType originCoverType;
-    @JsonSetter(nulls = Nulls.SKIP)
-    @JsonProperty("tns")
-    private List<String> translations = List.of();
-    PrivilegeInfo privilege = PrivilegeInfo.NONE;
-    // Not contained in the original API response, set separately
-    @Setter
-    PusherInfo pusherInfo = PusherInfo.EMPTY;
-    @Setter
-    LyricInfo lyricInfo = LyricInfo.NONE;
+    public QualityInfo getHiRes() {
+        return Objects.requireNonNullElse(hiRes, QualityInfo.NONE);
+    }
 
-//    @Setter
-//    MusicResourceInfo musicResourceInfo = MusicResourceInfo.NONE;
+    public QualityInfo getSq() {
+        return Objects.requireNonNullElse(sq, QualityInfo.NONE);
+    }
+
+    public QualityInfo getHigh() {
+        return Objects.requireNonNullElse(high, QualityInfo.NONE);
+    }
+
+    public QualityInfo getMedium() {
+        return Objects.requireNonNullElse(medium, QualityInfo.NONE);
+    }
+
+    public QualityInfo getLow() {
+        return Objects.requireNonNullElse(low, QualityInfo.NONE);
+    }
+
+    public OriginCoverType getOriginCoverType() {
+        return Objects.requireNonNullElse(originCoverType, OriginCoverType.UNKNOWN);
+    }
+
+    public PrivilegeInfo getPrivilege() {
+        return Objects.requireNonNullElse(privilege, PrivilegeInfo.NONE);
+    }
 
     public String getName() {
-        return name == null ? "" : name;
+        return Objects.requireNonNullElse(name, "");
     }
 
     public List<Artist> getArtists() {
@@ -131,7 +150,7 @@ public class MusicDetail {
     }
 
     public AlbumInfo getAlbum() {
-        return album == null ? AlbumInfo.NONE : album;
+        return Objects.requireNonNullElse(album, AlbumInfo.NONE);
     }
 
     public List<String> getTranslations() {
@@ -142,11 +161,11 @@ public class MusicDetail {
     }
 
     public PusherInfo getPusherInfo() {
-        return pusherInfo == null ? PusherInfo.EMPTY : pusherInfo;
+        return Objects.requireNonNullElse(pusherInfo, PusherInfo.EMPTY);
     }
 
     public LyricInfo getLyricInfo() {
-        return lyricInfo == null ? LyricInfo.NONE : lyricInfo;
+        return Objects.requireNonNullElse(lyricInfo, LyricInfo.NONE);
     }
 
     @Override
