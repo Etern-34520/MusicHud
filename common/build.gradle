@@ -22,10 +22,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter:$rootProject.junit_version"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     api "fuzs.forgeconfigapiport:forgeconfigapiport-common-neoforgeapi:$rootProject.forge_config_api_port_version"
-//    implementation "io.github.classgraph:classgraph:$rootProject.classgraph_version"
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$rootProject.jackson_version"
-    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$rootProject.jackson_version"
     implementation "com.github.umjammer:jlayer:$rootProject.jlayer_version"
     implementation "org.jflac:jflac-codec:$rootProject.jflac_version"
     compileOnly "icyllis.modernui:ModernUI-NeoForge:1.21.8-${rootProject.modernui_version}.+"
