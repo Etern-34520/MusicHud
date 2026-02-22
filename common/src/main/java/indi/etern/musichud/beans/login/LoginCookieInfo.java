@@ -1,6 +1,5 @@
 package indi.etern.musichud.beans.login;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import dev.architectury.networking.NetworkManager;
 import dev.architectury.platform.Platform;
 import indi.etern.musichud.MusicHud;
@@ -38,8 +37,8 @@ public record LoginCookieInfo(LoginType type, String rawCookie, ZonedDateTime ge
     private static final Period refreshInterval = Period.of(0,0,1);
     public static LoginCookieInfo fromJson(String json) {
         try {
-            return JsonUtil.objectMapper.readValue(json, LoginCookieInfo.class);
-        } catch (JsonProcessingException e) {
+            return JsonUtil.gson.fromJson(json, LoginCookieInfo.class);
+        } catch (RuntimeException e) {
             return LoginCookieInfo.UNLOGGED;
         }
     }
@@ -54,10 +53,10 @@ public record LoginCookieInfo(LoginType type, String rawCookie, ZonedDateTime ge
 
     public static void setClientCookie(LoginCookieInfo loginCookieInfo) {
         try {
-            ClientConfigDefinition.clientCookie.set(JsonUtil.objectMapper.writeValueAsString(loginCookieInfo));
+            ClientConfigDefinition.clientCookie.set(JsonUtil.gson.toJson(loginCookieInfo));
             ClientConfigDefinition.clientCookie.save();
             logger.info("Login cookie saved");
-        } catch (JsonProcessingException e) {
+        } catch (RuntimeException e) {
             logger.error("Exception occurred when serializing login cookie and save", e);
         }
     }

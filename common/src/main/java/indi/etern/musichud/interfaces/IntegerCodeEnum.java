@@ -1,8 +1,14 @@
 package indi.etern.musichud.interfaces;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-
 public interface IntegerCodeEnum {
-    @JsonValue
+//    @JsonValue
     int getCode();
+/*
+    class Serializer implements JsonSerializer<IntegerCodeEnum> {
+        @Override
+        public JsonElement serialize(IntegerCodeEnum src, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(src.getCode());
+        }
+    }
+*/
 }

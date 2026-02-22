@@ -263,6 +263,7 @@ public class RouterContainer extends FrameLayout {
             pendingNavigationKey = key;
             if (currentAnimation != null && currentAnimation.isRunning()) {
                 currentAnimation.end();
+                routeStack.push(key);
             }
             return;
         }

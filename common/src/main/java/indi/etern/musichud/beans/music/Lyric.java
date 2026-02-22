@@ -1,15 +1,14 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@Getter
+import java.util.Objects;
+
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode
 public class Lyric {
     public static final StreamCodec<RegistryFriendlyByteBuf, Lyric> CODEC = StreamCodec.composite(
@@ -20,6 +19,11 @@ public class Lyric {
             Lyric::new
     );
     public static final Lyric NONE = new Lyric(-1, "");
+    @Getter
     int version;
     String lyric;
+
+    public String getLyric() {
+        return Objects.requireNonNullElse(lyric, "");
+    }
 }

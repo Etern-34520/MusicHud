@@ -1,8 +1,7 @@
 package indi.etern.musichud.utils.http;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.interfaces.PostProcessable;
 import indi.etern.musichud.server.api.ServerApiMeta;
@@ -48,14 +47,14 @@ public class ApiClient {
                         .uri(urlMeta.toURI())
                         .setHeader("Content-Type", "application/json");
                 if (requestBody != null) {
-                    JsonNode payload = requestBody instanceof JsonNode element ? element : JsonUtil.objectMapper.valueToTree(requestBody);
-                    if (payload instanceof ObjectNode objectNode) {
+                    JsonElement payload = requestBody instanceof JsonElement element ? element : JsonUtil.gson.toJsonTree(requestBody);
+                    if (payload instanceof JsonObject jsonObject) {
                         if (formattedUserCookie != null && !formattedUserCookie.isEmpty()) {
                             for (String cookieItem : formattedUserCookie.split(";;")) {
                                 requestBuilder.header("Cookie", cookieItem);
                             }
                         } else {
-                            objectNode.put("noCookie", true);
+                            jsonObject.addProperty("noCookie", true);
                         }
                         requestBuilder.POST(HttpRequest.BodyPublishers.ofString(
                                         payload.toString(),
@@ -78,9 +77,9 @@ public class ApiClient {
                 try {
                     HttpResponse<?> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
                     String string = response.body().toString();
-                    var codeOnlyResponse = JsonUtil.objectMapper.readValue(string, CodeOnlyResponse.class);
+                    var codeOnlyResponse = JsonUtil.gson.fromJson(string, CodeOnlyResponse.class);
                     if (codeOnlyResponse.code == 200 || trial == maxTrial || !urlMeta.autoRetry()) {
-                        t = JsonUtil.objectMapper.readValue(string, urlMeta.responseType());
+                        t = JsonUtil.gson.fromJson(string, urlMeta.responseType());
                     }
                 } catch (ConnectException e) {
                     MusicHud.getLogger(ApiClient.class).error("Please check Api server status");
@@ -120,9 +119,9 @@ public class ApiClient {
                 try {
                     HttpResponse<?> response = CLIENT.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
                     String string = response.body().toString();
-                    var codeOnlyResponse = JsonUtil.objectMapper.readValue(string, CodeOnlyResponse.class);
+                    var codeOnlyResponse = JsonUtil.gson.fromJson(string, CodeOnlyResponse.class);
                     if (codeOnlyResponse.code == 200 || trial == maxTrial || !urlMeta.autoRetry()) {
-                        t = JsonUtil.objectMapper.readValue(string, urlMeta.responseType());
+                        t = JsonUtil.gson.fromJson(string, urlMeta.responseType());
                     }
                 } catch (ConnectException e) {
                     MusicHud.getLogger(ApiClient.class).error("Please check Api server status");
@@ -138,7 +137,7 @@ public class ApiClient {
         return t;
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
+//    @JsonIgnoreProperties(ignoreUnknown = true)
     private record CodeOnlyResponse(int code) {
     }
 

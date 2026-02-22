@@ -1,7 +1,6 @@
 package indi.etern.musichud.beans.user;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -9,9 +8,8 @@ import net.minecraft.network.codec.StreamCodec;
 
 @Getter
 @Setter(AccessLevel.PACKAGE)
-@JsonIgnoreProperties(ignoreUnknown = true)
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class Account {
     public static final StreamCodec<RegistryFriendlyByteBuf, Account> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.LONG,
@@ -37,6 +35,6 @@ public class Account {
     int status;
     VipType vipType;
     @SuppressWarnings("SpellCheckingInspection")
-    @JsonProperty("anonimousUser")
+    @SerializedName("anonimousUser")
     boolean anonymous;
 }

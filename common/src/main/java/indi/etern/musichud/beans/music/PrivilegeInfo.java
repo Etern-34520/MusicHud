@@ -1,6 +1,6 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,9 +9,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-@Getter
+import java.util.Objects;
+
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class PrivilegeInfo {
     public static final StreamCodec<RegistryFriendlyByteBuf, PrivilegeInfo> CODEC = StreamCodec.composite(
             ByteBufCodecs.BOOL,
@@ -29,13 +30,28 @@ public class PrivilegeInfo {
             PrivilegeInfo::new
     );
     public static final PrivilegeInfo NONE = new PrivilegeInfo();
-    @JsonProperty("cs")
+    @Getter
+    @SerializedName("cs")
     boolean cloudSource;
-    @JsonProperty("st")
+    @Getter
+    @SerializedName("st")
     int copyrightStatus;//0 is normal, less than 0 means no copyright
-    @JsonProperty("toast")
+    @Getter
+    @SerializedName("toast")
     boolean disabledAsCopyrightProtect;
     Quality maxBrLevel = Quality.NONE;
     Quality playMaxBrLevel = Quality.NONE;
     Quality downloadMaxBrLevel = Quality.NONE;
+
+    public Quality getDownloadMaxBrLevel() {
+        return Objects.requireNonNullElse(downloadMaxBrLevel, Quality.NONE);
+    }
+
+    public Quality getPlayMaxBrLevel() {
+        return Objects.requireNonNullElse(playMaxBrLevel, Quality.NONE);
+    }
+
+    public Quality getMaxBrLevel() {
+        return Objects.requireNonNullElse(maxBrLevel, Quality.NONE);
+    }
 }
