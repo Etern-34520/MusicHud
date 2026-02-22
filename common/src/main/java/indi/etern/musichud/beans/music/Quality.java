@@ -1,6 +1,5 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
 import indi.etern.musichud.network.Codecs;
@@ -24,11 +23,6 @@ public enum Quality {
     STANDARD, HIGHER, EX_HIGH, LOSSLESS, HIRES, JY_EFFECT, SKY, DOLBY, JY_MASTER, NONE;
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Quality> CODEC = Codecs.ofEnum(Quality.class);
-
-    @JsonValue
-    public String getValueName() {
-        return this.name().replace("_", "").toLowerCase();
-    }
 
     @Override
     public String toString() {

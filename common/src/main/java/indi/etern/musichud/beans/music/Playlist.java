@@ -1,9 +1,8 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
 import indi.etern.musichud.beans.user.Profile;
 import indi.etern.musichud.network.Codecs;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -13,8 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import java.util.List;
 import java.util.Objects;
 
-@Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class Playlist {
     public static final StreamCodec<RegistryFriendlyByteBuf, Playlist> CODEC = StreamCodec.composite(
             ByteBufCodecs.LONG,
@@ -33,45 +31,20 @@ public class Playlist {
             Playlist::getTracks,
             Playlist::new
     );
-    @JsonSetter(nulls = Nulls.SKIP)
+
+    public static final Playlist EMPTY = new Playlist();
+
+    @Getter
     long id = -1;
-    @JsonSetter(nulls = Nulls.SKIP)
     String name = "";
-    @JsonSetter(nulls = Nulls.SKIP)
+    @Getter
     long coverImgId = -1;
-    @JsonSetter(nulls = Nulls.SKIP)
     String coverImgId_str = "";
-    @JsonSetter(nulls = Nulls.SKIP)
     String coverImgUrl = "";
-    @JsonSetter(nulls = Nulls.SKIP)
     Profile creator = Profile.ANONYMOUS;
-    @JsonSetter(nulls = Nulls.SKIP)
     List<MusicDetail> tracks = List.of();
-    @JsonSetter(nulls = Nulls.SKIP)
     List<PrivilegeInfo> privileges = List.of();
 
-    public String getName() {
-        return name == null ? "" : name;
-    }
-
-    public String getCoverImgId_str() {
-        return coverImgId_str == null ? "" : coverImgId_str;
-    }
-
-    public String getCoverImgUrl() {
-        return coverImgUrl == null ? "" : coverImgUrl;
-    }
-
-    public Profile getCreator() {
-        return creator == null ? Profile.ANONYMOUS : creator;
-    }
-
-    public List<MusicDetail> getTracks() {
-        if (tracks == null || tracks.isEmpty()) {
-            return List.of();
-        }
-        return tracks.stream().filter(Objects::nonNull).toList();
-    }
     protected Playlist(
             long id,
             String name,
@@ -88,6 +61,29 @@ public class Playlist {
         this.coverImgUrl = coverImgUrl;
         this.creator = creator;
         this.tracks = tracks;
+    }
+
+    public String getName() {
+        return Objects.requireNonNullElse(name, "");
+    }
+
+    public String getCoverImgId_str() {
+        return Objects.requireNonNullElse(coverImgId_str, "");
+    }
+
+    public String getCoverImgUrl() {
+        return Objects.requireNonNullElse(coverImgUrl, "");
+    }
+
+    public Profile getCreator() {
+        return Objects.requireNonNullElse(creator, Profile.ANONYMOUS);
+    }
+
+    public List<MusicDetail> getTracks() {
+        if (tracks == null || tracks.isEmpty()) {
+            return List.of();
+        }
+        return tracks.stream().filter(Objects::nonNull).toList();
     }
 
     @Override

@@ -1,19 +1,17 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.google.gson.annotations.SerializedName;
 import indi.etern.musichud.interfaces.PostProcessable;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Objects;
 
-@Getter
 public class PlaylistResponse implements PostProcessable {
+    @Getter
     int code;
-    @JsonProperty("playlist")
+    @SerializedName("playlist")
     Playlist playlist;
-    @JsonSetter(nulls = Nulls.SKIP)
     List<PrivilegeInfo> privileges = List.of();
 
     public void postProcess() {
@@ -33,5 +31,16 @@ public class PlaylistResponse implements PostProcessable {
                     musicDetail.privilege = privileges.get(index++);
                 }
         }
+    }
+
+    public Playlist getPlaylist() {
+        return Objects.requireNonNullElse(playlist, Playlist.EMPTY);
+    }
+
+    public List<PrivilegeInfo> getPrivileges() {
+        if (privileges == null || privileges.isEmpty()) {
+            return List.of();
+        }
+        return privileges.stream().filter(Objects::nonNull).toList();
     }
 }

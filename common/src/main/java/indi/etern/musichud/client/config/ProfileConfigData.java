@@ -11,7 +11,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class ProfileConfigData {
     private static volatile ProfileConfigData instance;
     Profile profile;
@@ -19,7 +19,7 @@ public class ProfileConfigData {
 
     @SneakyThrows
     public void saveToConfig() {
-        ClientConfigDefinition.clientAccountConfig.set(JsonUtil.objectMapper.writeValueAsString(this));
+        ClientConfigDefinition.clientAccountConfig.set(JsonUtil.gson.toJson(this));
         ClientConfigDefinition.clientAccountConfig.save();
     }
 
@@ -32,7 +32,7 @@ public class ProfileConfigData {
                     if (json == null || json.isEmpty()) {
                         instance = new ProfileConfigData();
                     } else {
-                        instance = JsonUtil.objectMapper.readValue(json, ProfileConfigData.class);
+                        instance = JsonUtil.gson.fromJson(json, ProfileConfigData.class);
                     }
                 }
             }

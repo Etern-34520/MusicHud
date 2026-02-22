@@ -1,5 +1,9 @@
 package indi.etern.musichud.client.ui.pages;
 
+import icyllis.modernui.animation.Animator;
+import icyllis.modernui.animation.AnimatorListener;
+import icyllis.modernui.animation.LayoutTransition;
+import icyllis.modernui.animation.ObjectAnimator;
 import icyllis.modernui.core.Context;
 import icyllis.modernui.graphics.drawable.Drawable;
 import icyllis.modernui.mc.MuiModApi;
@@ -8,18 +12,18 @@ import icyllis.modernui.text.TextPaint;
 import icyllis.modernui.view.Gravity;
 import icyllis.modernui.view.View;
 import icyllis.modernui.view.ViewGroup;
-import icyllis.modernui.widget.Button;
-import icyllis.modernui.widget.LinearLayout;
-import icyllis.modernui.widget.ScrollView;
-import icyllis.modernui.widget.TextView;
+import icyllis.modernui.widget.*;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.LyricLine;
 import indi.etern.musichud.beans.music.MusicDetail;
+import indi.etern.musichud.beans.music.Playlist;
 import indi.etern.musichud.client.config.ClientConfigDefinition;
 import indi.etern.musichud.client.music.NowPlayingInfo;
 import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.client.ui.Theme;
+import indi.etern.musichud.client.ui.components.FlexWrapLayout;
 import indi.etern.musichud.client.ui.components.MusicListItem;
+import indi.etern.musichud.client.ui.components.PlaylistCard;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -41,9 +45,10 @@ public class HomeView extends LinearLayout {
     @Getter
     private static HomeView instance;
     private final ScrollController lyricScrollController;
+    private final HashMap<LyricLine, TextView> textViewMap = new LinkedHashMap<>();
+    private final HashMap<Playlist, PlaylistCard> idlePlaylistCardMap = new HashMap<>();
     private TextView lastHighlightLine;
     private LinearLayout lyricLinesView;
-    private final HashMap<LyricLine, TextView> textViewMap = new LinkedHashMap<>();
     private ScrollView lyricScrollView;
     private long lastUserScrollTime = 0;
     private boolean isUserManuallyScrolling = false;
@@ -106,6 +111,7 @@ public class HomeView extends LinearLayout {
             }
         }
     };
+    private FrameLayout lyricLinesWrapper;
 
     public HomeView(Context context) {
         super(context);
@@ -163,6 +169,7 @@ public class HomeView extends LinearLayout {
         instance = this;
         Context context = getContext();
         removeAllViews();
+        MusicService musicService = MusicService.getInstance();
 
         boolean enabled = ClientConfigDefinition.enable.get();
         if (MusicHud.getStatus() != MusicHud.ConnectStatus.CONNECTED || !enabled) {
@@ -193,14 +200,8 @@ public class HomeView extends LinearLayout {
             lyricScrollView.setFillViewport(true);
             lyricsView.addView(lyricScrollView, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
-            LinearLayout lyricLinesWrapper = new LinearLayout(context);
-            lyricLinesWrapper.setOrientation(VERTICAL);
-
-            lyricLinesView = new LinearLayout(context);
-            lyricLinesView.setOrientation(VERTICAL);
-            LayoutParams params1 = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            params1.setMargins(0, 0, 0, dp(256));
-            lyricLinesWrapper.addView(lyricLinesView, params1);
+            lyricLinesWrapper = new FrameLayout(context);
+//            lyricLinesWrapper.setOrientation(VERTICAL);
 
             lyricScrollView.addView(lyricLinesWrapper, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
 
@@ -226,24 +227,89 @@ public class HomeView extends LinearLayout {
             scrollView.setFillViewport(true);
             queueView.addView(scrollView, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
 
+            LinearLayout scrollViewContainer = new LinearLayout(context);
+            scrollViewContainer.setOrientation(VERTICAL);
+            scrollView.addView(scrollViewContainer, new LayoutParams(MATCH_PARENT, MATCH_PARENT));
+            LayoutTransition transition1 = new LayoutTransition();
+            transition1.enableTransitionType(LayoutTransition.CHANGING);
+            scrollViewContainer.setLayoutTransition(transition1);
+
             LinearLayout playQueueListView = new LinearLayout(context);
             playQueueListView.setOrientation(VERTICAL);
-            LayoutParams queueViewParams1 = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-            scrollView.addView(playQueueListView, queueViewParams1);
+            LayoutParams queueViewParams1 = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            queueViewParams1.setMargins(0,0,0, dp(48));
+            playQueueListView.setMinimumHeight(dp(256));
+            LayoutTransition transition = new LayoutTransition();
+            transition.enableTransitionType(LayoutTransition.CHANGING);
+            playQueueListView.setLayoutTransition(transition);
+            scrollViewContainer.addView(playQueueListView, queueViewParams1);
+
+            LinearLayout idlePlaySourceView = new LinearLayout(context);
+            idlePlaySourceView.setOrientation(VERTICAL);
+            LayoutParams idlePlaylistViewParams = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            idlePlaySourceView.setLayoutParams(idlePlaylistViewParams);
+
+            TextView idlePlaySourceViewTitle = new TextView(context);
+            idlePlaySourceViewTitle.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
+            idlePlaySourceViewTitle.setTextSize(dp(10));
+            idlePlaySourceViewTitle.setText(I18n.get("music_hud.text.idlePlaySources"));
+            LayoutParams params2 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+            idlePlaySourceView.addView(idlePlaySourceViewTitle, params2);
+
+            TextView idlePlaySourceViewDescription = new TextView(context);
+            idlePlaySourceViewDescription.setTextColor(Theme.SECONDARY_TEXT_COLOR);
+            idlePlaySourceViewDescription.setTextSize(dp(8));
+            idlePlaySourceViewDescription.setText(I18n.get("music_hud.text.idlePlaySourcesDescription"));
+            LayoutParams params3 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+            idlePlaySourceView.addView(idlePlaySourceViewDescription, params3);
+
+            FlexWrapLayout idlePlaylistCardsList = new FlexWrapLayout(context);
+            idlePlaylistCardsList.setItemSpacing(dp(0));
+            idlePlaylistCardsList.setLineSpacing(dp(0));
+            LayoutParams params4 = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+            params4.setMargins(0, dp(16), 0, 0);
+            idlePlaySourceView.addView(idlePlaylistCardsList, params4);
+
+            scrollViewContainer.addView(idlePlaySourceView, new LayoutParams(MATCH_PARENT, WRAP_CONTENT));
+
+            musicService.getIdlePlaylists().forEach(playlist -> {
+                PlaylistCard child = new PlaylistCard(context, playlist);
+                idlePlaylistCardsList.addView(child);
+                idlePlaylistCardMap.put(playlist, child);
+            });
+
+            Consumer<Playlist> addListener = playlist -> {
+                MuiModApi.postToUiThread(() -> {
+                    PlaylistCard child = new PlaylistCard(context, playlist);
+                    idlePlaylistCardsList.addView(child);
+                    idlePlaylistCardMap.put(playlist, child);
+                });
+            };
+            Consumer<Playlist> removeListener = playlist -> {
+                MuiModApi.postToUiThread(() -> {
+                    PlaylistCard view = idlePlaylistCardMap.get(playlist);
+                    if (view != null) {
+                        idlePlaylistCardsList.removeView(view);
+                        idlePlaylistCardMap.remove(playlist);
+                    }
+                });
+            };
+            musicService.getIdlePlaylistAddListeners().add(addListener);
+            musicService.getIdlePlaylistRemoveListeners().add(removeListener);
 
             playQueueListView.removeAllViews();
 
-            Queue<MusicDetail> queue = MusicService.getInstance().getMusicQueue();
+            Queue<MusicDetail> queue = musicService.getMusicQueue();
             for (MusicDetail musicDetail : queue) {
                 addMusicQueueItem(musicDetail, playQueueListView);
             }
 
-            MusicService.getInstance().getMusicQueuePushListeners().add(musicDetail -> {
+            musicService.getMusicQueuePushListeners().add(musicDetail -> {
                 MuiModApi.postToUiThread(() -> {
                     addMusicQueueItem(musicDetail, playQueueListView);
                 });
             });
-            MusicService.getInstance().getMusicQueueRemoveListeners().add((removeIndex, musicDetail) -> {
+            musicService.getMusicQueueRemoveListeners().add((removeIndex, musicDetail) -> {
                 MuiModApi.postToUiThread(() -> {
                     if (removeIndex >= 0 && removeIndex < playQueueListView.getChildCount()) {
                         playQueueListView.removeViewAt(removeIndex);
@@ -277,6 +343,8 @@ public class HomeView extends LinearLayout {
                         lyricScrollController.abortAnimation();
                     }
                     removeCallbacks(autoRecenterRunnable);
+                    musicService.getIdlePlaylistRemoveListeners().remove(removeListener);
+                    musicService.getIdlePlaylistAddListeners().remove(addListener);
                     instance = null;
                 }
             });
@@ -304,7 +372,7 @@ public class HomeView extends LinearLayout {
     }
 
     private void jumpToTop() {
-        if (lyricScrollView == null || lyricScrollController == null) return;
+        if (lyricScrollView == null || lyricLinesView == null || lyricScrollController == null) return;
 
         // 停止当前动画
         lyricScrollController.abortAnimation();
@@ -321,8 +389,7 @@ public class HomeView extends LinearLayout {
     }
 
     private void jumpToLyric(TextView targetLyric) {
-        if (lyricScrollView == null || lyricScrollController == null || targetLyric == null) return;
-
+        if (lyricScrollView == null || lyricLinesView == null || lyricScrollController == null || targetLyric == null) return;
         int scrollViewHeight = lyricScrollView.getHeight();
         if (scrollViewHeight <= 0) {
             // 延迟执行，直到视图布局完成
@@ -484,63 +551,85 @@ public class HomeView extends LinearLayout {
             isRecenterScroll = false;
             isAutoScrolling = false;
 
-            if (lyricLinesView != null) {
-                lyricLinesView.removeAllViews();
-                if (lyricLines != null) {
-                    for (LyricLine lyricLine : lyricLines) {
-                        Context context = getContext();
-                        if (context != null) {
-                            String text = lyricLine.getText();
-                            String translatedText = lyricLine.getTranslatedText();
-                            if ((text == null || text.isEmpty()) && (translatedText == null || translatedText.isEmpty())) {
-                                continue;
-                            }
-
-                            TextView lyricText = new TextView(context);
-                            lyricText.setTextSize(dp(12));
-
-                            if (lyricLine.equals(NowPlayingInfo.getInstance().getCurrentLyricLine())) {
-                                lyricText.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-                                lyricText.setTextStyle(TextPaint.BOLD);
-                                lastHighlightLine = lyricText;
-                            } else {
-                                lyricText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                            }
-                            lyricText.setText(text == null ? "" : text);
-                            textViewMap.put(lyricLine, lyricText);
-
-                            if (translatedText != null && !translatedText.isEmpty()) {
-                                LayoutParams mainParams = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-                                mainParams.setMargins(0, 0, 0, 0);
-                                lyricLinesView.addView(lyricText, mainParams);
-
-                                TextView subLyricText = new TextView(context);
-                                subLyricText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                                subLyricText.setTextSize(dp(8));
-                                subLyricText.setText(translatedText);
-
-                                LayoutParams subParams = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-                                subParams.setMargins(0, 0, 0, dp(8));
-                                lyricLinesView.addView(subLyricText, subParams);
-                            } else {
-                                LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-                                params.setMargins(0, 0, 0, dp(8));
-                                lyricLinesView.addView(lyricText, params);
-                            }
-                        }
+            LinearLayout oldLyricLinesView = lyricLinesView;
+            if (oldLyricLinesView != null) {
+                ObjectAnimator slideOut = ObjectAnimator.ofFloat(lyricLinesView, View.TRANSLATION_X, 0, -lyricLinesWrapper.getWidth());
+                slideOut.setDuration(250);
+                slideOut.addListener(new AnimatorListener() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        lyricLinesWrapper.removeView(oldLyricLinesView);
                     }
-                } else {
-                    lyricLinesView.removeAllViews();
-                }
-
-                lyricLinesView.post(() -> {
-                    lyricLinesView.requestLayout();
-                    lyricScrollView.requestLayout();
-
-                    // 布局完成后，初始化滚动到当前歌词
-                    initializeScrollToCurrentLyric();
                 });
+                slideOut.start();
             }
+
+            createLyricLinesView(lyricLines);
+            ObjectAnimator slideIn = ObjectAnimator.ofFloat(lyricLinesView, View.TRANSLATION_X, lyricLinesWrapper.getWidth(), 0);
+            slideIn.setDuration(250);
+            slideIn.start();
+        });
+    }
+
+    private void createLyricLinesView(Queue<LyricLine> lyricLines) {
+        lyricLinesView = new LinearLayout(getContext());
+        lyricLinesView.setOrientation(VERTICAL);
+        LayoutParams params1 = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+        params1.setMargins(0, 0, 0, dp(256));
+        lyricLinesWrapper.addView(lyricLinesView, params1);
+
+        lyricLinesView.removeAllViews();
+        if (lyricLines != null) {
+            for (LyricLine lyricLine : lyricLines) {
+                Context context = getContext();
+                if (context != null) {
+                    String text = lyricLine.getText();
+                    String translatedText = lyricLine.getTranslatedText();
+                    if ((text == null || text.isEmpty()) && (translatedText == null || translatedText.isEmpty())) {
+                        continue;
+                    }
+
+                    TextView lyricText = new TextView(context);
+                    lyricText.setTextSize(dp(12));
+
+                    if (lyricLine.equals(NowPlayingInfo.getInstance().getCurrentLyricLine())) {
+                        lyricText.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
+                        lyricText.setTextStyle(TextPaint.BOLD);
+                        lastHighlightLine = lyricText;
+                    } else {
+                        lyricText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
+                    }
+                    lyricText.setText(text == null ? "" : text);
+                    textViewMap.put(lyricLine, lyricText);
+
+                    if (translatedText != null && !translatedText.isEmpty()) {
+                        LayoutParams mainParams = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+                        mainParams.setMargins(0, 0, 0, 0);
+                        lyricLinesView.addView(lyricText, mainParams);
+
+                        TextView subLyricText = new TextView(context);
+                        subLyricText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
+                        subLyricText.setTextSize(dp(8));
+                        subLyricText.setText(translatedText);
+
+                        LayoutParams subParams = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+                        subParams.setMargins(0, 0, 0, dp(12));
+                        lyricLinesView.addView(subLyricText, subParams);
+                    } else {
+                        LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
+                        params.setMargins(0, 0, 0, dp(8));
+                        lyricLinesView.addView(lyricText, params);
+                    }
+                }
+            }
+        } else {
+            lyricLinesView.removeAllViews();
+        }
+
+        lyricLinesView.post(() -> {
+            lyricLinesView.requestLayout();
+            lyricScrollView.requestLayout();
+            initializeScrollToCurrentLyric();
         });
     }
 

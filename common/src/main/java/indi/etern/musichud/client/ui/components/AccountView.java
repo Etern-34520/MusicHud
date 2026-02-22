@@ -15,14 +15,10 @@ import indi.etern.musichud.beans.music.Playlist;
 import indi.etern.musichud.beans.user.Profile;
 import indi.etern.musichud.client.services.AccountService;
 import indi.etern.musichud.client.services.LoginService;
-import indi.etern.musichud.client.services.MusicService;
 import indi.etern.musichud.client.ui.Theme;
 import indi.etern.musichud.client.ui.utils.ButtonInsetBackground;
 import lombok.Getter;
 import net.minecraft.client.resources.language.I18n;
-
-import java.util.HashMap;
-import java.util.function.Consumer;
 
 import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -32,8 +28,6 @@ public class AccountView extends LinearLayout {
     private static AccountView instance;
     private final AccountService accountService = AccountService.getInstance();
     private Context context;
-    private final MusicService musicService = MusicService.getInstance();
-    private final HashMap<Playlist, PlaylistCard> idlePlaylistCardMap = new HashMap<>();
 
     public AccountView(Context context) {
         super(context);
@@ -184,34 +178,6 @@ public class AccountView extends LinearLayout {
             params1.setMargins(0, dp(16), 0, 0);
             layout1.addView(playlistCards, params1);
 
-            LinearLayout layout2 = new LinearLayout(context);
-            layout2.setOrientation(VERTICAL);
-            LayoutParams params5 = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            params5.setMargins(0, dp(32), 0, 0);
-            layout2.setLayoutParams(params5);
-            addView(layout2);
-
-            TextView textView1 = new TextView(context);
-            textView1.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-            textView1.setTextSize(dp(10));
-            textView1.setText(I18n.get("music_hud.text.idlePlaySources"));
-            LayoutParams params2 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-            layout2.addView(textView1, params2);
-
-            TextView textView2 = new TextView(context);
-            textView2.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-            textView2.setTextSize(dp(8));
-            textView2.setText(I18n.get("music_hud.text.idlePlaySourcesDescription"));
-            LayoutParams params3 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
-            layout2.addView(textView2, params3);
-
-            FlexWrapLayout idlePlaylistCardsList = new FlexWrapLayout(context);
-            idlePlaylistCardsList.setItemSpacing(dp(0));
-            idlePlaylistCardsList.setLineSpacing(dp(0));
-            LayoutParams params4 = new LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-            params4.setMargins(0, dp(16), 0, 0);
-            layout2.addView(idlePlaylistCardsList, params4);
-
             accountService.loadUserPlaylist().thenAcceptAsync(playlists -> {
                 if (context != null) {
                     MuiModApi.postToUiThread(() -> {
@@ -224,46 +190,6 @@ public class AccountView extends LinearLayout {
                     });
                     }
             }, MusicHud.EXECUTOR);
-
-            musicService.getIdlePlaylists().forEach(playlist -> {
-                if (context != null) {
-                    PlaylistCard child = new PlaylistCard(context, playlist);
-                    idlePlaylistCardsList.addView(child);
-                    idlePlaylistCardMap.put(playlist, child);
-                }
-            });
-
-            Consumer<Playlist> addListener = playlist -> {
-                MuiModApi.postToUiThread(() -> {
-                    if (context != null) {
-                        PlaylistCard child = new PlaylistCard(context, playlist);
-                        idlePlaylistCardsList.addView(child);
-                        idlePlaylistCardMap.put(playlist, child);
-                    }
-                });
-            };
-            Consumer<Playlist> removeListener = playlist -> {
-                MuiModApi.postToUiThread(() -> {
-                    PlaylistCard view = idlePlaylistCardMap.get(playlist);
-                    if (view != null) {
-                        idlePlaylistCardsList.removeView(view);
-                        idlePlaylistCardMap.remove(playlist);
-                    }
-                });
-            };
-            musicService.getIdlePlaylistAddListeners().add(addListener);
-            musicService.getIdlePlaylistRemoveListeners().add(removeListener);
-
-            addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
-                @Override
-                public void onViewAttachedToWindow(View v) {}
-
-                @Override
-                public void onViewDetachedFromWindow(View v) {
-                    musicService.getIdlePlaylistRemoveListeners().remove(removeListener);
-                    musicService.getIdlePlaylistAddListeners().remove(addListener);
-                }
-            });
         }
     }
 }

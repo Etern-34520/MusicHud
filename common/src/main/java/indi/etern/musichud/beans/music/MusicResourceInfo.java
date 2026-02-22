@@ -1,51 +1,53 @@
 package indi.etern.musichud.beans.music;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSetter;
-import com.fasterxml.jackson.annotation.Nulls;
+import com.google.gson.annotations.SerializedName;
 import indi.etern.musichud.network.Codecs;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
-@Getter
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+import java.util.Objects;
+
+@AllArgsConstructor(access = AccessLevel.PUBLIC)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class MusicResourceInfo {
     public static final StreamCodec<RegistryFriendlyByteBuf, MusicResourceInfo> CODEC = StreamCodec.composite(
             ByteBufCodecs.LONG,
             MusicResourceInfo::getId,
-            ByteBufCodecs.STRING_UTF8,
-            MusicResourceInfo::getUrl,
             ByteBufCodecs.INT,
             MusicResourceInfo::getBitrate,
             ByteBufCodecs.LONG,
             MusicResourceInfo::getSize,
-            Codecs.ofEnum(FormatType.class),
-            MusicResourceInfo::getType,
-            ByteBufCodecs.STRING_UTF8,
-            MusicResourceInfo::getMd5,
-            Codecs.ofEnum(Fee.class),
-            MusicResourceInfo::getFee,
             ByteBufCodecs.INT,
             MusicResourceInfo::getTime,
+            ByteBufCodecs.STRING_UTF8,
+            MusicResourceInfo::getUrl,
+            ByteBufCodecs.STRING_UTF8,
+            MusicResourceInfo::getMd5,
+            Codecs.ofEnum(FormatType.class),
+            MusicResourceInfo::getType,
+            Codecs.ofEnum(Fee.class),
+            MusicResourceInfo::getFee,
             MusicResourceInfo::new
     );
     public static final MusicResourceInfo NONE = new MusicResourceInfo();
+    @Getter
     long id;
-    @JsonSetter(nulls = Nulls.SKIP)
-    String url = "";
-    @JsonProperty("br")
+    @SerializedName("br")
+    @Getter
     int bitrate;
+    @Getter
     long size;//byte
-    @JsonSetter(nulls = Nulls.SKIP)
-    FormatType type = FormatType.AUTO;
-    @JsonSetter(nulls = Nulls.SKIP)
-    String md5 = "";
-    @JsonSetter(nulls = Nulls.SKIP)
-    Fee fee = Fee.UNSET;
+    @Getter
     int time;
+    String url = "";
+    String md5 = "";
+    FormatType type = FormatType.AUTO;
+    Fee fee = Fee.UNSET;
 
     public static MusicResourceInfo from(String url, MusicDetail musicDetail) {
         MusicResourceInfo musicResourceInfo = new MusicResourceInfo();
@@ -58,18 +60,18 @@ public class MusicResourceInfo {
     }
 
     public String getUrl() {
-        return url == null ? "" : url;
+        return Objects.requireNonNullElse(url, "");
     }
 
     public FormatType getType() {
-        return type == null ? FormatType.AUTO : type;
+        return Objects.requireNonNullElse(type, FormatType.AUTO);
     }
 
     public String getMd5() {
-        return md5 == null ? "" : md5;
+        return Objects.requireNonNullElse(md5, "");
     }
 
     public Fee getFee() {
-        return fee == null ? Fee.UNSET : fee;
+        return Objects.requireNonNullElse(fee, Fee.UNSET);
     }
 }

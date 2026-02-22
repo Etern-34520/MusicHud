@@ -40,6 +40,10 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 
+    implementation("net.neoforged.fancymodloader:bootstraplauncher:${rootProject.fancymodloader_version}")
+    implementation("net.neoforged.fancymodloader:earlydisplay:${rootProject.fancymodloader_version}")
+    implementation("net.neoforged.fancymodloader:securejarhandler:${rootProject.fancymodloader_version}")
+
     implementation("icyllis.modernui:ModernUI-NeoForge:1.21.8-${rootProject.modernui_version}.+")
     modImplementation("icyllis.modernui:ModernUI-Core:${modernui_version}") {
         exclude group: "org.slf4j", module: "slf4j-api"
@@ -49,6 +53,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations"
         exclude group: "com.ibm.icu", module: "icu4j"
         exclude group: "it.unimi.dsi", module: "fastutil"
+//        exclude group: "org.commonmark"
     }
 
     modImplementation("icyllis.modernui:ModernUI-Markflow:${modernui_version}") {
@@ -59,6 +64,7 @@ dependencies {
         exclude group: "org.jetbrains", module: "annotations"
         exclude group: "com.ibm.icu", module: "icu4j"
         exclude group: "it.unimi.dsi", module: "fastutil"
+        exclude group: "org.commonmark"
     }
 
 //    implementation "io.github.classgraph:classgraph:$rootProject.classgraph_version"

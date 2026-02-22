@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-@NoArgsConstructor(access = AccessLevel.NONE)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class LogoutMessage implements C2SPayload {
     public static final LogoutMessage MESSAGE = new LogoutMessage();
     public static final StreamCodec<RegistryFriendlyByteBuf, LogoutMessage> CODEC = StreamCodec.unit(MESSAGE);

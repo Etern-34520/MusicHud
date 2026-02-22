@@ -28,6 +28,9 @@ public class FlexWrapLayout extends LinearLayout {
         super(context);
         setOrientation(VERTICAL);  // 主容器垂直排列(多行)
 
+//        LayoutTransition transition = new LayoutTransition();
+//        transition.enableTransitionType(LayoutTransition.CHANGING);
+//        setLayoutTransition(transition);
         addOnLayoutChangeListener((v, left, top, right, bottom,
                                               oldLeft, oldTop, oldRight, oldBottom) -> {
             int newWidth = right - left;
@@ -131,6 +134,11 @@ public class FlexWrapLayout extends LinearLayout {
         if (!rows.isEmpty()) {
             params.topMargin = colSpacing;
         }
+
+
+//        LayoutTransition transition = new LayoutTransition();
+//        transition.enableTransitionType(LayoutTransition.CHANGING);
+//        row.setLayoutTransition(transition);
 
         super.addView(row, params);
         rows.add(row);
