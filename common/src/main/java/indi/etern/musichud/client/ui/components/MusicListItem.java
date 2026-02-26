@@ -51,13 +51,13 @@ public class MusicListItem extends LinearLayout {
 
         musicName = new TextView(context);
         musicName.setSingleLine(true);
-        musicName.setTextSize(dp(10));
+        musicName.setTextSize(Theme.TEXT_SIZE_LARGE);
         musicName.setTextColor(Theme.NORMAL_TEXT_COLOR);
         musicTexts.addView(musicName);
 
         musicArtistAndAlbum = new TextView(context);
         musicArtistAndAlbum.setSingleLine(true);
-        musicArtistAndAlbum.setTextSize(dp(8));
+        musicArtistAndAlbum.setTextSize(Theme.TEXT_SIZE_NORMAL);
         musicArtistAndAlbum.setTextColor(Theme.SECONDARY_TEXT_COLOR);
         musicTexts.addView(musicArtistAndAlbum);
 
@@ -66,7 +66,7 @@ public class MusicListItem extends LinearLayout {
         musicTexts.addView(linearLayout);
 
         durationText = new TextView(context);
-        durationText.setTextSize(dp(8));
+        durationText.setTextSize(Theme.TEXT_SIZE_NORMAL);
         durationText.setSingleLine(true);
         durationText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
 
@@ -76,7 +76,7 @@ public class MusicListItem extends LinearLayout {
 
         pusherText = new TextView(getContext());
         pusherText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-        pusherText.setTextSize(dp(8));
+        pusherText.setTextSize(Theme.TEXT_SIZE_NORMAL);
         linearLayout.addView(pusherText);
     }
 

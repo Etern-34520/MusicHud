@@ -116,7 +116,7 @@ public class MusicApiService {
         }
     }
 
-    public MusicResourceInfo getResourceInfo(MusicDetail musicDetail, Quality quality) {
+    public MusicResourceInfo getResourceInfo(MusicDetail musicDetail, Quality quality, String cookie) {
         if (musicDetail == null || musicDetail.equals(MusicDetail.NONE)) {
             return MusicResourceInfo.NONE;
         } else {
@@ -129,11 +129,12 @@ public class MusicApiService {
                     return MusicResourceInfo.NONE;
                 }
                 var request = new GetDirectResourceUrlRequest(musicDetail.getId(), false, quality);
-                var response = ApiClient.post(ServerApiMeta.Music.URL, request, loginApiService.randomVipCookieOr(null));
+                var response = ApiClient.post(ServerApiMeta.Music.URL, request, cookie);
                 if (response.code == 200) {
                     musicResourceInfo = response.data.getFirst();
                     // 30 seconds trial or have no copyright
                     if (musicResourceInfo.getTime() <= 30040 || musicResourceInfo.getUrl() == null) {
+                        logger.warn("Failed to get resource for music: {} (ID: {}), trying substitute", musicDetail.getName(), musicDetail.getId());
                         musicResourceInfo = getMusicResourceInfoFromMatcher(musicDetail);
                     }
                     completeLyricInfo(musicDetail);

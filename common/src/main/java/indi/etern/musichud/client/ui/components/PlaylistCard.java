@@ -43,7 +43,7 @@ public class PlaylistCard extends LinearLayout {
         imageView.setCornerRadius(dp(8));
 
         TextView name = new TextView(context);
-        name.setTextSize(dp(8));
+        name.setTextSize(Theme.TEXT_SIZE_NORMAL);
         name.setTextColor(Theme.NORMAL_TEXT_COLOR);
         name.setText(playlist.getName());
         LayoutParams params1 = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -53,7 +53,7 @@ public class PlaylistCard extends LinearLayout {
         addToWaitingListButton = new Button(context);
         updateButton();
         addToWaitingListButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-        addToWaitingListButton.setTextSize(dp(7));
+        addToWaitingListButton.setTextSize(Theme.TEXT_SIZE_SMALL);
         Drawable background1 = ButtonInsetBackground.builder()
                 .inset(0)
                 .cornerRadius(dp(8))

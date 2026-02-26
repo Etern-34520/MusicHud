@@ -5,6 +5,7 @@ import com.google.common.cache.CacheBuilder;
 import dev.architectury.networking.NetworkManager;
 import indi.etern.musichud.MusicHud;
 import indi.etern.musichud.beans.music.*;
+import indi.etern.musichud.beans.user.VipType;
 import indi.etern.musichud.interfaces.RegisterMark;
 import indi.etern.musichud.interfaces.ServerRegister;
 import indi.etern.musichud.network.pushMessages.s2c.RefreshMusicQueueMessage;
@@ -329,7 +330,7 @@ public class MusicPlayerServerService {
         currentVoteInfo.vote(id, player);
     }
 
-    public MusicResourceInfo getMusicResourceInfo(long id, Quality quality, String retryFor) {
+    public MusicResourceInfo getMusicResourceInfo(long id, Quality quality, String retryFor, ServerPlayer serverPlayer) {
         List<MusicDetail> musicDetails = MusicApiService.getInstance().getMusicDetailByIds(List.of(id));
         if (musicDetails.size() == 1) {
             MusicDetail musicDetail = musicDetails.getFirst();
@@ -338,11 +339,11 @@ public class MusicPlayerServerService {
                 MusicResourceInfo musicResourceInfo = musicResourceInfoCache.get(new CacheKey(id, quality),
                         () -> {
                             logger.debug("Cache not found with id: {}, loading", id);
-                            return getMusicResourceInfoWithoutCache(quality, musicDetail);
+                            return getMusicResourceInfoWithoutCache(quality, musicDetail, serverPlayer);
                         });
                 if (musicResourceInfo.getUrl().equals(retryFor)) {
                     logger.debug("Reload music resource info due to client retry for url \"{}\"", retryFor);
-                    musicResourceInfo = getMusicResourceInfoWithoutCache(quality, musicDetail);
+                    musicResourceInfo = getMusicResourceInfoWithoutCache(quality, musicDetail, serverPlayer);
                     musicResourceInfoCache.put(new CacheKey(id, quality), musicResourceInfo);
                 }
                 return musicResourceInfo;
@@ -357,8 +358,16 @@ public class MusicPlayerServerService {
         }
     }
 
-    private @NotNull MusicResourceInfo getMusicResourceInfoWithoutCache(Quality quality, MusicDetail musicDetail) {
-        MusicResourceInfo resourceInfo = musicApiService.getResourceInfo(musicDetail, quality);
+    private @NotNull MusicResourceInfo getMusicResourceInfoWithoutCache(Quality quality, MusicDetail musicDetail, ServerPlayer serverPlayer) {
+        LoginApiService loginApiService = LoginApiService.getInstance();
+        var loginInfo = loginApiService.getLoginInfoByServerPlayer(serverPlayer);
+        String cookie;
+        if (loginInfo.vipType == VipType.VIP) {
+            cookie = loginInfo.getLoginCookieInfo().rawCookie();
+        } else {
+            cookie = loginApiService.randomVipCookieOr(() -> loginInfo.getLoginCookieInfo().rawCookie());
+        }
+        MusicResourceInfo resourceInfo = musicApiService.getResourceInfo(musicDetail, quality, cookie);
         if (resourceInfo != null && !resourceInfo.equals(MusicResourceInfo.NONE)) {
             return resourceInfo;
         } else {

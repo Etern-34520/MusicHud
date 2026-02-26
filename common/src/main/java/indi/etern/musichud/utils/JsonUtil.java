@@ -5,7 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import indi.etern.musichud.MusicHud;
-import indi.etern.musichud.beans.music.Quality;
+import indi.etern.musichud.interfaces.AliasEnum;
 import indi.etern.musichud.interfaces.IntegerCodeEnum;
 
 import java.io.IOException;
@@ -15,12 +15,9 @@ import java.time.format.DateTimeFormatter;
 
 public class JsonUtil {
     public static final Gson gson;
-
     static {
         gson = new GsonBuilder()
                 .registerTypeAdapterFactory(new LenientEnumTypeAdapterFactory())
-//                .registerTypeAdapter(IntegerCodeEnum.class, new IntegerCodeEnum.Serializer())
-//                .registerTypeAdapter(Quality.class, new Quality.Serializer())
                 .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeAdapter())
                 .create();
     }
@@ -37,7 +34,7 @@ public class JsonUtil {
             Class<Enum<?>> enumClass = (Class<Enum<?>>) rawType;
             Enum<?>[] enumConstants = enumClass.getEnumConstants();
 
-            return new TypeAdapter<T>() {
+            return new TypeAdapter<>() {
                 @Override
                 public void write(JsonWriter out, T value) throws IOException {
                     if (value == null) {
@@ -46,14 +43,11 @@ public class JsonUtil {
                     }
                     Enum<?> enumValue = (Enum<?>) value;
                     // 如果是 IntegerCodeEnum，输出数字代码
-                    if (value instanceof IntegerCodeEnum) {
-                        out.value(((IntegerCodeEnum) value).getCode());
-                    }
-                    // 如果是 Quality，输出特定格式（小写去下划线）
-                    else if (value instanceof Quality) {
-                        out.value(enumValue.name().replace("_", "").toLowerCase());
-                    }
-                    else {
+                    if (value instanceof IntegerCodeEnum codeEnum) {
+                        out.value(codeEnum.getCode());
+                    } else if (value instanceof AliasEnum aliasEnum) {
+                        out.value(aliasEnum.getAlias());
+                    } else {
                         out.value(enumValue.name());
                     }
                 }
@@ -68,7 +62,11 @@ public class JsonUtil {
                             String input = in.nextString();
                             // 忽略大小写匹配 name
                             for (Enum<?> constant : enumConstants) {
-                                if (constant.name().equalsIgnoreCase(input) || constant.name().replace("_", "").equalsIgnoreCase(input)) {
+                                if (constant instanceof AliasEnum aliasEnum && aliasEnum.getAlias().equals(input)) {
+                                    //noinspection unchecked
+                                    return (T) aliasEnum;
+                                }
+                                if (constant.name().equalsIgnoreCase(input)) {
                                     @SuppressWarnings("unchecked")
                                     T result = (T) constant;
                                     return result;
@@ -91,7 +89,7 @@ public class JsonUtil {
                                     return result;
                                 }
                             }
-                            MusicHud.getLogger(JsonUtil.class).warn("Invalid enum value: {}, use default (ordinal:0)", code);
+                            MusicHud.getLogger(JsonUtil.class).debug("Invalid enum value: {}, use default (ordinal:0): {}", code, enumConstants[0]);
                             //noinspection unchecked
                             return (T) enumConstants[0];
                         default:

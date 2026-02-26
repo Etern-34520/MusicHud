@@ -68,13 +68,7 @@ public final class ImageTextureData implements Closeable {
                         logger.debug("Registered texture {} : {}", location, texture);
                         registered = true;
                     }).thenAcceptAsync((v) -> {
-//                        try {
-                            // approximately 2 game tick
-//                            Thread.sleep(Duration.of(100, ChronoUnit.MILLIS));//TODO better solution
-//                        } catch (InterruptedException ignored) {
-//                        } finally {
-                            completableFuture.complete(null);
-//                        }
+                        completableFuture.complete(null);
                     }, MusicHud.EXECUTOR);
                     return completableFuture;
                 } else {

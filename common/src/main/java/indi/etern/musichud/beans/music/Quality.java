@@ -2,22 +2,24 @@ package indi.etern.musichud.beans.music;
 
 import dev.architectury.platform.Platform;
 import dev.architectury.utils.Env;
+import indi.etern.musichud.interfaces.AliasEnum;
 import indi.etern.musichud.network.Codecs;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
-public enum Quality {
+public enum Quality implements AliasEnum {
     /**
-     * standard => 标准
-     * higher   => 较高
-     * exhigh   => 极高
-     * lossless => 无损 (高清臻音)
-     * hires    => Hi-Res
-     * jyeffect => 高清环绕声
-     * sky      => 沉浸环绕声
-     * dolby    => 杜比全景声
-     * jymaster => 超清母带
+     * 传参         文档        实际
+     * sky      => 沉浸环绕声   沉浸环绕声 Surround Audio
+     * jymaster => 超清母带     超清母带 Master
+     * dolby    => 杜比全景声   臻音全景声 Audio Vivid
+     * jyeffect => 高清环绕声   高清臻音 Spatial Audio
+     * hires    => Hi-Res     高解析度无损 Hi-Res
+     * lossless => 无损        无损 SQ
+     * exhigh   => 极高        极高 HQ
+     * higher   => 较高(弃用？) 极高 HQ
+     * standard => 标准        标准
      *
      */
     STANDARD, HIGHER, EX_HIGH, LOSSLESS, HIRES, JY_EFFECT, SKY, DOLBY, JY_MASTER, NONE;
@@ -31,5 +33,10 @@ public enum Quality {
         } else {
             return this.name();
         }
+    }
+
+    @Override
+    public String getAlias() {
+        return name().toLowerCase().replace("_", "");
     }
 }

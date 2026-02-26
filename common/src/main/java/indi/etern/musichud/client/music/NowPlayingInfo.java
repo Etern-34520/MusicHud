@@ -157,7 +157,7 @@ public class NowPlayingInfo {
         return false;
     }
 
-    public Duration getPlayedDuration() {//FIXME
+    public Duration getPlayedDuration() {
         if (musicStartTime == null) {
             return Duration.ZERO;
         }
