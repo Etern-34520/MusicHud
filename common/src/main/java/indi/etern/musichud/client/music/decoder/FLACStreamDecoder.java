@@ -60,7 +60,7 @@ public class FLACStreamDecoder implements AudioDecoder {
 
     @Override
     @SneakyThrows
-    public byte[] readChunk(int maxSize) {
+    public byte[] readChunk(long maxSize) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         while (output.size() < maxSize) {

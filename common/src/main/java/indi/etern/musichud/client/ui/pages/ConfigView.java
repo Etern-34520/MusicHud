@@ -23,6 +23,9 @@ import lombok.Getter;
 import net.minecraft.util.Util;
 import net.minecraft.client.resources.language.I18n;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static icyllis.modernui.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static icyllis.modernui.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
@@ -82,17 +85,18 @@ public class ConfigView extends LinearLayout {
                     ClientConfigDefinition.hideHudWhenNotPlaying,
                     ClientConfigDefinition.hideHudWhenNotPlaying::set)
                     .create(commonCategory);
+            Quality[] qualities = {Quality.STANDARD, Quality.EX_HIGH, Quality.LOSSLESS, Quality.HIRES, Quality.JY_EFFECT, Quality.DOLBY, Quality.JY_MASTER, Quality.SKY};
+            List<Quality> qualitiesList = Arrays.stream(qualities).toList();
             new PreferencesFragment.DropDownOption<>(
                     context,
                     I18n.get("music_hud.config.common.primaryChosenQuality"),
-                    new Quality[]{Quality.STANDARD, Quality.HIGHER, Quality.EX_HIGH, Quality.LOSSLESS, Quality.HIRES, Quality.JY_EFFECT, Quality.SKY, Quality.DOLBY, Quality.JY_MASTER},
-                    Quality::ordinal,
+                    qualities,
+                    qualitiesList::indexOf,
                     () -> Quality.valueOf(ClientConfigDefinition.primaryChosenQuality.get()),
-                    (verticalAlign) -> ClientConfigDefinition.primaryChosenQuality.set(verticalAlign.name()))
+                    (quality) -> ClientConfigDefinition.primaryChosenQuality.set(quality.name()))
                     .setDefaultValue(Quality.LOSSLESS)
                     .create(commonCategory);
             view.addView(commonCategory);
-
             var positionCategory = PreferencesFragment.createCategoryList(view, I18n.get("music_hud.config.category.layout"));
             new PreferencesFragment.DropDownOption<>(
                     context,

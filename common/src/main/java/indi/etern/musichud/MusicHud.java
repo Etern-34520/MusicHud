@@ -28,7 +28,7 @@ public final class MusicHud {
     public static final ExecutorService EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
     @Setter
     @Getter
-    private static ConnectStatus status;
+    private static ConnectStatus status = ConnectStatus.NOT_CONNECTED;
 
     public static Logger getLogger(Class<?> clazz) {
         Logger logger = LogManager.getLogger(LOGGER_BASE_NAME + "/" + clazz.getSimpleName());

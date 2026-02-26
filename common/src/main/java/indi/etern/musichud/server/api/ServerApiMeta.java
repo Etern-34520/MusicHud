@@ -135,7 +135,7 @@ public class ServerApiMeta {
                 Set.of("limit"/*default:30*/, "offset"),
                 true,
                 false,
-                true, PlaylistsResponse.class);//TODO
+                true, PlaylistsResponse.class);
         public static final UrlMeta<String> DJ = new UrlMeta<>(
                 "/user/dj",
                 Set.of("uid"),
@@ -159,7 +159,7 @@ public class ServerApiMeta {
         public static final UrlMeta<String> RECENTLY_PLAYED = new UrlMeta<>(
                 "/record/recent/song",
                 null,
-                Set.of("limit"/*default:100*/),//TODO
+                Set.of("limit"/*default:100*/),
                 true, false, true, String.class);
     }
     public static class Artist {
@@ -228,7 +228,7 @@ public class ServerApiMeta {
                 "/song/url/match",
                 Set.of("id"),
                 Set.of("source"/*pyncmd|bodian|kuwo|kugou|qq|migu*/),
-                false, false, true, MusicApiService.GetMatchResourceUrlResponse.class);
+                true, false, true, MusicApiService.GetMatchResourceUrlResponse.class);
         public static final UrlMeta<MusicDetailResponse> DETAIL = new UrlMeta<>(
                 "/song/detail",
                 Set.of("ids"),

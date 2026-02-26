@@ -125,7 +125,7 @@ public class SearchView extends LinearLayout {
             TextView noResultText = new TextView(getContext());
             noResultText.setText(I18n.get("music_hud.text.searchMusicNoResult"));
             noResultText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-            noResultText.setTextSize(dp(8));
+            noResultText.setTextSize(Theme.TEXT_SIZE_NORMAL);
             noResultText.setTextAlignment(TEXT_ALIGNMENT_CENTER);
             resultArea.addView(noResultText, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
         } else {

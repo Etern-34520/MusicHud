@@ -19,6 +19,7 @@ public class Theme {
     public static final int EMPHASIZE_TEXT_COLOR = 0xFFFFFFFF;
     public static final int NORMAL_TEXT_COLOR = 0xFFE0E0E0;
     public static final int SECONDARY_TEXT_COLOR = 0xFFA0A0A0;
+    public static final int FADE_TEXT_COLOR = 0xFF606060;
 
     public static final int ERROR_TEXT_COLOR = 0xFFFF4F4F;
 
@@ -57,9 +58,14 @@ public class Theme {
             }
     );
 
+    public static final int TEXT_SIZE_SMALL = 10;
+    public static final int TEXT_SIZE_NORMAL = 12;
+    public static final int TEXT_SIZE_LARGE = 15;
+    public static final int TEXT_SIZE_LARGER = 18;
+
     public static TextView getNotificationTextView(Context context, boolean enabled) {
         TextView textView = new TextView(context);
-        textView.setTextSize(textView.dp(8f));
+        textView.setTextSize(TEXT_SIZE_NORMAL);
         textView.setTextColor(EMPHASIZE_TEXT_COLOR);
         if (enabled) {
             if (MusicHud.getStatus() == MusicHud.ConnectStatus.NOT_CONNECTED) {

@@ -63,7 +63,7 @@ public class PlaylistDetailView extends LinearLayout {
         topBar.addView(texts, params1);
 
         TextView type = new TextView(context);
-        type.setTextSize(dp(10));
+        type.setTextSize(Theme.TEXT_SIZE_LARGE);
         type.setTextColor(Theme.SECONDARY_TEXT_COLOR);
         type.setText(I18n.get("music_hud.text.playlist"));
         LayoutParams params2 = new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -72,7 +72,7 @@ public class PlaylistDetailView extends LinearLayout {
         texts.addView(type);
 
         TextView name = new TextView(context);
-        name.setTextSize(dp(12));
+        name.setTextSize(Theme.TEXT_SIZE_LARGER);
         name.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
         name.setText(playlist.getName());
         texts.addView(name);

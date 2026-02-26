@@ -1,7 +1,9 @@
 package indi.etern.musichud;
 
 import indi.etern.musichud.beans.music.MusicDetail;
+import indi.etern.musichud.beans.music.MusicResourceInfo;
 import indi.etern.musichud.beans.music.Playlist;
+import indi.etern.musichud.beans.music.Quality;
 import indi.etern.musichud.server.api.MusicApiService;
 import indi.etern.musichud.utils.JsonUtil;
 import io.netty.buffer.Unpooled;
@@ -35,6 +37,9 @@ public class MainTest {
         List<MusicDetail> detailByIds = musicApiService.getMusicDetailByIds(List.of(1827011682L));
         assert !detailByIds.isEmpty();
         LOGGER.info(JsonUtil.gson.toJson(detailByIds));
+        LOGGER.info("test get resource detail");
+        MusicResourceInfo resourceInfo = musicApiService.getResourceInfo(detailByIds.getFirst(), Quality.LOSSLESS, null);
+        LOGGER.info(JsonUtil.gson.toJson(resourceInfo));
     }
 
     @SneakyThrows
@@ -50,7 +55,6 @@ public class MainTest {
     @SneakyThrows
     @Test
     public void testVersion() {
-        assert Version.capableWith(new Version(1, 0, 0, Version.BuildType.Alpha));
+        assert Version.capableWith(new Version(1, 1, 0, Version.BuildType.Alpha));
     }
-
 }

@@ -55,7 +55,7 @@ public class AccountView extends LinearLayout {
             setGravity(Gravity.CENTER_HORIZONTAL);
 
             TextView textView = new TextView(context);
-            textView.setTextSize(dp(8f));
+            textView.setTextSize(Theme.TEXT_SIZE_NORMAL);
             textView.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
             textView.setText(I18n.get("music_hud.error.getAccountInfo"));
             textView.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
@@ -68,7 +68,7 @@ public class AccountView extends LinearLayout {
             retryButton.setTextColor(Theme.PRIMARY_COLOR);
             retryButton.setHeight(dp(36));
             retryButton.setWidth(dp(84));
-            retryButton.setTextSize(dp(8));
+            retryButton.setTextSize(Theme.TEXT_SIZE_NORMAL);
             retryButton.setText(I18n.get("music_hud.button.retry"));
 
             ProgressBar progressRing = new ProgressBar(context);
@@ -120,7 +120,7 @@ public class AccountView extends LinearLayout {
             LayoutParams nameLayoutParams = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             TextView nickName = new TextView(context);
             nickName.setSingleLine(true);
-            nickName.setTextSize(dp(12));
+            nickName.setTextSize(Theme.TEXT_SIZE_LARGER);
             nickName.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
             nickName.setText(currentProfile.getNickname());
             texts.addView(nickName, nameLayoutParams);
@@ -128,7 +128,7 @@ public class AccountView extends LinearLayout {
             LayoutParams idLayoutParams = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             TextView id = new TextView(context);
             id.setSingleLine(true);
-            id.setTextSize(dp(8));
+            id.setTextSize(Theme.TEXT_SIZE_NORMAL);
             id.setTextColor(Theme.SECONDARY_TEXT_COLOR);
             id.setText(Long.toString(currentProfile.getUserId()));
             texts.addView(id, idLayoutParams);
@@ -137,7 +137,7 @@ public class AccountView extends LinearLayout {
             Button logoutButton = new Button(context);
             logoutButton.setText(I18n.get("music_hud.button.logout"));
             logoutButton.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-            logoutButton.setTextSize(dp(8));
+            logoutButton.setTextSize(Theme.TEXT_SIZE_NORMAL);
             Drawable background = ButtonInsetBackground.builder()
                     .inset(0).cornerRadius(dp(4))
                     .padding(new ButtonInsetBackground.Padding(dp(8), dp(2), dp(8), dp(2)))
@@ -164,7 +164,7 @@ public class AccountView extends LinearLayout {
 
             TextView textView = new TextView(context);
             textView.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
-            textView.setTextSize(dp(10));
+            textView.setTextSize(Theme.TEXT_SIZE_LARGE);
             textView.setText(I18n.get("music_hud.text.myPlaylists"));
             LayoutParams params = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
             layout1.addView(textView, params);
@@ -177,16 +177,12 @@ public class AccountView extends LinearLayout {
             layout1.addView(playlistCards, params1);
 
             accountService.loadUserPlaylist().thenAcceptAsync(playlists -> {
-                if (context != null) {
-                    MuiModApi.postToUiThread(() -> {
-                        for (Playlist playlist : playlists) {
-                            if (context != null) {
-                                playlistCards.addView(new PlaylistCard(context, playlist));
-                            }
-                        }
-                        removeView(progressBar);
-                    });
+                MuiModApi.postToUiThread(() -> {
+                    for (Playlist playlist : playlists) {
+                        playlistCards.addView(new PlaylistCard(context, playlist));
                     }
+                    removeView(progressBar);
+                });
             }, MusicHud.EXECUTOR);
         }
     }
