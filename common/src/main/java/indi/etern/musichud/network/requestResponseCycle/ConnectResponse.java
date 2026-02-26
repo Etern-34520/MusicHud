@@ -24,7 +24,7 @@ public record ConnectResponse(boolean accepted, Version serverVersion) implement
             );
 
     @RegisterMark
-    public static class RegisterImpl implements CommonRegister {//TODO test
+    public static class RegisterImpl implements CommonRegister {
         public void register() {
             NetworkRegisterUtil.autoRegisterPayload(
                     ConnectResponse.class, CODEC,

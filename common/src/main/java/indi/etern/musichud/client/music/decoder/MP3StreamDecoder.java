@@ -21,7 +21,7 @@ public class MP3StreamDecoder implements AudioDecoder {
 
     @Override
     @SneakyThrows
-    public byte[] readChunk(int maxSize) {
+    public byte[] readChunk(long maxSize) {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             while (output.size() < maxSize) {
@@ -37,8 +37,7 @@ public class MP3StreamDecoder implements AudioDecoder {
                 }
 
                 Obuffer obuffer = decoder.decodeFrame(header, bitstream);
-                if (obuffer instanceof SampleBuffer) {
-                    SampleBuffer buffer = (SampleBuffer) obuffer;
+                if (obuffer instanceof SampleBuffer buffer) {
                     short[] shortData = buffer.getBuffer();
 
                     // 将short[]转换为byte[] (16位PCM, 小端序)

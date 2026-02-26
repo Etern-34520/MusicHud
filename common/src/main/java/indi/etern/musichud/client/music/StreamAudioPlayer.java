@@ -357,6 +357,7 @@ public class StreamAudioPlayer {
                     int bytesPerSecond = decoder.getSampleRate() * bytesPerSample;
 
                     long bytesSkipped = 0;
+                    long startSyncTimestamp = System.currentTimeMillis();
                     while (shouldContinueDownloading) {
                         long seconds = Duration.between(serverStartTime, ZonedDateTime.now()).getSeconds();
                         long skipBytes = seconds
@@ -364,11 +365,12 @@ public class StreamAudioPlayer {
                         if (bytesSkipped >= skipBytes) {
                             break;
                         }
-                        byte[] chunk = decoder.readChunk(BUFFER_SIZE);
+                        byte[] chunk = decoder.readChunk(skipBytes - bytesSkipped);
                         if (chunk == null) break;
                         bytesSkipped += chunk.length;
                     }
-                    LOGGER.debug("Skipped {} bytes", bytesSkipped);
+                    long current = System.currentTimeMillis();
+                    LOGGER.debug("Skipped {} bytes in {} millis", bytesSkipped, current - startSyncTimestamp);
                 }
 
                 // 先填充一些数据到缓冲区

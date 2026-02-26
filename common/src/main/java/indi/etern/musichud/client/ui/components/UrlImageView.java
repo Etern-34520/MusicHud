@@ -83,7 +83,7 @@ public class UrlImageView extends FrameLayout {
 
         errorText = new TextView(context);
         errorText.setText(I18n.get("music_hud.button.loadingError"));
-        errorText.setTextSize(dp(8));
+        errorText.setTextSize(Theme.TEXT_SIZE_NORMAL);
         errorText.setTextAlignment(TEXT_ALIGNMENT_CENTER);
         errorText.setTextColor(Theme.ERROR_TEXT_COLOR);
         errorText.setGravity(Gravity.CENTER);
@@ -91,7 +91,7 @@ public class UrlImageView extends FrameLayout {
 
         Button retryButton = new Button(context);
         retryButton.setText(I18n.get("music_hud.button.retry"));
-        retryButton.setTextSize(dp(6));
+        retryButton.setTextSize(Theme.TEXT_SIZE_SMALL);
         retryButton.setTextColor(Theme.PRIMARY_COLOR);
         var background = ButtonInsetBackground.builder()
                 .padding(new ButtonInsetBackground.Padding(retryButton.dp(2), retryButton.dp(1), retryButton.dp(2), retryButton.dp(1)))
@@ -251,6 +251,7 @@ public class UrlImageView extends FrameLayout {
     }
 
     private void createDrawable(Bitmap bitmap) {
+        //noinspection UnstableApiUsage
         RoundedImageDrawable drawable = new RoundedImageDrawable(
                 getContext().getResources(),
                 Image.createTextureFromBitmap(bitmap)

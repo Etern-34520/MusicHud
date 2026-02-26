@@ -32,12 +32,12 @@ public class QRLoginView extends LinearLayout {
         setOrientation(LinearLayout.VERTICAL);
         setGravity(Gravity.CENTER_HORIZONTAL);
         TextView textView = new TextView(context);
-        textView.setTextSize(dp(10));
+        textView.setTextSize(Theme.TEXT_SIZE_LARGE);
         textView.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
         textView.setText(I18n.get("music_hud.text.loginWithQRCode"));
         textView.setLayoutParams(new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
         TextView textView1 = new TextView(context);
-        textView1.setTextSize(dp(8));
+        textView1.setTextSize(Theme.TEXT_SIZE_NORMAL);
         textView1.setTextColor(Theme.SECONDARY_TEXT_COLOR);
         textView1.setText(I18n.get("music_hud.text.loginDescription"));
         LayoutParams params1 = new LayoutParams(WRAP_CONTENT, WRAP_CONTENT);
@@ -55,11 +55,11 @@ public class QRLoginView extends LinearLayout {
         loginButton.setTextColor(Theme.PRIMARY_COLOR);
         loginButton.setHeight(dp(36));
         loginButton.setWidth(dp(84));
-        loginButton.setTextSize(dp(8));
+        loginButton.setTextSize(Theme.TEXT_SIZE_NORMAL);
         loginButton.setText(I18n.get("music_hud.button.loadQRCode"));
 
         messageTextView = new TextView(context);
-        messageTextView.setTextSize(dp(8));
+        messageTextView.setTextSize(Theme.TEXT_SIZE_NORMAL);
         messageTextView.setMaxWidth(dp(400));
         messageTextView.setMinHeight(36);
         messageTextView.setSingleLine(false);

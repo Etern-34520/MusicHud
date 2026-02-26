@@ -2,10 +2,7 @@ package indi.etern.musichud.beans.music;
 
 import com.google.gson.annotations.SerializedName;
 import indi.etern.musichud.network.Codecs;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,6 +11,7 @@ import java.util.Objects;
 
 @AllArgsConstructor(access = AccessLevel.PUBLIC)
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
+@Setter
 public class MusicResourceInfo {
     public static final StreamCodec<RegistryFriendlyByteBuf, MusicResourceInfo> CODEC = StreamCodec.composite(
             ByteBufCodecs.LONG,

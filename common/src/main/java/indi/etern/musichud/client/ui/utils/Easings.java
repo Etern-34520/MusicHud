@@ -20,5 +20,23 @@ public enum Easings implements TimeInterpolator{
         public float getInterpolation(float t) {
             return t < 0.5 ? 16 * t * t * t * t * t : 1 - (float) Math.pow(-2 * t + 2, 5) / 2;
         }
+    },
+    EASE_OUT_QUAD {
+        @Override
+        public float getInterpolation(float t) {
+            return 1 - (1 - t) * (1 - t);
+        }
+    },
+    EASE_IN_QUAD {
+        @Override
+        public float getInterpolation(float t) {
+            return t * t;
+        }
+    },
+    EASE_IN_OUT_QUAD {
+        @Override
+        public float getInterpolation(float t) {
+            return t < 0.5 ? 2 * t * t : (float) (1 - Math.pow(-2 * t + 2, 2) / 2);
+        }
     }
 }

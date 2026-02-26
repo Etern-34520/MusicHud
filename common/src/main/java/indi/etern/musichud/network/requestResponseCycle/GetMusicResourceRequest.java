@@ -31,7 +31,7 @@ public record GetMusicResourceRequest(long id,Quality quality,String retryForUrl
             NetworkRegisterUtil.autoRegisterPayload(
                     GetMusicResourceRequest.class, CODEC,
                     ServerDataPacketVThreadExecutor.execute((request, serverPlayer) -> {
-                        var currentMusicResourceInfo = MusicPlayerServerService.getInstance().getMusicResourceInfo(request.id, request.quality, request.retryForUrl);
+                        var currentMusicResourceInfo = MusicPlayerServerService.getInstance().getMusicResourceInfo(request.id, request.quality, request.retryForUrl, serverPlayer);
                         NetworkManager.sendToPlayer(serverPlayer, new GetMusicResourceResponse(currentMusicResourceInfo));
                     })
             );

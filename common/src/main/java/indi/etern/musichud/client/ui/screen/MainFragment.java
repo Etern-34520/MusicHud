@@ -2,6 +2,7 @@ package indi.etern.musichud.client.ui.screen;
 
 import dev.architectury.networking.NetworkManager;
 import icyllis.modernui.R;
+import icyllis.modernui.animation.LayoutTransition;
 import icyllis.modernui.annotation.Nullable;
 import icyllis.modernui.fragment.Fragment;
 import icyllis.modernui.graphics.drawable.ShapeDrawable;
@@ -214,7 +215,7 @@ public class MainFragment extends Fragment {
                 musicInfo.setOrientation(LinearLayout.VERTICAL);
 
                 titleText = new TextView(context);
-                titleText.setTextSize(titleText.dp(10));
+                titleText.setTextSize(Theme.TEXT_SIZE_LARGE);
                 titleText.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 if (!ClientConfigDefinition.enable.get()) {
                     instance.titleText.setText(I18n.get("music_hud.text.disabled"));
@@ -229,12 +230,12 @@ public class MainFragment extends Fragment {
 
                 artistsText = new TextView(context);
                 artistsText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                artistsText.setTextSize(artistsText.dp(8));
+                artistsText.setTextSize(Theme.TEXT_SIZE_NORMAL);
                 musicInfo.addView(artistsText);
 
                 pusherText = new TextView(context);
                 pusherText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                pusherText.setTextSize(pusherText.dp(8));
+                pusherText.setTextSize(Theme.TEXT_SIZE_NORMAL);
                 musicInfo.addView(pusherText);
 
                 progressBar = new ProgressBar(context, null, R.attr.progressBarStyleHorizontal);
@@ -247,7 +248,7 @@ public class MainFragment extends Fragment {
 
                 progressText = new TextView(context);
                 progressText.setTextColor(Theme.SECONDARY_TEXT_COLOR);
-                progressText.setTextSize(progressText.dp(8));
+                progressText.setTextSize(Theme.TEXT_SIZE_NORMAL);
                 LinearLayout.LayoutParams params3 = new LinearLayout.LayoutParams(MATCH_PARENT, base.dp(16));
                 params3.setMargins(0, side.dp(4), 0, 0);
                 musicInfo.addView(progressText, params3);
@@ -255,7 +256,7 @@ public class MainFragment extends Fragment {
                 skipCurrentButton = new Button(context);
                 skipCurrentButton.setFocusable(true);
                 skipCurrentButton.setClickable(true);
-                skipCurrentButton.setTextSize(skipCurrentButton.dp(8));
+                skipCurrentButton.setTextSize(Theme.TEXT_SIZE_NORMAL);
                 skipCurrentButton.setTextColor(Theme.NORMAL_TEXT_COLOR);
                 skipCurrentButton.setGravity(Gravity.CENTER);
                 skipCurrentButton.setText(I18n.get("music_hud.button.voteForSkip"));
@@ -286,9 +287,15 @@ public class MainFragment extends Fragment {
 
                 musicInfo.addView(skipCurrentButton, buttonParams);
                 musicInfo.setMinimumHeight(side.dp(128));
+                LayoutTransition transition1 = new LayoutTransition();
+                transition1.enableTransitionType(LayoutTransition.CHANGING);
+                musicInfo.setLayoutTransition(transition1);
 
                 side.addView(musicInfo, params1);
                 side.addView(sideMenu, params);
+                LayoutTransition transition2 = new LayoutTransition();
+                transition2.enableTransitionType(LayoutTransition.CHANGING);
+                side.setLayoutTransition(transition1);
                 base.addView(side, params);
 
                 switchMusic(currentlyPlayingMusicDetail, playingInfo.getLyricLines());

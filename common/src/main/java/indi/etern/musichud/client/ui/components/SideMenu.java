@@ -127,8 +127,8 @@ public class SideMenu extends FrameLayout {
         button.setFocusable(true);
         button.setClickable(true);
         button.setId(id);
-        button.setText("   " + text);//TODO i18n
-        button.setTextSize(dp(10));
+        button.setText("   " + text);
+        button.setTextSize(Theme.TEXT_SIZE_LARGE);
         button.setTextColor(Theme.EMPHASIZE_TEXT_COLOR);
         button.setGravity(Gravity.CENTER_VERTICAL);
 
